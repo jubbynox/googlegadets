@@ -1,0 +1,101 @@
+div#searchResults
+{
+	display: none;
+}
+
+div#results
+{
+	font-size: 11px
+}
+
+div#Searching
+{
+	font-style: italic;
+}
+
+div#TrackBatch
+{
+	border: 1px solid #000000;
+	padding: 2px;
+	padding-bottom: 10px;
+	background-color: #AAAAFF;
+}
+
+div#TBHead
+{
+	text-align: center;
+	background-color: #EEEEFF;
+	/*border-bottom: 1px solid #000000;*/
+}
+
+div#TBIndexName
+{
+	font-weight: bold;
+	font-size: 14px;
+}
+
+div#TBURL
+{
+	font-style: italic;
+}
+
+div#TBMatched
+{
+	/*border-bottom: 1px solid #000000;*/
+	padding: 2px;
+}
+
+div#TBMatchedHead
+{
+	background-color: #FAFAFF;
+	font-weight: bold;
+	padding-left: 10px;
+}
+
+div#TBMatchedBody
+{
+	padding-left: 5px;
+	background-color: #FAFAFF;
+}
+
+div#TBOther
+{
+	/*border-bottom: 1px solid #000000;*/
+	padding: 2px;
+}
+
+div#TBOtherHead
+{
+	background-color: #FAFAFF;
+	font-weight: bold;
+	padding-left: 10px;
+}
+
+.centeredImage
+{
+	text-align:center;
+	margin-top:0px;
+	margin-bottom:0px;
+	padding:0px;
+}
+
+div#TBOtherBody
+{
+	padding-left: 5px;
+	background-color: #FAFAFF;
+}
+
+div#Track
+{
+	background-color: #FEFEFF;
+}
+
+div#TrackAlt
+{
+	background-color: #F2F2FF;
+}
+
+div#TrackNone
+{
+	font-style: italic;
+}
