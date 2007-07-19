@@ -113,6 +113,7 @@ function search(searchString)
 	results = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, searchingDIV);
+	_IG_AdjustIFrameHeight();
 	
 	// Setup the search string for the MP3 search.
 	searchString = searchString.replace(/\s/g, ".");
