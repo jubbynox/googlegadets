@@ -248,6 +248,11 @@ function refreshResults()
 	{
 		writeDiv('results', null, resultHTML);
 	}
+	
+	if (resultCounter == 0)
+	{
+		_IG_AdjustIFrameHeight();
+	}
 }
 
 
