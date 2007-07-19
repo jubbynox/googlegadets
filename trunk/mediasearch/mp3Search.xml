@@ -16,7 +16,7 @@
 	  <div id="searchResults"/>Loading...</div>
 	  <div id="results"></div>
 	  
-	  <!--script>_IG_AdjustIFrameHeight();</script-->
+	  <script>_IG_AdjustIFrameHeight();</script>
 		
 		]]>
 	</Content>
