@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="MP3 Search">
+	<ModulePrefs title="MP3 Search" scrolling="true">
 		<Require feature="dynamic-height"/>
 	</ModulePrefs>
 	<Content type="html">
