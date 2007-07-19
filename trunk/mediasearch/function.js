@@ -28,6 +28,8 @@ function toggleOtherResults(id)
 		region.style.display = '';
 		document[imageName].src = hostingURL + "up.jpg";
 	}
+	
+	_IG_AdjustIFrameHeight();
 }
 
 // Setup the Google search control.	
