@@ -103,6 +103,9 @@ function writeDiv(ID,parentID,URL)
 // Main search function.
 function search(searchString)
 {
+	// Log search.
+	_IG_Analytics("UA-2268697-1", "/mediaSearch/search");
+	
 	// Store the original search string.
 	searchCriteria = searchString;
 	
