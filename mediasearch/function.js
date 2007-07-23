@@ -130,6 +130,20 @@ function search(searchString)
 }
 
 
+// Clears the search results.
+function clear()
+{
+	// Stop any existing search.
+	searchControl.cancelSearch();
+	
+	// Clear the results.
+	results = new Array();
+	resultCounter = 0;
+	writeDiv('results', null, "");
+	_IG_AdjustIFrameHeight();
+}
+
+
 // Loads the tracks from the page.
 function loadTracks(responseText, url, currSearchCriteria)
 {
