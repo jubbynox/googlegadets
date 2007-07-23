@@ -131,7 +131,7 @@ function search(searchString)
 
 
 // Clears the search results.
-function clear()
+function clearResults()
 {
 	// Stop any existing search.
 	searchControl.cancelSearch();
