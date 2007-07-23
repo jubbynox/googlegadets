@@ -13,6 +13,7 @@
 	  <form name="searchForm" method="post"  action="" onSubmit="return search(document.searchForm.searchInput.value)">
 			<input type="text" name="searchInput" size="15"/>
 			<input type="submit" name="searchButton" value="Search"/>
+			<input type="button" name="clearButton" onclick="clear()"/>
 		</form>
 	  <div id="searchResults"/>Loading...</div>
 	  <div id="results"></div>
