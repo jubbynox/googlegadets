@@ -97,6 +97,9 @@ function writeDiv(ID,parentID,URL)
 	{
 		document.all[ID].innerHTML = URL;
 	}
+	
+	// Resize the frame.
+	_IG_AdjustIFrameHeight();
 }
 
 
@@ -116,7 +119,6 @@ function search(searchString)
 	results = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, searchingDIV);
-	_IG_AdjustIFrameHeight();
 	
 	// Setup the search string for the MP3 search.
 	searchString = searchString.replace(/\s/g, ".");
@@ -140,7 +142,6 @@ function clearResults()
 	results = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, "");
-	_IG_AdjustIFrameHeight();
 }
 
 
