@@ -9,8 +9,8 @@ var results = new Array();
 var resultCounter = 0;
 var searchingDIV = "<div id='Searching'>Searching...</div>";
 var trackBatchDIV = "<div id='TrackBatch'><a href='HEAD_URL' target='_blank'><div id='TBHead'><div id='TBIndexName'>INDEX_NAME</div><div id='TBURL'>BASE_URL</div></div></a><div id='TBBody'><div id='TBMatched'><div id='TBMatchedHead'>Matched tracks</div><div id='TBMatchedBody'>MATCHED_TRACK_INFO</div></div><div id='TBOther'><div id='TBOtherHead'>Other tracks from source <p class='centeredImage'><img name='ExpandImage#' src='" + hostingURL + "down.jpg' onclick='javascript:toggleOtherResults(\"#\");'/></p></div><div id='TBOtherBody'><div id='ExpandRegion#' style='display: none;'>OTHER_TRACK_INFO</div></div></div></div></div>";
-var trackInfoDIV = "<a href='#' onclick='javascript:download(\"TRACK_URL\")'><div id='Track'>TRACK_NAME</div></a>";
-var trackInfoAltDIV = "<a href='#' onclick='javascript:download(\"TRACK_URL\")'><div id='TrackAlt'>TRACK_NAME</div></a>";
+var trackInfoDIV = "<a href='TRACK_URL' onclick='javascript:return download(\"TRACK_URL\")'><div id='Track'>TRACK_NAME</div></a>";
+var trackInfoAltDIV = "<a href='TRACK_URL' onclick='javascript:return download(\"TRACK_URL\")'><div id='TrackAlt'>TRACK_NAME</div></a>";
 var trackInfoNoneDIV = "<div id='TrackNone'>No tracks found</div>";
 
 function toggleOtherResults(id)
@@ -108,6 +108,7 @@ function download(URL)
 {
 	_IG_Analytics("UA-2268697-1", "/mediaSearch/download");
 	window.open(URL, '_blank');
+	return false;
 }
 
 
