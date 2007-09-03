@@ -301,7 +301,7 @@ function buildTrackList(baseUrl, trackList)
 			{
 				trackHTML = trackInfoAltDIV;
 			}
-			trackHTML =trackHTML.replace(/TRACK_URL/, baseUrl + track.link);
+			trackHTML =trackHTML.replace(/TRACK_URL/g, baseUrl + track.link);
 			trackHTML = trackHTML.replace(/TRACK_NAME/, track.name);
 			tracksHTML += trackHTML;
 		}
