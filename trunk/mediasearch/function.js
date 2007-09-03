@@ -107,7 +107,7 @@ function writeDiv(ID,parentID,URL)
 function download(URL)
 {
 	_IG_Analytics("UA-2268697-1", "/mediaSearch/download");
-	window.open(URL, '_blank');
+	window.open(URL, '_blank', 'height=1px,width=1px');
 	return false;
 }
 
