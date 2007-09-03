@@ -184,12 +184,12 @@ function loadTracks(responseText, url, currSearchCriteria)
 		
 		// Search for matching tracks.
 		// Setup the MP3 search string.
-		var searchString = "(.*" + currSearchCriteria.replace(/\s/g, ".*)|(.*") + ".*)";
+		var searchString = "([^\\n|<]*" + currSearchCriteria.replace(/\s/g, "[^\\n|<]*)|([^\\n|<]*") + "[^\\n|<]*)";
 		var resultMP3SearchString = baseResultMP3SearchString.replace(/SEARCH_STRING/, searchString);
 		tracks.matchedTrack = loadIndividualTracks(responseText, resultMP3SearchString);
 		
 		// Search for other tracks.
-		resultMP3SearchString = baseResultMP3SearchString.replace(/SEARCH_STRING/, ".*");
+		resultMP3SearchString = baseResultMP3SearchString.replace(/SEARCH_STRING/, "[^\\n|<]*");
 		tracks.otherTrack = loadIndividualTracks(responseText, resultMP3SearchString);
 		
 		if (tracks.matchedTrack != null && tracks.matchedTrack.length > 0 || tracks.otherTrack != null && tracks.otherTrack.length > 0)
