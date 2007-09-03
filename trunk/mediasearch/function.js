@@ -8,7 +8,7 @@ var searchCriteria;
 var results = new Array();
 var resultCounter = 0;
 var searchingDIV = "<div id='Searching'>Searching...</div>";
-var trackBatchDIV = "<div id='TrackBatch'><a href='HEAD_URL' target='_blank'><div id='TBHead'><div id='TBIndexName'>INDEX_NAME</div><div id='TBURL'>BASE_URL</div></div></a><div id='TBBody'><div id='TBMatched'><div id='TBMatchedHead'>Matched tracks</div><div id='TBMatchedBody'>MATCHED_TRACK_INFO</div></div><div id='TBOther'><div id='TBOtherHead'>Other tracks from source <p class='centeredImage'><img name='ExpandImage#' src='" + hostingURL + "down.jpg' onclick='javascript:toggleOtherResults(\"#\");'/></p></div><div id='TBOtherBody'><div id='ExpandRegion#' style='display: none;'>OTHER_TRACK_INFO</div></div></div></div></div>";
+var trackBatchDIV = "<div id='TrackBatch'><a href='HEAD_URL' onclick='javascript: return openWindow(\"HEAD_URL\", \"/mediaSearch/openExternalLink\")'><div id='TBHead'><div id='TBIndexName'>INDEX_NAME</div><div id='TBURL'>BASE_URL</div></div></a><div id='TBBody'><div id='TBMatched'><div id='TBMatchedHead'>Matched tracks</div><div id='TBMatchedBody'>MATCHED_TRACK_INFO</div></div><div id='TBOther'><div id='TBOtherHead'>Other tracks from source <p class='centeredImage'><img name='ExpandImage#' src='" + hostingURL + "down.jpg' onclick='javascript:toggleOtherResults(\"#\");'/></p></div><div id='TBOtherBody'><div id='ExpandRegion#' style='display: none;'>OTHER_TRACK_INFO</div></div></div></div></div>";
 var trackInfoDIV = "<a href='TRACK_URL' onclick='javascript:return download(\"TRACK_URL\")'><div id='Track'>TRACK_NAME</div></a>";
 var trackInfoAltDIV = "<a href='TRACK_URL' onclick='javascript:return download(\"TRACK_URL\")'><div id='TrackAlt'>TRACK_NAME</div></a>";
 var trackInfoNoneDIV = "<div id='TrackNone'>No tracks found</div>";
@@ -100,6 +100,15 @@ function writeDiv(ID,parentID,URL)
 	
 	// Resize the frame.
 	_IG_AdjustIFrameHeight();
+}
+
+
+// Opens a new window.
+function openWindow(URL, analyticUrl)
+{
+	_IG_Analytics("UA-2268697-1", analyticUrl);
+	window.open(URL, '_blank');
+	return false;
 }
 
 
@@ -258,7 +267,7 @@ function refreshResults()
 	{
 		var tracks = results[resultIndex];
 		var trackBatchHTML = trackBatchDIV.replace(/#/g, resultIndex);
-		trackBatchHTML = trackBatchHTML.replace(/HEAD_URL/, tracks.baseUrl);
+		trackBatchHTML = trackBatchHTML.replace(/HEAD_URL/g, tracks.baseUrl);
 		trackBatchHTML = trackBatchHTML.replace(/INDEX_NAME/, tracks.indexName);
 		trackBatchHTML = trackBatchHTML.replace(/BASE_URL/, tracks.baseUrl);
 		trackBatchHTML = trackBatchHTML.replace(/MATCHED_TRACK_INFO/, buildTrackList(tracks.baseUrl, tracks.matchedTrack));
