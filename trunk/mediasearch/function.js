@@ -1,7 +1,7 @@
 // Constants and global variables.
 var baseSearchString = 'intitle:"index.of" (mp3) SEARCH_STRING -html -htm -php -asp -cf -jsp -aspx -pdf -doc';
 var resultTitleSearchString = "<title>index\\s*of\\s*(.*)</title>";
-var baseResultMP3SearchString = "<a href=['|\"](.*\\.mp3)['|\"]>(SEARCH_STRING)</a>";
+var baseResultMP3SearchString = "<a href=['|\"]([^\\n|'|\"]*\\.mp3)['|\"]>(SEARCH_STRING)</a>";
 var hostingURL = "http://gadgets.banacek.org/mediasearch/";
 // The current search criteria.
 var searchCriteria;
