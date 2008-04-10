@@ -1,7 +1,7 @@
 // Constants and global variables.
 var baseSearchString = 'intitle:"index.of" (mp3) SEARCH_STRING -html -htm -php -asp -cf -jsp -aspx -pdf -doc';
 var resultTitleSearchString = "<title>index\\s*of\\s*(.*)</title>";
-var baseResultMP3SearchString = "<a href=['|\"]([^\\n|'|\"|\\?]*\\.mp3)['|\"]>(SEARCH_STRING)</a>";
+var baseResultMP3SearchString = "<a href=['|\"]([^\\n|'|\"|\\?|&]*\\.mp3)['|\"]>(SEARCH_STRING)</a>";
 var hostingURL = "http://gadgets.banacek.org/mediasearch/";
 // The current search criteria.
 var searchCriteria;
@@ -102,6 +102,19 @@ function writeDiv(ID,parentID,URL)
 	_IG_AdjustIFrameHeight();
 }
 
+// Sets the value of a control.
+function setControlValue(ID,value)
+{
+  if (parseInt(navigator.appVersion)>=5&&navigator.appName=="Netscape")
+	{
+		document.getElementById(ID).value = value;
+	}
+	else if (document.all)
+	{
+		document.all[ID].value = value;
+	}
+}
+
 
 // Opens a new window.
 function openWindow(URL, analyticUrl)
@@ -160,6 +173,9 @@ function clearResults()
 	results = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, "");
+	
+	// Clear the input box.
+	setControlValue("searchInput", "");
 }
 
 
@@ -310,7 +326,7 @@ function buildTrackList(baseUrl, trackList)
 			{
 				trackHTML = trackInfoAltDIV;
 			}
-			trackHTML =trackHTML.replace(/TRACK_URL/g, baseUrl + track.link);
+			trackHTML = trackHTML.replace(/TRACK_URL/g, baseUrl + track.link);
 			trackHTML = trackHTML.replace(/TRACK_NAME/, track.name);
 			tracksHTML += trackHTML;
 		}
