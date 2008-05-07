@@ -152,6 +152,7 @@ function search(searchString)
 	resultProgress = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, searchingDIV);
+	showProgress(0);
 	
 	// Setup the search string for the MP3 search.
 	searchString = searchString.replace(/\s/g, ".");
@@ -380,6 +381,6 @@ function showProgress(totProgress)
 	}
 	else
 	{
-		writeDiv('progress', null, totProgress);
+		writeDiv('progress', null, totProgress + ' ' + resultCounter);
 	}
 }
