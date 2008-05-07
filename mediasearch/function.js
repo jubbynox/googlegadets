@@ -243,7 +243,7 @@ function loadIndividualTracks(responseText, resultMP3SearchString, indexJump)
 	var trackIndex = 0;
 	
 	// Perform the MP3 track search.
-	var trackRegEx = new RegExp(resultMP3SearchString, "i");
+	var trackRegEx = new RegExp(resultMP3SearchString, "ig");
 	var trackMatch = trackRegEx.exec(responseText);
 	while (trackMatch != null && trackMatch.length > 0 )
 	{
@@ -256,7 +256,7 @@ function loadIndividualTracks(responseText, resultMP3SearchString, indexJump)
 		trackIndex++;
 		
 		// Remove this match and search again.
-		responseText = responseText.replace(trackRegEx, "");
+		//responseText = responseText.replace(trackRegEx, "");
 		trackMatch = trackRegEx.exec(responseText);
 	}
 
