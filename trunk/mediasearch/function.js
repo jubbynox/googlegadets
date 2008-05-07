@@ -200,8 +200,6 @@ function loadTracks(responseText, url, currSearchCriteria, resultNumber)
 	tracks.otherTrack[].name
 	*/
 	
-	alert(resultNumber);
-	
 	// Check that the URL isn't a request string.
 	if (url.match(/\?/))
 	{
@@ -377,12 +375,23 @@ function updateProgress(resultNumber, fractionDone)
 
 function showProgress(totProgress)
 {
+	var progressBar;
+	if (parseInt(navigator.appVersion)>=5&&navigator.appName=="Netscape")
+	{
+		progressBar = document.getElementById('progressBar');
+	}
+	else if (document.all)
+	{
+		progressBar = document.all['progressBar'];
+	}
+	
 	if (totProgress == 1 || totProgress == 0)
 	{
-		writeDiv('progress', null, '');
+		progressBar.style.display = 'none';
 	}
 	else
 	{
-		writeDiv('progress', null, totProgress + ' ' + resultCounter);
+		progressBar.style.display = '';
+		progressBar.style.width = (totProgress*100)+"%";
 	}
 }

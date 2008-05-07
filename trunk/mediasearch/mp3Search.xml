@@ -15,8 +15,8 @@
 			<input type="submit" name="searchButton" value="Search"/>
 			<input type="button" name="clearButton" value="Clear" onclick="clearResults()"/>
 		</form>
-		<div id="progress"/></div>
-	  <div id="searchResults"/>Loading...</div>
+		<div id="searchResults"/>Loading...</div>
+		<div id="progress"/><div id='progressBar'></div></div>
 	  <div id="results"></div>
 	  
 	  <script>_IG_AdjustIFrameHeight();</script>
