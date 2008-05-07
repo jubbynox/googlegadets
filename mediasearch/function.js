@@ -45,8 +45,6 @@ function OnLoad()
 	searchControl.draw(document.getElementById("searchResults"), options);
 	searchControl.setSearchCompleteCallback(this, onGoogleSearchComplete);
 	searchControl.setResultSetSize(GSearch.LARGE_RESULTSET);
-	
-	showProgress(0);
 }
 
 

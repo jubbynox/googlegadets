@@ -4,6 +4,7 @@ div#progress
 	padding: 1px;
 	margin-bottom: 2px;
 	font-size: 3px;
+	display: none;
 }
 
 div#progressBar
