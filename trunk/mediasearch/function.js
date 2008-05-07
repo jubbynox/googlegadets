@@ -376,22 +376,25 @@ function updateProgress(resultNumber, fractionDone)
 function showProgress(totProgress)
 {
 	var progressBar;
+	var progressArea;
 	if (parseInt(navigator.appVersion)>=5&&navigator.appName=="Netscape")
 	{
+		progressArea = document.getElementById('progress');
 		progressBar = document.getElementById('progressBar');
 	}
 	else if (document.all)
 	{
+		progressArea = document.all['progress'];
 		progressBar = document.all['progressBar'];
 	}
 	
 	if (totProgress == 1 || totProgress == 0)
 	{
-		progressBar.style.display = 'none';
+		progressArea.style.display = 'none';
 	}
 	else
 	{
-		progressBar.style.display = '';
+		progressArea.style.display = '';
 		progressBar.style.width = (totProgress*100)+"%";
 	}
 }
