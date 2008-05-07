@@ -200,12 +200,13 @@ function loadTracks(responseText, url, currSearchCriteria, resultNumber)
 	tracks.otherTrack[].name
 	*/
 	
+	alert(resultNumber);
+	
 	// Check that the URL isn't a request string.
 	if (url.match(/\?/))
 	{
 		updateProgress(resultNumber, 1);	// This result has finished.
 		refreshResults();
-		alert("not displaying");
 		return;
 	}
 	
