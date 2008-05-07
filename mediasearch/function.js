@@ -173,8 +173,10 @@ function clearResults()
 	
 	// Clear the results.
 	results = new Array();
+	resultProgress = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, "");
+	showProgress(0);
 	
 	// Clear the input box.
 	setControlValue("searchInput", "");
@@ -356,12 +358,28 @@ function updateProgress(resultNumber, fractionDone)
 {
 	resultProgress[resultNumber] = fractionDone;
 	var totProgress = 0;
-	for (resultProgressIndex = 0; resultProgressIndex < resultProgress.length; resultProgressIndex++)
+	if (resultCounter > 0)
 	{
-		if (resultCounter > 0)
+		for (resultProgressIndex = 0; resultProgressIndex < resultProgress.length; resultProgressIndex++)
 		{
-			totProgress += resultProgress[resultProgressIndex] / resultCounter;
+			if (resultProgress[resultProgressIndex] >= 0)
+			{
+				totProgress += resultProgress[resultProgressIndex] / resultCounter;
+			}
 		}
 	}
-	writeDiv('progress', null, totProgress);
+	
+	showProgress(totProgress);
+}
+
+function showProgress(totProgress)
+{
+	if (totProgress == 1 || totProgress == 0)
+	{
+		writeDiv('progress', null, '');
+	}
+	else
+	{
+		writeDiv('progress', null, totProgress);
+	}
 }
