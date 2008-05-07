@@ -205,6 +205,7 @@ function loadTracks(responseText, url, currSearchCriteria, resultNumber)
 	{
 		updateProgress(resultNumber, 1);	// This result has finished.
 		refreshResults();
+		alert("not displaying");
 		return;
 	}
 	
