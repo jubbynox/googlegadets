@@ -7,6 +7,7 @@ var hostingURL = "http://gadgets.banacek.org/mediasearch/";
 var searchCriteria;
 var results = new Array();
 var resultCounter = 0;
+var resultProgress = new Array();
 var searchingDIV = "<div id='Searching'>Searching...</div>";
 var trackBatchDIV = "<div id='TrackBatch'><a href='HEAD_URL' onclick='javascript: return openWindow(\"HEAD_URL\", \"/mediaSearch/openExternalLink\")'><div id='TBHead'><div id='TBIndexName'>INDEX_NAME</div><div id='TBURL'>BASE_URL</div></div></a><div id='TBBody'><div id='TBMatched'><div id='TBMatchedHead'>Matched tracks</div><div id='TBMatchedBody'>MATCHED_TRACK_INFO</div></div><div id='TBOther'><div id='TBOtherHead'>Other tracks from source <p class='centeredImage'><img name='ExpandImage#' src='" + hostingURL + "down.jpg' onclick='javascript:toggleOtherResults(\"#\");'/></p></div><div id='TBOtherBody'><div id='ExpandRegion#' style='display: none;'>OTHER_TRACK_INFO</div></div></div></div></div>";
 var trackInfoDIV = "<a href='TRACK_URL' onclick='javascript:return download(\"TRACK_URL\")'><div id='Track'>TRACK_NAME</div></a>";
@@ -56,7 +57,7 @@ onGoogleSearchComplete = function(searchControl, searcher)
 		for (var i = 0; i < searcher.results.length; i++)
 		{
     	var result = searcher.results[i];
-    	_IG_FetchContent(result.unescapedUrl, _IG_Callback(loadTracks, result.unescapedUrl, searchCriteria));
+    	_IG_FetchContent(result.unescapedUrl, _IG_Callback(loadTracks, result.unescapedUrl, searchCriteria, i));
     	//break;
     }
   }
@@ -148,6 +149,7 @@ function search(searchString)
 	
 	// Clear the results.
 	results = new Array();
+	resultProgress = new Array();
 	resultCounter = 0;
 	writeDiv('results', null, searchingDIV);
 	
@@ -180,10 +182,10 @@ function clearResults()
 
 
 // Loads the tracks from the page.
-function loadTracks(responseText, url, currSearchCriteria)
+function loadTracks(responseText, url, currSearchCriteria, resultNumber)
 {
 	// Decrement the result counter.
-	resultCounter--;
+	//resultCounter--;
 	
 	/*
 	tracks object:
@@ -198,6 +200,7 @@ function loadTracks(responseText, url, currSearchCriteria)
 	// Check that the URL isn't a request string.
 	if (url.match(/\?/))
 	{
+		updateProgress(resultNumber, 1);	// This result has finished.
 		refreshResults();
 		return;
 	}
@@ -220,11 +223,11 @@ function loadTracks(responseText, url, currSearchCriteria)
 		// Setup the MP3 search string.
 		var searchString = "([^\\n|<]*" + currSearchCriteria.replace(/\s/g, "[^\\n|<]*)|([^\\n|<]*") + "[^\\n|<]*)";
 		var resultMP3SearchString = baseResultMP3SearchString.replace(/SEARCH_STRING/, searchString);
-		tracks.matchedTrack = loadIndividualTracks(responseText, resultMP3SearchString);
+		tracks.matchedTrack = loadIndividualTracks(responseText, resultMP3SearchString, resultNumber, true);
 		
 		// Search for other tracks.
 		resultMP3SearchString = baseResultMP3SearchString.replace(/SEARCH_STRING/, "[^\\n|<]*");
-		tracks.otherTrack = loadIndividualTracks(responseText, resultMP3SearchString);
+		tracks.otherTrack = loadIndividualTracks(responseText, resultMP3SearchString, resultNumber, false);
 		
 		if (tracks.matchedTrack != null && tracks.matchedTrack.length > 0 || tracks.otherTrack != null && tracks.otherTrack.length > 0)
 		{
@@ -233,11 +236,12 @@ function loadTracks(responseText, url, currSearchCriteria)
 		}
 	}
 	
+	updateProgress(resultNumber, 1);	// This result has finished.
 	refreshResults();
 }
 
 // Loads the individual tracks into the tracks object.
-function loadIndividualTracks(responseText, resultMP3SearchString, indexJump)
+function loadIndividualTracks(responseText, resultMP3SearchString, resultNumber, matchedTracks)
 {
 	var matchedTrack = new Array();
 	var trackIndex = 0;
@@ -254,6 +258,14 @@ function loadIndividualTracks(responseText, resultMP3SearchString, indexJump)
 		matchedTrack[trackIndex].link = matchedTrack[trackIndex].link.replace(/'/g, "%27");
 		matchedTrack[trackIndex].name = trackMatch[2];
 		trackIndex++;
+		
+		// Update the progress indicator.
+		var progress = 0.5 * (trackRegEx.lastIndex + 1) / responseText.length;
+		if (!matchedTracks)
+		{
+			progress += 0.5;
+		}
+		updateProgress(resultNumber, progress);
 		
 		// Remove this match and search again.
 		//responseText = responseText.replace(trackRegEx, "");
@@ -337,4 +349,19 @@ function buildTrackList(baseUrl, trackList)
 	}
 	
 	return tracksHTML;
+}
+
+
+function updateProgress(resultNumber, fractionDone)
+{
+	resultProgress[resultNumber] = fractionDone;
+	var totProgress = 0;
+	for (resultProgressIndex = 0; resultProgressIndex < resultProgress.length; resultProgressIndex++)
+	{
+		if (resultCounter > 0)
+		{
+			totProgress += resultProgress[resultProgressIndex] / resultCounter;
+		}
+	}
+	writeDiv('progress', null, totProgress);
 }
