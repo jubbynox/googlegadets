@@ -1,0 +1,19 @@
+application: banacekmusic
+version: 1
+runtime: python
+api_version: 1
+
+default_expiration: "24h"
+
+handlers:
+- url: /telly/*.*
+  script: telly/start.py
+  
+- url: /mediasearch/method/*.*
+  script: mediasearch/start.py
+- url: /mediasearch/(.*\.(html|gif|png|jpg|js))
+  static_files: mediasearch/\1
+  upload: mediasearch/(.*\.(html|gif|png|jpg|js))
+- url: /mediasearch/*.*
+  static_files: mediasearch/index.html
+  upload: mediasearch/index.html
