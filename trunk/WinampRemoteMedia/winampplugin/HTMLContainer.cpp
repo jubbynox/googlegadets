@@ -532,7 +532,15 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 	case DISPID_ADD_TO_PLAYLIST:
 		if (pdispparams->cArgs == 3)
 		{
-			MessageBox(m_hwnd, pdispparams->rgvarg[0].bstrVal, L"AddToPlaylist", MB_OK);
+			//MessageBox(m_hwnd, pdispparams->rgvarg[2].bstrVal, L"AddToPlaylist", MB_OK);
+			// TODO check: length of parameters.
+			enqueueFileWithMetaStruct eFWMS = {0};
+			eFWMS.filename = _com_util::ConvertBSTRToString(pdispparams->rgvarg[0].bstrVal);
+			eFWMS.title = _com_util::ConvertBSTRToString(pdispparams->rgvarg[1].bstrVal);
+			eFWMS.length = -1;  // Unknown.
+			SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
+			delete [] eFWMS.filename;
+			delete [] eFWMS.title;
 		}
 		return S_OK;
 	}
