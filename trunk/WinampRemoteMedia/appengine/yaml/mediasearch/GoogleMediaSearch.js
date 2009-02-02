@@ -14,11 +14,6 @@ var GoogleMediaSearch = Base.extend(
 	SEARCH_URL: 'method/searchUrl',
 	
 	/**
-	 * The location of the Google App Engine for logging bad media.
-	 */
-	BAD_MEDIA_URL: 'method/addBadMedia',
-	
-	/**
 	 * Constructor.
 	 *
 	 * @param hiddenElementId An element ID that can be used for hiding stuff.
@@ -32,18 +27,23 @@ var GoogleMediaSearch = Base.extend(
 	
 		// Google Web search setup.
 		this.__searchControl = new google.search.SearchControl();
-		var ws = new google.search.WebSearch()
-		this.__searchControl.addSearcher(ws);
+		this.__webSearch = new google.search.WebSearch();
+		this.__searchControl.addSearcher(this.__webSearch);
 		var options = new google.search.DrawOptions();
 		this.__searchControl.draw($('#' + hiddenElementId)[0], options);
 		this.__searchControl.setSearchCompleteCallback(this, this.__onSearchComplete);
-		this.__searchControl.setResultSetSize(GSearch.LARGE_RESULTSET);
+		this.__searchControl.setResultSetSize(google.search.Search.LARGE_RESULTSET);
 	},
 	
 	/**
 	 * The Google search control.
 	 */
 	__searchControl: null,
+	
+	/**
+	 * The web search object.
+	 */
+	__webSearch: null,
 	
 	/**
 	 * The search criteria.
@@ -61,42 +61,87 @@ var GoogleMediaSearch = Base.extend(
 	__test: null,
 	
 	/**
-	 * The callback search function.
-	 *
-	 * @param searchControl The search control.
-	 * @param search The search results.
+	 * The current result index.
 	 */
-	__onSearchComplete: function(searchControl, search)
+	__resultsCounter: null,
+	
+	/**
+	 * The callback search function.
+	 */
+	__onSearchComplete: function()
 	{	
+		// Setup result counter.
+		this.__resultsCounter = 0;
+		
+		// Start processing.
+		this.__processWebSearch();
+	},
+	
+	/**
+	 * Processes the next results of the web search.
+	 */
+	__processWebSearch: function()
+	{
 		// Check that there are search results.
-		if (search.results && search.results.length > 0)
+		if (this.__webSearch.results && this.__webSearch.results.length > 0)
 		{
-			// Run through each result, getting content.
-			resultCounter = search.results.length;
-			for (var i = 0; i < search.results.length; i++)
+			// Test index.
+			if (this.__resultsCounter >= this.__webSearch.results.length)	// Get next page as all results have been processed.
 			{
-		    	this.__searchURL(search.results[i].unescapedUrl, this.getForCallback(this, this.__buildResultTree));
+				if (this.__webSearch.cursor)	// Test if there are more pages to load.
+				{
+					if (this.__webSearch.cursor.currentPageIndex < this.__webSearch.cursor.pages.length-1)
+					{
+						// Load next page of results.
+						this.__webSearch.gotoPage(this.__webSearch.cursor.currentPageIndex+1);
+					}
+				}
+			}
+			else	// Process web search.
+			{
+				var url = this.__webSearch.results[this.__resultsCounter].unescapedUrl;
+				var self = this;
+				this.__searchURL(url,
+									this.getForCallback(this, this.__buildResultTree),
+									function()
+									{
+										reportBadMedia(url, 'App Engine timed out.');	// Report the error.
+										self.__processWebSearch();	// Continue to next result.
+									});
+				// Move to next result.
+				this.__resultsCounter++;
 			}
 		}
-		else
-		{
-			// There were no results.
-		}
+	},
+	
+	/**
+	 * Called on connection error. Reports problematic URL to App Engine and then invokes fnCallback.
+	 * 
+	 * @param url The problematic URL.
+	 * @param fnCallback Function to call after reporting problematic URL.
+	 */
+	__connectionError: function(url, fnCallback)
+	{
+		
 	},
 	
 	/**
 	 * Gets more results from the URL.
 	 *
-	 * @param url The URL.
+	 * @param resultNode The existing result node that needs completing.
 	 * @param fnResultsCallback The function to call with the search results.
 	 */
-	__getMoreResults: function(url, fnResultsCallback)
+	__getMoreResults: function(resultNode, fnResultsCallback)
 	{
 		var self = this;
-		this.__searchURL(url,
+		this.__searchURL(resultNode.url,
 			function(data)
 			{
-				self.__buildResultNode(url, data, fnResultsCallback);
+				self.__buildResultNode(resultNode, data, fnResultsCallback);
+			},
+			function()
+			{
+					fnResultsCallback(null, null)
 			});
 	},
 	
@@ -104,9 +149,10 @@ var GoogleMediaSearch = Base.extend(
 	 * Searches the URL for media.
 	 *
 	 * @param url The URL.
-	 * @param fnCallback Function to call when the search completes.
+	 * @param fnCallbackSuccess Function to call when the search successfully completes.
+	 * @param fnCallbackError Function to call when the search completes in error.
 	 */
-	__searchURL: function(url, fnCallback)
+	__searchURL: function(url, fnCallbackSuccess, fnCallbackError)
 	{
 		var query = new Object();
 		query.url = url;
@@ -116,7 +162,7 @@ var GoogleMediaSearch = Base.extend(
 			query.test = test;
 		}
 
-		$.getJSON(this.SEARCH_URL, query, fnCallback);
+		getDomainJSON(this.SEARCH_URL, query, fnCallbackSuccess, fnCallbackError);
 	},
 	
 	/**
@@ -129,6 +175,12 @@ var GoogleMediaSearch = Base.extend(
 		// If there is data then continue.
 		if (data.url && (data.tracks.length > 0 || data.directories.length > 0))
 		{
+			// Remove any trailing /.
+			data.url = data.url.replace(/\/$/, '');
+			
+			// Replace %20 with space.
+			data.url = data.url.replace(/%20/g, ' ');
+		
 			// Get the result nodes up to and including the received results.
 			var resultNodes = this.__getResultNodes(data.url);
 			
@@ -141,24 +193,27 @@ var GoogleMediaSearch = Base.extend(
 			// Build the tree.
 			this.__resultsUi.addGoogleSearchResultsTree(this.__searchCriteria, resultNodes[0].name, resultNodes, data.directories, this.getForCallback(this, this.__getMoreResults));
 		}
+		
+		// Continue processing the web search.
+		this.__processWebSearch();
 	},
 	
 	/**
 	 * Handles the results from the JSON URL branch query, but only builds a result node.
 	 * The results are passed to fnResultsCallback (which is expected to complete the node building).
 	 *
-	 * @param url The original URL.
+	 * @param resultNode The original resultNode.
 	 * @param data The data returned.
 	 * @param fnResultsCallback The function to call with the search results.
 	 */
-	__buildResultNode: function(url, data, fnResultsCallback)
+	__buildResultNode: function(resultNode, data, fnResultsCallback)
 	{
 		if (data.url)
 		{
-			var resultNode = new Object();
-			resultNode.name;	// Name should already exist from query of parent.
+			//var resultNode = new Object();
+			//resultNode.name;	// Name should already exist from query of parent.
 			resultNode.title = data.title;
-			resultNode.url = data.url;	// URL should already exist from query of parent.
+			//resultNode.url = data.url;	// URL should already exist from query of parent.
 			resultNode.tracks = data.tracks;
 			resultNode.areLoaded = true;
 			
@@ -210,9 +265,6 @@ var GoogleMediaSearch = Base.extend(
 	 */
 	__getContexts: function getContexts(url)
 	{
-		// Remove trailing /.
-		url = url.replace(/\/$/, '');
-		
 		// Get protocol.
 		var parts = url.split('//');
 		
@@ -232,8 +284,9 @@ var GoogleMediaSearch = Base.extend(
 	 */
 	search: function(searchString)
 	{
-		// Stop any existing search.
+		// Stop any existing search and clear results.
 		this.__searchControl.cancelSearch();
+		this.__searchControl.clearAllResults();
 		
 		// Store the search string.
 		this.__searchCriteria = searchString;
@@ -247,7 +300,9 @@ var GoogleMediaSearch = Base.extend(
 			search.results[1] = new Object;
 			search.results[1].unescapedUrl = 'http://another/test/search/';
 			
-			this.__onSearchComplete(null, search);
+			this.__webSearch = search;
+			
+			this.__onSearchComplete();//null, search);
 		}
 		else
 		{
@@ -269,6 +324,7 @@ var GoogleMediaSearch = Base.extend(
 	{
 		// Stop any existing search.
 		this.__searchControl.cancelSearch();
+		this.__searchControl.clearAllResults();
 	}
 });
 	

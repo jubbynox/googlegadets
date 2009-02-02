@@ -4,9 +4,10 @@
 // Requires hosting page to include Google's AJAX APIs.
 google.load("search", "1")
 google.load("jquery", "1");
+google.load("jqueryui", "1");
 
 /** Global variables **/
-var test = 2;
+var test = 2; // 0, 1, 2
 var resultsUi;
 var googleMediaSearch;
 
@@ -21,7 +22,13 @@ google.setOnLoadCallback(onLoad);
  */
 function onLoad()
 {
+	// Setup default JQuery AJAX settings.
+	$.ajaxSetup({timeout: 10000});
+	
+	// Setup results pane.
 	resultsUi = new ResultsUI('ResultsPane');
+	
+	// Setup Google media search.
 	googleMediaSearch = new GoogleMediaSearch('HiddenElement', resultsUi, test);
 }
 

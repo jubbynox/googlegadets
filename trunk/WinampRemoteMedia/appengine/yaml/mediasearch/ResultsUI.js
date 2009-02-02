@@ -16,6 +16,7 @@ var ResultsUI = Base.extend(
 		// Work out height and width.
 		var width = this.__elResults.width();
 		var height = $(window).height() - this.__elResults.offset().top - 40; // Leave a gap at the bottom.
+		this.__resultsLayoutHeight = height;
 		
 		// Split the results pane into 2 for results and results target.
 		var resultsTargetId = resultsId + '_resultsTargetPane';
@@ -67,6 +68,11 @@ var ResultsUI = Base.extend(
 	 * The tabs DOM elements.
 	 */
 	__elTab: null,
+	
+	/**
+	 * The results layout height.
+	 */
+	__resultsLayoutHeight: 0,
 	
 	/**
 	 * The next searchTab number.
@@ -121,11 +127,15 @@ var ResultsUI = Base.extend(
     	}));
     	
     	// Work out the height and width of the visible tab view.
+    	// TODO resizing if many tab headings have been added.
     	if (isActive)
     	{
+    		// TODO measure yui-nav class inside ResultsPane_resultsPane_tabs instead of the follow method.
+    		var currentTabNavHeight = this.__elTab.height();
+    		
     		var activeTab = $('#' + tabId);
 			var yCoord = activeTab.offset().top;
-			this.__tabViewHeight = $(window).height() - yCoord - 20; // Leave a gap at the bottom.
+			this.__tabViewHeight = this.__resultsLayoutHeight - currentTabNavHeight;
 			this.__tabViewWidth = activeTab.width();
     	}
     	

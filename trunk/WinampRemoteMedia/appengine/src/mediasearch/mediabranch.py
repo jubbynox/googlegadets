@@ -1,6 +1,7 @@
 import re
 
 from google.appengine.api import urlfetch
+from mediasearch.db.dao import DaoBadMedia
 
 RE_RESULT_TITLE_SEARCH = r"<title>index\s*of\s*(.*)</title>"
 RE_MP3_SEARCH = "(?:<a href=\"([^\\n|\"|\\?]*?\\.mp3)\">([^\\n|<]*?)</a>)|(?:<a href='([^\\n|'|\\?]*?\\.mp3)'>([^\\n|<]*?)</a>)";
@@ -33,8 +34,11 @@ class Branch:
         # Get the Web page content.
         result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
         if result.status_code != 200:
-            # Website did not respond.
+            # Website did not respond correctly. Report error.
+            DaoBadMedia.add(url, 'Bad response fetching URL content.')
             return
+        # Ensure the content is in the right format.
+        result.content = result.content.decode('utf-8', 'ignore')
         
         # Set the branch title.
         if not self.__setTitle(result.content):
@@ -119,12 +123,13 @@ class Branch:
                     directory.name = match.group(4)
                     
                 # Ensure only relative links are returned.
-                matches = re.search(r'([^/]+)/?$', directory.context)
-                if matches:
-                    directory.context = matches.group(1)
-                    # Only add directories that are not the parent.
-                    if not re.search('parent', directory.name, re.I):
-                        self.directories.append(directory)
+                if directory.context:
+                    matches = re.search(r'([^/]+)/?$', directory.context)
+                    if matches:
+                        directory.context = matches.group(1)
+                        # Only add directories that are not the parent.
+                        if not re.search('parent', directory.name, re.I):
+                            self.directories.append(directory)
                 
                 
 class Track:
