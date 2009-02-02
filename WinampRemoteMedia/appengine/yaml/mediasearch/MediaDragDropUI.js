@@ -16,12 +16,23 @@ var MediaResultsUI = Base.extend(
 		this.__elMediaResults = $("#" + resultsId);
 		this.__boundaryElement = boundaryElement;
 		this.__webToHostAppInteraction = webToHostAppInteraction;
+		
+		// Add list element.
+		var listId = resultsId + '_list';
+		var listHtml = this.__RESULTS_HTML.replace('ID', listId);
+		this.__elMediaResults.append(listHtml);
+		this.__elMediaList = $("#" + listId);
 	},
 	
 	/**
 	 * The HTML of a track.
 	 */
-	__MEDIA_HTML: '<div id="ID">NAME<input type="hidden" id="name" value="NAME"/><input type="hidden" id="url" value="URL"/></div>',
+	__MEDIA_HTML: '<li id="ID">CONTENT</li>',//<div id="ID">NAME<input type="hidden" id="name" value="NAME"/><input type="hidden" id="url" value="URL"/></div>',
+	
+	/**
+	 * The HTML of the results.
+	 */
+	__RESULTS_HTML: '<ul id="ID" style="list-style:none; cursor: default;"></ul>',
 	
 	/**
 	 * Regular expression to match all 'NAME' strings.
@@ -32,6 +43,11 @@ var MediaResultsUI = Base.extend(
 	 * The track pane element.
 	 */
 	__elMediaResults: null,
+	
+	/**
+	 * The media list element.
+	 */
+	__elMediaList: null,
 	
 	/**
 	 * The boundary element.
@@ -81,15 +97,39 @@ var MediaResultsUI = Base.extend(
 			}
 		}
 		
-		// Build the media result objects - matched media first.
+		// Recombine into one list.
+		var allMedia = new Array();
 		for (mediaIndex in matchedMedia)
+		{
+			allMedia[allMedia.length] = matchedMedia[mediaIndex];
+		}
+		for (mediaIndex in unmatchedMedia)
+		{
+			allMedia[allMedia.length] = unmatchedMedia[mediaIndex];
+		}
+		
+		// Asynchronously build the media list.
+		var self = this;
+		new ThreadedLoop(allMedia, function(mediaElement)
+									{
+										//self.__mediaResult[self.__mediaResult.length] = self.__addMedia(mediaElement);
+										self.__addMedia(mediaElement);
+									},
+									500, 20,
+									function()
+									{
+										self.__refreshList();
+									});
+		
+		// Build the media result objects - matched media first.
+		/*for (mediaIndex in matchedMedia)
 		{
 			this.__mediaResult[this.__mediaResult.length] = this.__addMedia(matchedMedia[mediaIndex]);
 		}
 		for (mediaIndex in unmatchedMedia)
 		{
 			this.__mediaResult[this.__mediaResult.length] = this.__addMedia(unmatchedMedia[mediaIndex]);
-		}
+		}*/
 	},
 	
 	/**
@@ -102,16 +142,29 @@ var MediaResultsUI = Base.extend(
 	__addMedia: function(media)
 	{
 		// Make the new ID.
-		var id = this.__elMediaResults.attr('id') + '_media' + this.__currentIDCounter++;
+		//var id = this.__elMediaResults.attr('id') + '_media' + this.__currentIDCounter++;
+		var id = this.__elMediaList.attr('id') + '_media' + this.__currentIDCounter++;
 		
 		// Make the HTML.
-		var mediaHTML = this.__MEDIA_HTML.replace('ID', id).replace(this.__NAME_SEARCH, media.name).replace('URL', media.url);
+		//var mediaHTML = this.__MEDIA_HTML.replace('ID', id).replace(this.__NAME_SEARCH, media.name).replace('URL', media.url);
+		var mediaHTML = this.__MEDIA_HTML.replace('ID', id).replace('CONTENT', media.name);
 		
 		// Add to media pane.
-		var elMedia = this.__elMediaResults.append(mediaHTML);
+		//var elMedia = this.__elMediaResults.append(mediaHTML);
+		this.__elMediaList.append(mediaHTML);
 		
 		// Create a draggable element.
-		return new MediaResult(id, this.__boundaryElement, this.__webToHostAppInteraction, media);
+		//return new MediaResult(id, this.__boundaryElement, this.__webToHostAppInteraction, media);
+		// Create a result object.
+		new ResultElement(id, media.url);
+	},
+	
+	/**
+	 * Refreshes the list (makes it selectable).
+	 */
+	__refreshList: function()
+	{
+		this.__elMediaList.selectable({autoRefresh: false});
 	},
 	
 	/**
@@ -119,8 +172,8 @@ var MediaResultsUI = Base.extend(
 	 */
 	__clearMedia: function()
 	{
-		// Clear results pane.
-		this.__elMediaResults.empty();
+		// Clear results list.
+		this.__elMediaList.empty();
 		
 		// Reset ID counter.
 		this.__currentIDCounter = 0;
@@ -151,6 +204,53 @@ var MediaResultsUI = Base.extend(
 
 
 /**
+ * A result.
+ */
+var ResultElement = Base.extend(
+{
+	/**
+	 * Constructor.
+	 *
+	 * @param resultId The element ID of result HTML element.
+	 * @param url The URL of the result.
+	 */
+	constructor: function(resultId, url)
+	{
+		// Assign data and onClick event.
+		this.__url = url;
+		var elResult = $("#" + resultId);
+		elResult.click(function(self)
+							{
+								return function()
+								{
+									elResult.addClass("ui-selected");
+								};
+							}(elResult));
+		elResult.dblclick(function(self)
+							{
+								return function()
+								{
+									self.onDblClick();
+								};
+							}(this));
+	},
+	
+	/**
+	 * The url.
+	 */
+	__url: null,
+	
+	/**
+	 * On double click function.
+	 */
+	onDblClick: function()
+	{
+		alert(this.__url);
+	}
+});
+
+
+/**
  * A drag-drop media result.
  * 
  * @param id The ID of this element.
@@ -176,6 +276,7 @@ YAHOO.extend(MediaResult, YAHOO.util.DDProxy,
     __type: "MediaResult",
     
     /**
+     * 
      * The start position.
      */
     __startPos: null,

@@ -44,10 +44,10 @@ class AddComments(webapp.RequestHandler):
 class AddBadMedia(webapp.RequestHandler):
     """Entry point for adding bad media."""
     def post(self):
-        logging.info(self.request.body)
-        dataIn = convertJsonInputToObject(self.request.body)
-        if dataIn.directoryUrl and dataIn.mediaUrl:
-            DaoBadMedia.add(dataIn.directoryUrl, dataIn.mediaUrl)
+        directoryUrl = self.request.get("directoryUrl")
+        mediaUrl = self.request.get("mediaUrl")
+        if directoryUrl and mediaUrl:
+            DaoBadMedia.add(directoryUrl, mediaUrl)
         
         
 def convertJsonInputToObject(jsonIn):

@@ -59,6 +59,20 @@ var GoogleMediaResultsUI = Base.extend(
 		{
 			oData.searchResults = resultNodes[resultIndex];
 			currNode = new MediaNode(oData, currNode);
+			// Add the dynamic load function, so that it can be called at any time (as well as on node expansion)
+			var self = this;
+			currNode.fnLoadResults =
+									function()
+									{
+										this.isLoading = true;
+    									this.refresh();
+										var node = this;
+										self.__nodeExpanded(this, function()
+											{
+												node.isLoading = false;
+												node.refresh();
+											}, fnGetMoreResults);
+									};
 		}
 
 		// Add result directories to last result node.
@@ -77,36 +91,65 @@ var GoogleMediaResultsUI = Base.extend(
 	 */
 	__buildDynamicChildren: function(parentNode, resultDirectories, fnGetMoreResults)
 	{
-		var self = this;
+		var continueChildCheck = true;
 		var oData = new Object();
 	 	oData.expanded = false;
 	 	oData.tracksPaneUi = parentNode.getTracksPaneUi();
 		for (resultDirectoryIndex in resultDirectories)
 		{
+			// Remove any trailing /.
+			resultDirectories[resultDirectoryIndex].name = resultDirectories[resultDirectoryIndex].name.replace(/\/$/, '');
+			
+			// Check whether to add this child (it may already exist).
+			if (continueChildCheck && parentNode.doesChildExist(resultDirectories[resultDirectoryIndex].name))
+			{
+				// The child already exists skip to the next one (no need to check for match after this too!).
+				continueChildCheck = false;
+				continue;
+			}
+			
+			// Construct oData object.
 			oData.searchResults = resultDirectories[resultDirectoryIndex];
 			oData.searchResults.url = parentNode.getSearchResults().url + '/' + oData.searchResults.context;
-			newNode = new MediaNode(oData, parentNode);
 			
-			// Set the function to callback when the node is expanded.
-			newNode.setDynamicLoad(
-				function(node, fnLoadComplete)
-				{
-					self.__childExpanded(node, fnLoadComplete, fnGetMoreResults);
-				});
+			// Add the child.
+			this.__addChildNode(parentNode, oData, fnGetMoreResults);
 		}
+	},
+
+	/**
+	 * Adds a child node the specified parent.
+	 * 
+	 * @param parentNode The parent node.
+	 * @param oData the child's object data.
+	 * @param fnGetMoreResults The asynchronous function to get more results.
+	 */	
+	__addChildNode: function(parentNode, oData, fnGetMoreResults)
+	{
+		var self = this;
+		
+		// Create the child node.
+		var newNode = new MediaNode(oData, parentNode);
+		
+		// Set the function to callback when the node is expanded.
+		newNode.setDynamicLoad(
+			function(node, fnLoadComplete)
+			{
+				self.__nodeExpanded(node, fnLoadComplete, fnGetMoreResults);
+			});
 	},
 	
 	/**
-	 * Function called when a dynamic node (child) is expanded.
+	 * Function called when a dynamic node is expanded.
 	 *
 	 * @param node The node that is to be expanded.
 	 * @param fnLoadComplete Function to call when the dynamic data insertion has completed.
 	 * @param fnGetMoreResults The asynchronous function to get more results.
 	 */
-	__childExpanded: function(node, fnLoadComplete, fnGetMoreResults)
+	__nodeExpanded: function(node, fnLoadComplete, fnGetMoreResults)
 	{
 		var self = this;
-		fnGetMoreResults(node.getSearchResults().url,
+		fnGetMoreResults(node.getSearchResults(),
 			function(nodeResults, resultDirectories)
 			{
 				self.__buildBranchExpandedResults(node, nodeResults, resultDirectories, fnGetMoreResults, fnLoadComplete); 
@@ -114,7 +157,7 @@ var GoogleMediaResultsUI = Base.extend(
 	},
 	
 	/**
-	 * Function called to add results to a dynamic node (child).
+	 * Function called to add results to a dynamic node.
 	 *
 	 * @param node The node that is to be expanded.
 	 * @param nodeResults The search results for the node.
@@ -130,16 +173,28 @@ var GoogleMediaResultsUI = Base.extend(
 			node.setSearchResults(nodeResults);
 			node.parent.refresh();
 			
-			// Add the children.
-			this.__buildDynamicChildren(node, resultDirectories, fnGetMoreResults);
+			// Add the children, if any.
+			if (resultDirectories.length > 0)
+			{
+				this.__buildDynamicChildren(node, resultDirectories, fnGetMoreResults);
+			}
+			else
+			{
+				node.iconMode = 1;
+			}
 		}
 		else
 		{
-			// Bad results.
-			//node.searchResults.title = 'Bad site. App engine has been informed to improve results.';
+			// Ensure this node won't load again.
+			var searchResults = node.getSearchResults();
+			searchResults.areLoaded = true;
+			node.setSearchResults(searchResults);
+			if (!node.children || node.children.length == 0)
+			{
+				node.iconMode = 1;
+			}
 			node.parent.refresh();
 		}
-		
 		fnLoadComplete();
 	}
 });
@@ -163,6 +218,10 @@ var GoogleMediaResultsUI = Base.extend(
 MediaNode = function(oData, oParent)
 {
 	MediaNode.superclass.constructor.call(this,oData,oParent,oData.expanded);
+	if (oParent.__type == this.__type)
+	{
+		oParent.addChildName(oData.searchResults.name);	// Store this child's name in the parent for quick lookup.
+	}
 	this.setup(oData);
 };
 
@@ -176,6 +235,11 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
      * @default "MediaNode"
      */
     __type: "MediaNode",
+    
+    /**
+     * An array of child names, keyed by the child name.
+     */
+    __childNames: [],
 
     /**
      * The search results.
@@ -190,6 +254,11 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
     __tracksPaneUi: null,
     
     /**
+     * Function to load results.
+     */
+    fnLoadResults: null,
+    
+    /**
      * Setup the node.
      *
      * @param oData The node setup data.
@@ -201,6 +270,37 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
     	
     	// Setup node select event.
 		this.tree.subscribe('clickEvent', this.nodeSelectEvent); 
+    },
+    
+    /**
+     * Adds a child name to the array index.
+     * 
+     * @param childName The child name.
+     */
+    addChildName: function(childName)
+    {
+    	this.__childNames[childName.toUpperCase()] = true;
+    },
+    
+    /**
+     * Checks if the child name exists under this node. The child array is used for fast indexing.
+     * 
+     * @param childName The child name.
+     * @return TRUE if the child name exists.
+     */
+    doesChildExist: function(childName)
+    {
+    	// Convert name to upper case.
+		childName = childName.toUpperCase();
+		
+    	if (this.__childNames[childName])
+    	{
+    		return true;
+    	}
+    	else
+    	{
+    		return false;
+    	}
     },
     
     /**
@@ -227,7 +327,15 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
     	}
     	else
     	{
-    		return true;
+    		if (this.expanded)	// Load results for a node that is already expanded.
+    		{
+    			this.fnLoadResults();
+    			return false;	// No further action as this has been managed.
+    		}
+    		else
+    		{
+    			return true;	// Let YUI model decide what to do next.
+    		}
     	}
     },
     
@@ -278,17 +386,23 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
         sb[sb.length] = '<table>';
         sb[sb.length] = '<tr>';
         sb[sb.length] = '<td><span';                                                                                                                                       
-        sb[sb.length] = ' id="' + this.labelElId + '"';                                                                                                                    
-        if (this.title)
+        sb[sb.length] = ' id="' + this.labelElId + '"';                                                                                                              
+        /*if (this.title)
         {                                                                                                                                                  
             sb[sb.length] = ' title="' + this.title + '"';                                                                                                                 
-        }                                                                                                                                                                  
+        }*/
         sb[sb.length] = ' class="' + this.labelStyle  + '"';                                                                                                               
-        sb[sb.length] = '>';                                                                                                                                              
-        sb[sb.length] = this.__searchResults.name;                                                                                                                                        
+        sb[sb.length] = '>';                                                                                                                                          
+        sb[sb.length] = this.__searchResults.name;
+        if (this.__searchResults.tracks)
+        {
+        	sb[sb.length] = ' (' + this.__searchResults.tracks.length + ')';
+        }                                                                                                                                     
         sb[sb.length] = '</span></td>';
         sb[sb.length] = '</tr>';
-        this.__addInfo(sb, 'url: ' + this.__searchResults.url);
+        
+        
+        /*this.__addInfo(sb, 'url: ' + this.__searchResults.url);
         if (this.__searchResults.title)
         {
         	this.__addInfo(sb, 'title: ' + this.__searchResults.title);
@@ -296,7 +410,8 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
         if (this.__searchResults.tracks)
         {
         	this.__addInfo(sb, 'number of tracks: ' + this.__searchResults.tracks.length);
-        }
+        }*/
+        
         sb[sb.length] = '</table>';
                                                                                                                                     
         return sb.join("");                                                                                                                                                
