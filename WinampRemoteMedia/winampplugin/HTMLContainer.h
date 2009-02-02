@@ -1,10 +1,15 @@
 #ifndef NULLSOFT_HTMLCONTAINERH
 #define NULLSOFT_HTMLCONTAINERH
 
+#include <comdef.h>
 #include <ocidl.h>
 #include <mshtmhst.h>
 #include <mshtmdid.h>
-#include <shlobj.h> 
+#include <shlobj.h>
+#include "../Winamp/wa_ipc.h"
+#include "../gen_ml/ml.h"
+#include "main.h"
+
 /**************************************************************************
    class definitions
 **************************************************************************/
