@@ -75,10 +75,10 @@ class AnyObject:
 
 def main():
     application = webapp.WSGIApplication(
-                                         [('/mediasearch/method/searchUrl', SearchUrl),
-                                          ('/mediasearch/method/addComments', AddComments),
-                                          ('/mediasearch/method/addBadMedia', AddBadMedia),
-                                          ('/mediasearch/method/getIgnoredSites', GetIgnoredSites)],
+                                         [('/remotemedia/google/searchUrl', SearchUrl),
+                                          ('/remotemedia/google/getIgnoredSites', GetIgnoredSites),
+                                          ('/remotemedia/google/addBadMedia', AddBadMedia),
+                                          ('/remotemedia/addComments', AddComments)],
                                           debug=True)
     wsgiref.handlers.CGIHandler().run(application)
   

@@ -5,12 +5,22 @@ api_version: 1
 
 default_expiration: "24h"
 
-handlers:  
-- url: /mediasearch/method/*.*
-  script: mediasearch/start.py
-- url: /mediasearch/(.*\.(html|gif|png|jpg|js))
-  static_files: mediasearch/\1
-  upload: mediasearch/(.*\.(html|gif|png|jpg|js))
-- url: /mediasearch/*.*
-  static_files: mediasearch/index.html
-  upload: mediasearch/index.html
+handlers:
+
+- url: /remotemedia/addComments
+  script: /mediasearch/start.py
+
+- url: /remotemedia/google/searchUrl
+  script: /mediasearch/start.py
+- url: /remotemedia/google/addBadMedia
+  script: /mediasearch/start.py
+- url: /remotemedia/google/getIgnoredSites
+  script: /mediasearch/start.py
+  
+- url: /remotemedia/(.*\.(gif|png|jpg|js))
+  static_files: remotemedia/\1
+  upload: remotemedia/(.*\.(gif|png|jpg|js))
+  
+- url: /remotemedia/googlemediasearch.*
+  static_files: remotemedia/googlemediasearch.html
+  upload: remotemedia/googlemediasearch.html

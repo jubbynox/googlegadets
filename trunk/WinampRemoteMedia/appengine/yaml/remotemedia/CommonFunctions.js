@@ -1,12 +1,12 @@
 /**
  * URL to report bad media.
  */
-var BAD_MEDIA_URL = 'method/addBadMedia';
+var BAD_MEDIA_URL = 'google/addBadMedia';
 
 /**
  * URL to send comments to.
  */
-var COMMENTS_URL = 'method/addComments';
+var COMMENTS_URL = 'addComments';
 
 
 /**

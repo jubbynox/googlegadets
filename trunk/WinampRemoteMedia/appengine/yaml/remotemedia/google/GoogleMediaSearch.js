@@ -16,12 +16,12 @@ var GoogleMediaSearch = Base.extend(
 	/**
 	 * The location of the Google media search processor App Engine.
 	 */
-	SEARCH_URL: 'method/searchUrl',
+	SEARCH_URL: 'google/searchUrl',
 	
 	/**
 	 * The location of the Google media ignored sites processor App Engine.
 	 */
-	IGNORED_SITES_URL: 'method/getIgnoredSites',
+	IGNORED_SITES_URL: 'google/getIgnoredSites',
 	
 	/**
 	 * A list of ignored sites.
