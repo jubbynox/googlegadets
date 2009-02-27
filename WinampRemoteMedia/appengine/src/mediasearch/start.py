@@ -10,6 +10,7 @@ from mediasearch import mediabranch
 from mediasearch import testobjects
 from mediasearch.db.dao import DaoComments
 from mediasearch.db.dao import DaoBadMedia
+from mediasearch.db.dao import DaoIgnoredSites
 
 class SearchUrl(webapp.RequestHandler):
     """Entry point for processing query."""
@@ -44,10 +45,20 @@ class AddComments(webapp.RequestHandler):
 class AddBadMedia(webapp.RequestHandler):
     """Entry point for adding bad media."""
     def post(self):
-        directoryUrl = self.request.get("directoryUrl")
         mediaUrl = self.request.get("mediaUrl")
-        if directoryUrl and mediaUrl:
-            DaoBadMedia.add(directoryUrl, mediaUrl)
+        cause = int(self.request.get("cause"))
+        if mediaUrl and cause:
+            DaoBadMedia.add(mediaUrl, cause)
+            
+class GetIgnoredSites(webapp.RequestHandler):
+    """Entry point for retrieving a list of ignored sites."""
+    def get(self):
+        boIgnoredSites = DaoIgnoredSites.getAll()
+        ignoredSites = []
+        for ignoredSite in boIgnoredSites:
+            ignoredSites.append(ignoredSite.siteUrl)
+        jsonOut = jsonpickle.encode(ignoredSites)
+        self.response.out.write(jsonOut)
         
         
 def convertJsonInputToObject(jsonIn):
@@ -66,7 +77,8 @@ def main():
     application = webapp.WSGIApplication(
                                          [('/mediasearch/method/searchUrl', SearchUrl),
                                           ('/mediasearch/method/addComments', AddComments),
-                                          ('/mediasearch/method/addBadMedia', AddBadMedia)],
+                                          ('/mediasearch/method/addBadMedia', AddBadMedia),
+                                          ('/mediasearch/method/getIgnoredSites', GetIgnoredSites)],
                                           debug=True)
     wsgiref.handlers.CGIHandler().run(application)
   

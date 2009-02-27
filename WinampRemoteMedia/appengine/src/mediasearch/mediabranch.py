@@ -35,7 +35,7 @@ class Branch:
         result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
         if result.status_code != 200:
             # Website did not respond correctly. Report error.
-            DaoBadMedia.add(url, 'Bad response fetching URL content.')
+            DaoBadMedia.add(url, 1)
             return
         # Ensure the content is in the right format.
         result.content = result.content.decode('utf-8', 'ignore')

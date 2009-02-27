@@ -5,10 +5,7 @@ api_version: 1
 
 default_expiration: "24h"
 
-handlers:
-- url: /telly/*.*
-  script: telly/start.py
-  
+handlers:  
 - url: /mediasearch/method/*.*
   script: mediasearch/start.py
 - url: /mediasearch/(.*\.(html|gif|png|jpg|js))

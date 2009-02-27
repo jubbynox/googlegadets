@@ -1,19 +1,21 @@
 <html>
 	<head>
 
-		<!-- http://developer.yahoo.com/yui/articles/hosting/?dragdrop&layout&resize&tabview&treeview&MIN -->
+		<!-- http://developer.yahoo.com/yui/articles/hosting/?datasource&datatable&dragdrop&layout&menu&resize&tabview&treeview&MIN -->
 		<!-- Combo-handled YUI CSS files: -->
 		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.6.0/build/assets/skins/sam/skin.css">
 		<!-- Combo-handled YUI JS files: -->
-		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/tabview/tabview-min.js&2.6.0/build/treeview/treeview-min.js"></script>
+		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/datasource/datasource-min.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/datatable/datatable-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/container/container_core-min.js&2.6.0/build/menu/menu-min.js&2.6.0/build/tabview/tabview-min.js&2.6.0/build/treeview/treeview-min.js"></script>
 		
 		<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w""></script>
 		<script type="text/javascript" src="Base.js"></script>
 		<script type="text/javascript" src="MediaSearch.js"></script>
 		<script type="text/javascript" src="GoogleMediaSearch.js"></script>
-		<script type="text/javascript" src="ResultsUI.js"></script>
-		<script type="text/javascript" src="GoogleMediaResultsUI.js"></script>
-		<script type="text/javascript" src="MediaDragDropUI.js"></script>
+		<script type="text/javascript" src="GoogleMediaUI.js"></script>
+		<script type="text/javascript" src="GoogleMediaSitesPaneUI.js"></script>
+		<script type="text/javascript" src="GoogleMediaSiteBrowserPaneUI.js"></script>
+		<script type="text/javascript" src="GoogleMediaTracksPaneUI.js"></script>
+		<script type="text/javascript" src="SelectableTableUI.js"></script>
 		<script type="text/javascript" src="CommonFunctions.js"></script>
 		<script type="text/javascript" src="WebToHostAppInteraction.js"></script>
 		
@@ -26,22 +28,13 @@
 				}</style>
 	</head>
 	<body class="yui-skin-sam">
-		<!--form name="searchForm" method="post"  action="" onSubmit="return search(document.searchForm.searchInput.value)"-->
-		<!--form name="searchForm" method="post" onSubmit="return search($('#SearchInput')[0].value)"-->
+	
 		<form name="searchForm" method="post" onSubmit="return false">
 			<input type="text" name="searchInput" size="15" id="SearchInput"/>
 			<input type="button" name="searchButton" value="Search" onclick="search($('#SearchInput')[0].value)"/>
 			<input type="button" name="clearButton" value="Clear" onclick="clearResults()"/>
 		</form>
-		<!--<form name="commentsForm" method="post" action="" onSubmit="return addComments(document.commentsForm.comments.value)">
-			<textarea name="comments" rows="5" cols="20"></textarea>
-   			<input type="submit"/>
-		</form>
-		<form name="badmediaForm" method="post" action="" onSubmit="return addBadMedia(document.badmediaForm.directoryUrl.value, document.badmediaForm.mediaUrl.value)">
-			<input name="directoryUrl"/>
-   			<input name="mediaUrl"/>
-   			<input type="submit"/>
-		</form>-->
+		
 		<div id="HiddenElement" style="display:none;visibility:hidden;">Loading...</div>
 		<div id="ResultsPane"></div>
 	</body>
