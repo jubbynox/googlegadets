@@ -10,7 +10,7 @@ from google.appengine.ext import db
 def getConfig():
     config = db.get(db.Key.from_path("Config", "MediaSearchConfiguration"))
     if not config:
-        config = Config(key_name="MediaSearchConfiguration", maxOccuranceUntilIgnore=10)
+        config = Config(key_name="MediaSearchConfiguration", maxOccurrenceUntilIgnore=10)
         config.put()
     return config
 
@@ -58,13 +58,13 @@ class DaoBadMedia():
         # Find any existing site object else create a new one.
         badMedia = DaoBadMedia.getBadMedia(siteUrl, cause)
         if badMedia:
-            # Media found, increment occurance.
-            badMedia.occurance += 1
+            # Media found, increment occurrence.
+            badMedia.occurrence += 1
         else:
             # Create new bad media object.
-            badMedia = BadMedia(parent=getConfig(), siteUrl=siteUrl.lower(), cause=cause, occurance=1)
+            badMedia = BadMedia(parent=getConfig(), siteUrl=siteUrl.lower(), cause=cause, occurrence=1)
         # Store the bad media or move to ignored site list.
-        if badMedia.occurance > getConfig().maxOccuranceUntilIgnore:
+        if badMedia.occurrence > getConfig().maxOccurrenceUntilIgnore:
             # Add to ignored site list and delete from bad media.
             DaoIgnoredSites.add(siteUrl)
             badMedia.delete()

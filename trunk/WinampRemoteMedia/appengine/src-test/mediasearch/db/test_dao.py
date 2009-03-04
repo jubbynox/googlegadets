@@ -55,9 +55,9 @@ class TestDaoBadMedia(unittest.TestCase):
             db.delete(ignoredSites)
             
     def testAdd(self):
-        # Change the max occurance until ignore to 3
+        # Change the max occurence until ignore to 3
         config = dao.getConfig()
-        config.maxOccuranceUntilIgnore = 3
+        config.maxOccurrenceUntilIgnore = 3
         config.put()
         dao.DaoBadMedia.add('http://siteUrl1', 1)
         dao.DaoBadMedia.add('hTtp://siteurl1/', 1)
@@ -75,13 +75,13 @@ class TestDaoBadMedia(unittest.TestCase):
         self.assertEqual(badMedia.count(), 3, 'not 3 badMedia: ' + str(badMedia.count()))
         self.assertEqual(badMedia[0].siteUrl, 'siteurl1', 'badMedia[0].siteUrl not "siteurl1": ' + badMedia[0].siteUrl)
         self.assertEqual(badMedia[0].cause, 1, 'badMedia[0].cause not 1: ' + str(badMedia[0].cause))
-        self.assertEqual(badMedia[0].occurance, 3, 'badMedia[0].occurance not 3: ' + str(badMedia[0].occurance))
+        self.assertEqual(badMedia[0].occurrence, 3, 'badMedia[0].occurrence not 3: ' + str(badMedia[0].occurrence))
         self.assertEqual(badMedia[1].siteUrl, 'siteurl1', 'badMedia[1].siteUrl not "siteurl1": ' + badMedia[1].siteUrl)
         self.assertEqual(badMedia[1].cause, 2, 'badMedia[1].cause not 2: ' + str(badMedia[1].cause))
-        self.assertEqual(badMedia[1].occurance, 1, 'badMedia[1].occurance not 1: ' + str(badMedia[1].occurance))
+        self.assertEqual(badMedia[1].occurrence, 1, 'badMedia[1].occurrence not 1: ' + str(badMedia[1].occurrence))
         self.assertEqual(badMedia[2].siteUrl, 'siteurl2', 'badMedia[2].siteUrl not "siteurl2": ' + badMedia[2].siteUrl)
         self.assertEqual(badMedia[2].cause, 2, 'badMedia[2].cause not 2: ' + str(badMedia[2].cause))
-        self.assertEqual(badMedia[2].occurance, 1, 'badMedia[2].occurance not 1: ' + str(badMedia[2].occurance))
+        self.assertEqual(badMedia[2].occurrence, 1, 'badMedia[2].occurrence not 1: ' + str(badMedia[2].occurrence))
         
         self.assertEqual(ignoredSites.count(), 1, 'not 1 ignoredSites: ' + str(ignoredSites.count()))
         self.assertEqual(ignoredSites[0].siteUrl, 'siteurl3', 'ignoredSites[0].siteUrl not "siteurl3": ' + ignoredSites[0].siteUrl)

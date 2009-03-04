@@ -22,5 +22,5 @@ handlers:
   upload: remotemedia/(.*\.(gif|png|jpg|js))
   
 - url: /remotemedia/googlemediasearch.*
-  static_files: remotemedia/googlemediasearch.html
-  upload: remotemedia/googlemediasearch.html
+  static_files: remotemedia/GoogleMediaSearch.html
+  upload: remotemedia/(GoogleMediaSearch.html)

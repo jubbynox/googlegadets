@@ -7,17 +7,9 @@
 		<!-- Combo-handled YUI JS files: -->
 		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.6.0/build/yahoo-dom-event/yahoo-dom-event.js&2.6.0/build/datasource/datasource-min.js&2.6.0/build/dragdrop/dragdrop-min.js&2.6.0/build/element/element-beta-min.js&2.6.0/build/datatable/datatable-min.js&2.6.0/build/resize/resize-min.js&2.6.0/build/layout/layout-min.js&2.6.0/build/container/container_core-min.js&2.6.0/build/menu/menu-min.js&2.6.0/build/tabview/tabview-min.js&2.6.0/build/treeview/treeview-min.js"></script>
 		
-		<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w""></script>
-		<script type="text/javascript" src="Base.js"></script>
-		<script type="text/javascript" src="CommonFunctions.js"></script>
-		<script type="text/javascript" src="WebToHostAppInteraction.js"></script>
-		<script type="text/javascript" src="SelectableTableUI.js"></script>
-		<script type="text/javascript" src="MediaSearch.js"></script>
-		<script type="text/javascript" src="google/GoogleMediaSearch.js"></script>
-		<script type="text/javascript" src="google/GoogleMediaUI.js"></script>
-		<script type="text/javascript" src="google/GoogleMediaSitesPaneUI.js"></script>
-		<script type="text/javascript" src="google/GoogleMediaSiteBrowserPaneUI.js"></script>
-		<script type="text/javascript" src="google/GoogleMediaTracksPaneUI.js"></script>
+		<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w"></script>
+		<script type="text/javascript" src="CommonCode.js"></script>
+		<script type="text/javascript" src="GoogleMedia.js"></script>
 		
 		<style>
 				.ui-selecting {
@@ -25,10 +17,10 @@
 				}
 				.ui-selected {
 				  background-color: #AAAAFF;
-				}</style>
+				}
+		</style>
 	</head>
 	<body class="yui-skin-sam">
-	
 		<form name="searchForm" method="post" onSubmit="return false">
 			<input type="text" name="searchInput" size="15" id="SearchInput"/>
 			<input type="button" name="searchButton" value="Search" onclick="search($('#SearchInput')[0].value)"/>

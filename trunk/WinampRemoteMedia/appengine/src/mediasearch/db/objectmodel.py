@@ -3,7 +3,7 @@ from google.appengine.ext import db
 
 class Config(db.Model):
     """Root of all mediasearch data."""
-    maxOccuranceUntilIgnore = db.IntegerProperty(required=True) # Number of bad media occurances until passed to ignored.
+    maxOccurrenceUntilIgnore = db.IntegerProperty(required=True) # Number of bad media occurances until passed to ignored.
 
 class Comments(db.Model):
     """Comments and suggestions."""
@@ -14,7 +14,7 @@ class BadMedia(db.Model):
     """Bad Media."""
     siteUrl = db.StringProperty(required=True, multiline=False) # The site URL.
     cause = db.IntegerProperty(required=True) # The cause of the error. 1 = Bad response fetching URL content; 2 = App Engine timed out;
-    occurance = db.IntegerProperty(required=True) # The number of times this site has been reported.
+    occurrence = db.IntegerProperty(required=True) # The number of times this site has been reported.
     timestamp = db.DateTimeProperty(required=True, auto_now=True, auto_now_add=True) # Last modified time.
     
 class IgnoredSite(db.Model):
