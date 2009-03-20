@@ -19,11 +19,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	__listUI: null,
 	
 	/**
-	 * The sites data.
-	 */
-	__sites: null,
-	
-	/**
 	 * The method to invoke when a site is selected.
 	 */
 	__fnSiteSelected: null,
@@ -47,9 +42,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 								self.selected(rowData);
 							};
 				}(this));
-		
-		// Initialise sites array.
-		this.__sites = new Array();
 	},
 	
 	/**
@@ -58,7 +50,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	clear: function()
 	{
 		this.__listUI.clear();
-		this.__sites = new Array();
 	},
 	
 	/**
@@ -84,10 +75,7 @@ var GoogleMediaSitesPaneUI = Base.extend(
 		// Replace %20 with space.
 		siteData.url = siteData.url.replace(/%20/g, ' ');
 		
-		// Add to array.
-		this.__sites[this.__sites.length] = siteData;
-		
-		// Update list UI.
-		this.__listUI.reattachData(this.__sites);
+		// Add row.
+		this.__listUI.addRow(siteData);
 	}
 });

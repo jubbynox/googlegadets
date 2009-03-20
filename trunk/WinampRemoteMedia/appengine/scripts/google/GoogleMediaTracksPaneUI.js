@@ -49,7 +49,8 @@ var GoogleMediaTracksPaneUI = Base.extend(
 		// Update list UI.
 		if (tracks.length > 0)
 		{
-			this.__listUI.reattachData(this.__orderTracks(tracks));
+			this.clear();
+			this.__listUI.addRows(this.__orderTracks(tracks));
 		}
 		else
 		{
