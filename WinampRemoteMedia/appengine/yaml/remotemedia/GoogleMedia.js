@@ -1,3 +1,17 @@
+// Load required libraries
+google.load("search", "1")
+
+
+/**
+ * Function to be invoked on page load. Sets up the required objects.
+ */
+function onLoadExtended()
+{
+	// Setup Google media search.
+	searchObject = new GoogleMediaSearch('HiddenElement', 'ResultsPane', test);
+}
+
+
 /**
  * The Google Media Search functionality.
  */
@@ -746,11 +760,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	__listUI: null,
 	
 	/**
-	 * The sites data.
-	 */
-	__sites: null,
-	
-	/**
 	 * The method to invoke when a site is selected.
 	 */
 	__fnSiteSelected: null,
@@ -774,9 +783,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 								self.selected(rowData);
 							};
 				}(this));
-		
-		// Initialise sites array.
-		this.__sites = new Array();
 	},
 	
 	/**
@@ -785,7 +791,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	clear: function()
 	{
 		this.__listUI.clear();
-		this.__sites = new Array();
 	},
 	
 	/**
@@ -811,11 +816,8 @@ var GoogleMediaSitesPaneUI = Base.extend(
 		// Replace %20 with space.
 		siteData.url = siteData.url.replace(/%20/g, ' ');
 		
-		// Add to array.
-		this.__sites[this.__sites.length] = siteData;
-		
-		// Update list UI.
-		this.__listUI.reattachData(this.__sites);
+		// Add row.
+		this.__listUI.addRow(siteData);
 	}
 });
 /**
@@ -869,7 +871,8 @@ var GoogleMediaTracksPaneUI = Base.extend(
 		// Update list UI.
 		if (tracks.length > 0)
 		{
-			this.__listUI.reattachData(this.__orderTracks(tracks));
+			this.clear();
+			this.__listUI.addRows(this.__orderTracks(tracks));
 		}
 		else
 		{

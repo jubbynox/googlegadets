@@ -28,6 +28,24 @@ function getDomainJSON(url, data, fnCallbackSuccess, fnCallbackError)
 }
 
 /**
+ * Gets JSON from another domain that supports JSONP.
+ * 
+ * @param url The full request URL.
+ * @param data The request data to send.
+ * @param fnCallbackSuccess Function to call on success, e.g. fn(data, textStatus)
+ * @param fnCallbackError Function to call on error, e.g. fn(XMLHttpRequest, textStatus, errorThrown)
+ */
+function getXDomainJSON(url, data, fnCallbackSuccess, fnCallbackError)
+{
+	$.ajax({
+		dataType: "jsonp",
+		data: data,
+		error: fnCallbackError,
+		success: fnCallbackSuccess,
+		url: url});
+}
+
+/**
  * Posts JSON data to the same domain.
  * 
  * @param url The post url.

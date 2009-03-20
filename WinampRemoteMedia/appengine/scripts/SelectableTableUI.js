@@ -1,6 +1,7 @@
 /**
  * A selectable list that can invoke functions on double or right click.
  * If there is to be a context menu then double click and multi-select is allowed; otherwise single click acts like a double click.
+ * If there is to be "more" functionality then pass a function as "fnMore" parameter.
  */
 var SelectableTableUI = Base.extend(
 {
@@ -35,15 +36,23 @@ var SelectableTableUI = Base.extend(
 	__contextMenuTxt: null,
 	
 	/**
+	 * The method to call to get more results. 
+	 */
+	__fnMore: null,
+	
+	/**
 	 * Constructor.
+	 * If there is to be a context menu then double click and multi-select is allowed; otherwise single click acts like a double click.
+	 * Adding "fnMore" enables callback to add more results.
 	 *
 	 * @param containerId The element ID of the HTML element to contain the list.
 	 * @param columns The column definitions (see DataTable YUI).
 	 * @param schema The schema.
 	 * @param fnSelect The method to call on selection.
 	 * @param contextMenuTxt The right-click context menu text to activate the select function.
+	 * @param fnMore The method to get more results (sends the current data as a parameter).
 	 */
-	constructor: function(containerId, columns, schema, fnSelect, contextMenuTxt)
+	constructor: function(containerId, columns, schema, fnSelect, contextMenuTxt, fnMore)
 	{
 		// Assign properties.
 		this.__containerId = containerId;
@@ -51,32 +60,48 @@ var SelectableTableUI = Base.extend(
 		this.__schema = schema;
 		this.__fnSelect = fnSelect;
 		this.__contextMenuTxt = contextMenuTxt;
+		this.__fnMore = fnMore;
 	},
 	
 	/**
-	 * Creates a new table, erasing the existing data.
+	 * Adds data to the existing table.
 	 * 
-	 * @param data The data.
+	 * @param data The data to add.
 	 */
-	reattachData: function(data)
+	addRow: function(data)
 	{
-		// Destroy existing table.
-		if (this.__dataTable)
+		if (!this.__dataTable)	// If table does not exist the create a new one...
 		{
-			this.__dataTable.destroy();
-			this.__dataTable = null;
+			// Create array of data..
+			var tmpData = new Array();
+			tmpData[0] = data;
+		
+			// Create the table.
+			this.__createTable(tmpData);
 		}
-		
-		// Setup data source.
-		var dataSource = new YAHOO.util.LocalDataSource(data);
-    	dataSource.responseType = YAHOO.util.XHRDataSource.TYPE_JSARRAY;
-		dataSource.responseSchema = this.__schema;
-		
-		// Create new table.
-		this.__dataTable = new SelectableDataTable(this.__containerId, this.__columns,
-					dataSource, this.__fnSelect, this.__contextMenuTxt);
+		else	// ...else add row.
+		{
+			this.__dataTable.addRow(data);
+		}
 	},
 	
+	/**
+	 * Adds data to the existing table.
+	 * 
+	 * @param data The data to add.
+	 */
+	addRows: function(data)
+	{
+		if (!this.__dataTable)	// If table does not exist the create a new one...
+		{
+			this.__createTable(data);
+		}
+		else	// ...else add rows.
+		{
+			this.__dataTable.addRows(data);
+		}
+	},
+		
 	/**
 	 * Clears the table.
 	 */
@@ -88,6 +113,23 @@ var SelectableTableUI = Base.extend(
 			this.__dataTable.destroy();
 			this.__dataTable = null;
 		}
+	},
+	
+	/**
+	 * Creates a new table.
+	 * 
+	 * @param data The row data.
+	 */
+	__createTable: function(data)
+	{
+		// Setup data source.	
+		var dataSource = new YAHOO.util.LocalDataSource(data);
+		dataSource.responseType = YAHOO.util.XHRDataSource.TYPE_JSARRAY;
+		dataSource.responseSchema = this.__schema;
+		
+		// Create new table.
+		this.__dataTable = new SelectableDataTable(this.__containerId, this.__columns,
+				dataSource, this.__fnSelect, this.__contextMenuTxt, this.__fnMore);
 	}
 });
 
@@ -101,15 +143,21 @@ var SelectableTableUI = Base.extend(
  * @param dataSource The data source.
  * @param fnSelect The method to call on selection.
  * @param contextMenuTxt The right-click context menu text to activate the select function.
+ * @param fnMore The method to get more results (sends the current data as a parameter).
  */
-SelectableDataTable = function(containerId, columns, dataSource, fnSelect, contextMenuTxt)
+SelectableDataTable = function(containerId, columns, dataSource, fnSelect, contextMenuTxt, fnMore)
 {
 	SelectableDataTable.superclass.constructor.call(this, containerId, columns, dataSource, {renderLoopSize: 100});
-	this.setup(containerId, fnSelect, contextMenuTxt);
+	this.setup(containerId, fnSelect, contextMenuTxt, fnMore);
 };
 
 YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
 {
+	/**
+	 * The HTML for a "more..." button.
+	 */
+	MORE_HTML: '<a id="ID" href="#more_results">more...</a>',
+	
 	/**
 	 * The container ID.
 	 */
@@ -136,8 +184,9 @@ YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
      * @param containerId The element ID of the HTML element to contain the list.
 	 * @param fnSelect The method to call on selection.
 	 * @param contextMenuTxt The right-click context menu text to activate the select function.
+	 * @param fnMore The method to get more results (sends the current data as a parameter).
      */
-    setup: function(containerId, fnSelect, contextMenuTxt)
+    setup: function(containerId, fnSelect, contextMenuTxt, fnMore)
     {
     	// Assign properties.
     	this.__containerId = containerId;
@@ -157,6 +206,14 @@ YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
     		this.subscribe("rowClickEvent", this.__singleClickAndSelect);
     		// Disable multi-select if there is no context menu.
     		this.set("selectionMode","singlecell");
+    	}
+    	
+    	// Add "more" functionality, if required.
+    	if (fnMore)
+    	{
+    		var aID = containerId + '_a';
+    		$('#' + containerId).append(this.MORE_HTML.replace('ID', aID));
+    		$('#' + aID).bind('click', fnMore);
     	}
     },
     

@@ -1,3 +1,17 @@
+// Load required libraries
+google.load("search", "1")
+
+
+/**
+ * Function to be invoked on page load. Sets up the required objects.
+ */
+function onLoadExtended()
+{
+	// Setup Google media search.
+	searchObject = new GoogleMediaSearch('HiddenElement', 'ResultsPane', test);
+}
+
+
 /**
  * The Google Media Search functionality.
  */

@@ -17,6 +17,9 @@ handlers:
 - url: /remotemedia/google/getIgnoredSites
   script: /mediasearch/start.py
   
+- url: /remotemedia/youtube/getVideoURL
+  script: /mediasearch/start.py
+  
 - url: /remotemedia/(.*\.(gif|png|jpg|js))
   static_files: remotemedia/\1
   upload: remotemedia/(.*\.(gif|png|jpg|js))
@@ -24,3 +27,7 @@ handlers:
 - url: /remotemedia/googlemediasearch.*
   static_files: remotemedia/GoogleMediaSearch.html
   upload: remotemedia/(GoogleMediaSearch.html)
+  
+- url: /remotemedia/youtubesearch.*
+  static_files: remotemedia/YouTubeSearch.html
+  upload: remotemedia/(YouTubeSearch.html)

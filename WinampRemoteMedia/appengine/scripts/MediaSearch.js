@@ -1,18 +1,16 @@
 /**
- * Media searching routines.
+ * Load common libraries.
+ * Requires hosting page to include Google's AJAX APIs.
  */
-// Requires hosting page to include Google's AJAX APIs.
-google.load("search", "1")
 google.load("jquery", "1");
 google.load("jqueryui", "1");
 
 /** Global variables **/
 var test = 0; // 0, 1, 2
-var googleMediaSearch;
+var searchObject;
 
 
-/** Global objects **/
-// Setup the global objects.
+/** Application loader. **/
 google.setOnLoadCallback(onLoad);
 
 
@@ -24,8 +22,8 @@ function onLoad()
 	// Setup default JQuery AJAX settings.
 	$.ajaxSetup({timeout: 10000});
 	
-	// Setup Google media search.
-	googleMediaSearch = new GoogleMediaSearch('HiddenElement', 'ResultsPane', test);
+	// Call application onLoad method.
+	onLoadExtended();
 }
 
 /**
@@ -35,8 +33,8 @@ function onLoad()
  */
 function search(searchString)
 {
-	// Do the Google media search.
-	googleMediaSearch.search(searchString);
+	// Do the search.
+	searchObject.search(searchString);
 	
 	// Ensure that the invoking form doesn't cause a page load.
 	return false;
@@ -48,7 +46,7 @@ function search(searchString)
 function clearResults()
 {
 	// Clear search objects.
-	googleMediaSearch.clearResults();
+	searchObject.clearResults();
 	
 	// Clear the input box.
 	$('#SearchInput')[0].value = '';

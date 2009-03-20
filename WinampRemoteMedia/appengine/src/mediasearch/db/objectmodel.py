@@ -3,7 +3,7 @@ from google.appengine.ext import db
 
 class Config(db.Model):
     """Root of all mediasearch data."""
-    maxOccurrenceUntilIgnore = db.IntegerProperty(required=True) # Number of bad media occurances until passed to ignored.
+    maxOccurrenceUntilIgnore = db.IntegerProperty(required=True) # Number of bad media occurrences until passed to ignored.
 
 class Comments(db.Model):
     """Comments and suggestions."""
