@@ -7,27 +7,30 @@ default_expiration: "24h"
 
 handlers:
 
-- url: /remotemedia/addComments
+- url: /getSupportedApps
   script: /mediasearch/start.py
 
-- url: /remotemedia/google/searchUrl
+- url: /addComments
   script: /mediasearch/start.py
-- url: /remotemedia/google/addBadMedia
+
+- url: /google/searchUrl
   script: /mediasearch/start.py
-- url: /remotemedia/google/getIgnoredSites
+- url: /google/addBadMedia
+  script: /mediasearch/start.py
+- url: /google/getIgnoredSites
   script: /mediasearch/start.py
   
-- url: /remotemedia/youtube/getVideoURL
+- url: /youtube/getVideoURL
   script: /mediasearch/start.py
   
-- url: /remotemedia/(.*\.(gif|png|jpg|js))
-  static_files: remotemedia/\1
-  upload: remotemedia/(.*\.(gif|png|jpg|js))
+- url: /(.*\.(gif|png|jpg|js))
+  static_files: \1
+  upload: (.*\.(gif|png|jpg|js))
   
-- url: /remotemedia/googlemediasearch.*
-  static_files: remotemedia/GoogleMediaSearch.html
-  upload: remotemedia/(GoogleMediaSearch.html)
+- url: /googlemediasearch.*
+  static_files: html/GoogleMediaSearch.html
+  upload: html/(GoogleMediaSearch.html)
   
-- url: /remotemedia/youtubesearch.*
-  static_files: remotemedia/YouTubeSearch.html
-  upload: remotemedia/(YouTubeSearch.html)
+- url: /youtubesearch.*
+  static_files: html/YouTubeSearch.html
+  upload: html/(YouTubeSearch.html)

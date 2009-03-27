@@ -9,11 +9,12 @@ from mediasearch import youtubeservlets
 
 def main():
     application = webapp.WSGIApplication(
-                                         [('/remotemedia/google/searchUrl', mediaservlets.SearchUrl),
-                                          ('/remotemedia/google/getIgnoredSites', mediaservlets.GetIgnoredSites),
-                                          ('/remotemedia/google/addBadMedia', mediaservlets.AddBadMedia),
-                                          ('/remotemedia/youtube/getVideoURL', youtubeservlets.GetVideoURL),
-                                          ('/remotemedia/addComments', commonservlets.AddComments)],
+                                         [('/google/searchUrl', mediaservlets.SearchUrl),
+                                          ('/google/getIgnoredSites', mediaservlets.GetIgnoredSites),
+                                          ('/google/addBadMedia', mediaservlets.AddBadMedia),
+                                          ('/youtube/getVideoURL', youtubeservlets.GetVideoURL),
+                                          ('/addComments', commonservlets.AddComments),
+                                          ('/getSupportedApps', commonservlets.GetSupportedApps)],
                                           debug=True)
     wsgiref.handlers.CGIHandler().run(application)
   

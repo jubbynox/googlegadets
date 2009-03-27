@@ -23,7 +23,7 @@ class SearchUrl(webapp.RequestHandler):
         branch = mediabranch.Branch(urlFetch)
         if branch.build(url, self.request.get("searchCriteria")):
             branch.clearUrlFetch()
-            jsonOut = jsonpickle.encode(branch)
+            jsonOut = jsonpickle.encode(branch, unpicklable=False)
             self.response.out.write(jsonOut)
         else:
             self.response.out.write('{ }')
@@ -45,5 +45,5 @@ class GetIgnoredSites(webapp.RequestHandler):
         ignoredSites = []
         for ignoredSite in boIgnoredSites:
             ignoredSites.append(ignoredSite.siteUrl)
-        jsonOut = jsonpickle.encode(ignoredSites)
+        jsonOut = jsonpickle.encode(ignoredSites, unpicklable=False)
         self.response.out.write(jsonOut)

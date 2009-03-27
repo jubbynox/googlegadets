@@ -823,5 +823,5 @@ if (window.external &&
 }
 else
 {
-	alert("The hosting container does not expose the WinAmp JavaScript API, e.g.: window.external.API.Method.\n You will not be able to listen to/view media.");
+	alert("The hosting container does not expose the WinAmp JavaScript API, e.g.: window.external.API.Method.\n You will not be able to listen to or view media.");
 }

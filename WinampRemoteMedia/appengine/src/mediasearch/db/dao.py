@@ -1,6 +1,7 @@
 import re
 
 from mediasearch.db.objectmodel import Config
+from mediasearch.db.objectmodel import Application
 from mediasearch.db.objectmodel import Comments
 from mediasearch.db.objectmodel import BadMedia
 from mediasearch.db.objectmodel import IgnoredSite
@@ -13,6 +14,26 @@ def getConfig():
         config = Config(key_name="MediaSearchConfiguration", maxOccurrenceUntilIgnore=10)
         config.put()
     return config
+
+
+class DaoApplication():
+    """Application accessor."""
+    
+    def getAll():
+        """Gets all the applications."""
+        return Application.all()
+    getAll = staticmethod(getAll)
+    
+    def add(name, appUrl, iconUrl):
+        """Adds application."""
+        dbApplication = Application(parent=getConfig(), name=name, appUrl=appUrl, iconUrl=iconUrl)
+        dbApplication.put()
+    add = staticmethod(add)
+    
+    def delete(application):
+        """Deletes application."""
+        application.delete()
+    delete = staticmethod(delete)
 
 
 class DaoComments():
