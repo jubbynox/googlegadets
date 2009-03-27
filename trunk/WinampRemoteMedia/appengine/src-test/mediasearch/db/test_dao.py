@@ -5,6 +5,42 @@ from mediasearch.db import objectmodel
 from mediasearch.db import dao
 
 
+class TestDaoApplication(unittest.TestCase):
+    """DaoApplication test class."""
+    
+    def setUp(self):
+        pass
+    
+    def tearDown(self):
+        applications = objectmodel.Application.all()
+        if applications.count() > 0:
+            db.delete(applications)
+    
+    def testAdd(self):
+        dao.DaoApplication.add('app1', 'url1', 'icon1')
+        dao.DaoApplication.add('app2', 'url2', 'icon2')
+        applications = dao.DaoApplication.getAll()
+        
+        self.assertEqual(applications.count(), 2, 'not 2 applications: ' + str(applications.count()))
+        self.assertEqual(applications[0].name, 'app1', 'applications[0].name not "app1": ' + applications[0].name)
+        self.assertEqual(applications[0].appUrl, 'url1', 'applications[0].appUrl not "url1": ' + applications[0].appUrl)
+        self.assertEqual(applications[0].iconUrl, 'icon1', 'applications[0].iconUrl not "icon1": ' + applications[0].iconUrl)
+        self.assertEqual(applications[1].name, 'app2', 'applications[0].name not "app2": ' + applications[1].name)
+        self.assertEqual(applications[1].appUrl, 'url2', 'applications[0].appUrl not "url2": ' + applications[1].appUrl)
+        self.assertEqual(applications[1].iconUrl, 'icon2', 'applications[0].iconUrl not "icon2": ' + applications[1].iconUrl)
+        
+    def testDelete(self):
+        dao.DaoApplication.add('app1', 'url1', 'icon1')
+        dao.DaoApplication.add('app2', 'url2', 'icon2')
+        applications = dao.DaoApplication.getAll()
+        dao.DaoApplication.delete(applications[0])
+        
+        self.assertEqual(applications.count(), 1, 'not 1 application: ' + str(applications.count()))
+        self.assertEqual(applications[0].name, 'app2', 'applications[0].name not "app2": ' + applications[0].name)
+        self.assertEqual(applications[0].appUrl, 'url2', 'applications[0].appUrl not "url2": ' + applications[0].appUrl)
+        self.assertEqual(applications[0].iconUrl, 'icon2', 'applications[0].iconUrl not "icon2": ' + applications[0].iconUrl)
+
+
 class TestDaoComments(unittest.TestCase):
     """DaoComments test class."""
     
@@ -147,7 +183,8 @@ class TestDaoIgnoredSites(unittest.TestCase):
 
 
 def suite():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestDaoComments)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestDaoApplication)
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDaoComments))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDaoBadMedia))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDaoIgnoredSites))
     return suite

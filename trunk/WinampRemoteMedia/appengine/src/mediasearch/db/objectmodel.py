@@ -4,11 +4,16 @@ from google.appengine.ext import db
 class Config(db.Model):
     """Root of all mediasearch data."""
     maxOccurrenceUntilIgnore = db.IntegerProperty(required=True) # Number of bad media occurrences until passed to ignored.
+    
+class Application(db.Model):
+    """Supported applications."""
+    name = db.StringProperty(required=True, multiline=False) # The application name.
+    appUrl = db.StringProperty(required=True, multiline=False) # The application URL.
+    iconUrl = db.StringProperty(required=True, multiline=False) # The icon URL.
 
 class Comments(db.Model):
     """Comments and suggestions."""
     comments = db.TextProperty(required=True)
-
 
 class BadMedia(db.Model):
     """Bad Media."""

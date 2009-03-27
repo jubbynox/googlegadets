@@ -11,7 +11,7 @@ class GetVideoURL(webapp.RequestHandler):
         yt = youtube.YouTube(urlFetch)
         if yt.constructVideoURL(self.request.get("videoID")):
             yt.clearUrlFetch()
-            jsonOut = jsonpickle.encode(yt)
+            jsonOut = jsonpickle.encode(yt, unpicklable=False)
             self.response.out.write(jsonOut)
         else:
             self.response.out.write('{ }')
