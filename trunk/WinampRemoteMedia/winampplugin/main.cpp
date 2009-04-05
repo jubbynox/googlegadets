@@ -2,6 +2,8 @@
 #include "main.h"
 #include "../Winamp/wa_ipc.h"
 #include <api/service/waservicefactory.h>
+#include "HTMLControl.h"
+#include "RemoteInvocation.h"
 
 #define WEB_MEDIA_VER "v1.0"
 
@@ -19,6 +21,9 @@ INT_PTR CreateView(INT_PTR treeItem, HWND parent);	// Creates the Web Media medi
 int Init();	// Initialises the Web Media media library plugin.
 void Quit();	// Quits the Web Media media library plugin.
 int MessageProc(int message_type, int param1, int param2, int param3);	// Message processing routing for Media library plugin.
+
+// Pointer to the IE control.
+HWND ieControl = NULL;
 
 // Web Media media library structure.
 winampMediaLibraryPlugin WebMediaML =
@@ -149,11 +154,29 @@ INT_PTR MessageProc(int message_type, INT_PTR param1, INT_PTR param2, INT_PTR pa
 	return 0;
 }
 
+VARIANT FAR* fnCallbackTest (DISPPARAMS FAR *pdispparams)
+{
+	MessageBox(ieControl, L"callback", L"Callback", MB_OK);
+	_variant_t *retVal = NULL;
+	return retVal;
+}
+
+void fnErrorTest()
+{
+	MessageBox(ieControl, L"error!", L"Error", MB_OK);
+}
+
 INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 {
 	if (treeItem == webMp3MlItemId)
 	{
-		return (INT_PTR)CreateDialog(WebMediaML.hDllInstance, MAKEINTRESOURCE(IDD_SAMPLEHTTP), parent, MainDialogProc);
+		ieControl = CreateDialog(WebMediaML.hDllInstance, MAKEINTRESOURCE(IDD_SAMPLEHTTP), parent, MainDialogProc);
+		/*if (ieControl != NULL)
+		{
+			SendMessage(ieControl, WM_GOTOPAGE, 0, (LPARAM)"http://localhost:8080/getSupportedApps?callback=alert");
+		}*/
+		remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod", "externalMethod", &fnCallbackTest, &fnErrorTest, parent);
+		return (INT_PTR)ieControl;
 	}
 	else
 	{

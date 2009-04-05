@@ -11,7 +11,10 @@
 extern winampMediaLibraryPlugin wRemote;
 
 HTMLControl::HTMLControl() 
-{}
+{
+	navErrorCallback = NULL;
+}
+
 HWND HTMLControl::CreateHWND(HWND parent)
 {
 	setWnd(parent);
@@ -116,15 +119,14 @@ HRESULT HTMLControl::TranslateAccelerator(LPMSG lpMsg, const GUID __RPC_FAR *pgu
 }
 
 
-LONG HTMLControl::GetDownloadSettings()
+DWORD HTMLControl::GetDownloadSettings()
 {
 	return DLCTL_DLIMAGES  // images are OK
 	       | DLCTL_VIDEOS  // videos are OK
-	       /*| DLCTL_BGSOUNDS */ // we don't want background sounds
-	       | DLCTL_PRAGMA_NO_CACHE // get a new page every time
-	       //| DLCTL_NO_JAVA // java sux
+		   | DLCTL_DOWNLOADONLY
+		   | DLCTL_RESYNCHRONIZE
 #ifndef DEBUG
-	       //| DLCTL_SILENT // don't display errors when we mess up
+	       | DLCTL_SILENT // don't display errors when we mess up
 #endif
 	       ;
 }
@@ -136,10 +138,21 @@ LONG HTMLControl::GetDownloadSettings()
 	return S_OK; //E_NOTIMPL;
 }*/
 
+void HTMLControl::setNavigateErrorFn(void (*navigateErrorCallback)())
+{
+	navErrorCallback = navigateErrorCallback;
+}
+
 void HTMLControl::OnNavigateError()
 {
-	NavigateToName("about:blank");
-//	WriteHTML(WASABI_API_LNGSTRINGW(wRemote.hDllInstance,IDS_NO_INTERNET_CONNECTION_PRESENT));
+	if (navErrorCallback)
+	{
+		navErrorCallback();
+	}
+	else
+	{
+		NavigateToName("about:blank");
+	}
 }
 
 ULONG HTMLControl::Release(void)

@@ -9,6 +9,7 @@
 #include "../Winamp/wa_ipc.h"
 #include "../gen_ml/ml.h"
 #include "main.h"
+#include "RemoteInvocation.h"
 
 /**************************************************************************
    class definitions
@@ -32,6 +33,11 @@
 #endif 
 
 
+// Method ID maps.
+typedef stdext::hash_map <int, ExternalMethod> FnIDToFnMap;
+typedef stdext::hash_map <std::string, int> NameToIDMap;
+
+
 
 class HTMLContainer : public IOleClientSite,
 			public IOleInPlaceSite,
@@ -41,7 +47,10 @@ class HTMLContainer : public IOleClientSite,
 			public IDispatch
 {
 private:
-//	char STR_ADD_TO_PLAYLIST[];// = "addToPlaylist";
+	int lastFnID;
+	FnIDToFnMap fnIDToFnMap;
+	NameToIDMap nameToIDMap;
+
 protected:
 	ULONG m_cRefs;        // ref count
 
@@ -133,9 +142,11 @@ public:
 	//	STDMETHOD (EnableModeless)(BOOL fEnable);
 
 public:
+	void addToNameFnMap(char* externalMethodName, ExternalMethod externalMethod);
 	void add(CLSID clsid);
 	void remove();
 
+	void setNameToFnMap(NameToFnMap ntfm);
 	void setLocation(int x, int y, int width, int height);
 	void setVisible(BOOL fVisible);
 	void setFocus(BOOL fFocus);
@@ -162,6 +173,7 @@ public:
 	void close();
 	virtual BOOL SetHostCSS(LPCWSTR pszHostCSS);
 	virtual HWND GetHostHWND(void);
+	virtual DWORD GetDownloadSettings();
 	DWORD SetDownloadFlags(DWORD dwFlags);
 	DWORD SetHostInfoFlags(DWORD dwFlags);
 
@@ -178,6 +190,9 @@ private:
 	wchar_t		*pszHostCSS;
 	DWORD		dwDownloadFlags;
 	DWORD		dwHostInfoFlags;
+
+protected:
+	NameToFnMap functionMap;
 };
 
 

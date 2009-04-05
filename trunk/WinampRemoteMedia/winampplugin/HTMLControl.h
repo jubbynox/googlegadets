@@ -2,6 +2,8 @@
 #define NULLSOFT_HTMLCONTROLH
 
 #include "HTMLContainer.h"
+#include "main.h"
+
 class HTMLControl : public HTMLContainer
 {
 public:
@@ -11,6 +13,7 @@ public:
 	void WriteHTML(const wchar_t *);
 	//STDMETHOD (GetExternal)(IDispatch __RPC_FAR *__RPC_FAR *ppDispatch);
 	HWND CreateHWND(HWND parent);
+	void setNavigateErrorFn(void (*navigateErrorCallback)(void));
 	virtual void OnNavigateError();
 	virtual void OnNavigateComplete();
 
@@ -18,9 +21,10 @@ public:
 	STDMETHOD (TranslateAccelerator)(LPMSG lpMsg, const GUID __RPC_FAR *pguidCmdGroup, DWORD nCmdID);
 	
 private:
+	void (*navErrorCallback)();
 	bool colorInit;
 	void setWnd(HWND hwnd);
-	virtual LONG GetDownloadSettings();
+	virtual DWORD GetDownloadSettings();
 };
 
 #endif
