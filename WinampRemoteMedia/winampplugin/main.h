@@ -2,6 +2,8 @@
 #define NULLSOFT_MAINH
 #include <windows.h>
 
+#define WM_GOTOPAGE	WM_USER + 2001
+
 // Exposes OLE protocol of WinAmp for embedding web pages.
 extern IDispatch *winampExternal;
 
@@ -13,7 +15,6 @@ void RefreshBrowser(int defurl); // Not defined.
 // Define the web media media library plugin.
 #include "../gen_ml/ml.h"
 extern winampMediaLibraryPlugin WebMediaML;
-
 
 
 /* dialog skinning helper functions 
@@ -33,5 +34,9 @@ extern ColorFunc ml_color;
 
 /* quick function to change a COLORREF into something we can use in HTML pages. */
 COLORREF GetHTMLColor(int color);
+
+/* Safe parameter conversion. */
+#define GET_SAFE_DISP_BSTR(_val) ((_val.pvarVal && VT_BSTR == _val.pvarVal->vt) ? _val.pvarVal->bstrVal : NULL)
+#define GET_SAFE_DISP_I4(_val) ((_val.pvarVal && VT_I4 == _val.pvarVal->vt) ? _val.pvarVal->intVal : 0)
 
 #endif

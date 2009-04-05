@@ -60,9 +60,10 @@ static const CLSID CLSID_MozillaBrowser=
  HTMLContainer::HTMLContainer(HWND hwnd)
 	 : m_pweb (0), pszHostCSS(NULL), m_cRefs(1), m_hwnd(hwnd),  m_punk(NULL)
  {
+	lastFnID = 1000;
 	bInitialized = (S_OK == CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)) ? true : false;
 	dwHostInfoFlags = DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
-	dwDownloadFlags = DLCTL_DLIMAGES | DLCTL_VIDEOS  | DLCTL_PRAGMA_NO_CACHE;
+	dwDownloadFlags = GetDownloadSettings();
 
 	// Allocate memory of window rectangle.
 	memset(&m_rect, 0, sizeof(m_rect));
@@ -91,9 +92,10 @@ static const CLSID CLSID_MozillaBrowser=
 HTMLContainer::HTMLContainer()
 		: m_pweb (0), pszHostCSS(NULL), 	m_cRefs(1), m_hwnd(NULL), m_punk(NULL)
 {
+	lastFnID = 1000;
 	bInitialized = (S_OK == CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)) ? true : false;
 	dwHostInfoFlags = DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
-	dwDownloadFlags = DLCTL_DLIMAGES | DLCTL_VIDEOS  | DLCTL_PRAGMA_NO_CACHE;
+	dwDownloadFlags = GetDownloadSettings();
 
 	memset(&m_rect, 0, sizeof(m_rect));
 	add(CLSID_WebBrowser);
@@ -124,6 +126,17 @@ HTMLContainer::~HTMLContainer()
 	if (pszHostCSS) { free(pszHostCSS); pszHostCSS = NULL; }
 
 	if (bInitialized) CoUninitialize();
+}
+
+DWORD HTMLContainer::GetDownloadSettings()
+{
+	return DLCTL_DLIMAGES  // images are OK
+			   | DLCTL_VIDEOS  // videos are OK
+
+	#ifndef DEBUG
+			   | DLCTL_SILENT // don't display errors when we mess up
+	#endif
+			   ;
 }
 
 void HTMLContainer::close()
@@ -385,16 +398,21 @@ HRESULT HTMLContainer::ShowPropertyFrame(void)
 
 HRESULT HTMLContainer::GetIDsOfNames(REFIID riid, OLECHAR FAR* FAR* rgszNames, unsigned int cNames, LCID lcid, DISPID FAR* rgdispid)
 {
-	// Work out if "addToPlaylist" is being attached.
 	if (cNames > 0)
 	{
-		if (lstrcmp(STR_ADD_TO_PLAYLIST, rgszNames[0]) == 0)
+		// Check if function name is in name map;
+		char* tmpString = _com_util::ConvertBSTRToString(rgszNames[0]);
+		int fnID = nameToIDMap[std::string(tmpString)];
+		delete[] tmpString;
+		if (fnID > 0)
 		{
-			*rgdispid = DISPID_ADD_TO_PLAYLIST;
+			// It is.
+			*rgdispid = fnID;
 			return S_OK;
 		}
 		else
 		{
+			// It isn't.
 			*rgdispid = DISPID_UNKNOWN;
 			return DISP_E_UNKNOWNNAME;
 		}
@@ -461,90 +479,107 @@ void HTMLContainer::OnStatusTextChange(LPCWSTR pszText)
 {
 }
 
-
-#define GET_SAFE_DISP_BSTR(_val) ((_val.pvarVal && VT_BSTR == _val.pvarVal->vt) ? _val.pvarVal->bstrVal : NULL)
-#define GET_SAFE_DISP_I4(_val) ((_val.pvarVal && VT_I4 == _val.pvarVal->vt) ? _val.pvarVal->intVal : 0)
-
 HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS FAR *pdispparams, VARIANT FAR *pvarResult, EXCEPINFO FAR * pexecinfo, unsigned int FAR *puArgErr)
 {
 	switch (dispid)
 	{
-	case DISPID_BEFORENAVIGATE2:
-		OnBeforeNavigate();
-		OnBeforeNavigate( pdispparams->rgvarg[6].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[5]),
-							GET_SAFE_DISP_I4(pdispparams->rgvarg[4]), GET_SAFE_DISP_BSTR(pdispparams->rgvarg[3]),
-							pdispparams->rgvarg[2].pvarVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[1]), pdispparams->rgvarg[0].pboolVal);
-		break;
-	case DISPID_NAVIGATEERROR:
-		{			
-			VARIANT * vt_statuscode = pdispparams->rgvarg[1].pvarVal;
-			DWORD  dwStatusCode =  vt_statuscode->lVal;
-			if (dwStatusCode == 200)  
+		case DISPID_BEFORENAVIGATE2:
+			OnBeforeNavigate();
+			OnBeforeNavigate( pdispparams->rgvarg[6].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[5]),
+								GET_SAFE_DISP_I4(pdispparams->rgvarg[4]), GET_SAFE_DISP_BSTR(pdispparams->rgvarg[3]),
+								pdispparams->rgvarg[2].pvarVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[1]), pdispparams->rgvarg[0].pboolVal);
+			break;
+		case DISPID_NAVIGATEERROR:
 			{
-				*pdispparams->rgvarg[0].pboolVal = VARIANT_TRUE;
-				break;
+				VARIANT * vt_statuscode = pdispparams->rgvarg[1].pvarVal;
+				DWORD  dwStatusCode =  vt_statuscode->lVal;
+				if (dwStatusCode == 200)  
+				{
+					*pdispparams->rgvarg[0].pboolVal = VARIANT_TRUE;
+					break;
+				}
+				OnNavigateError();
+				OnNavigateError(pdispparams->rgvarg[4].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[3]), 
+						GET_SAFE_DISP_BSTR(pdispparams->rgvarg[2]), GET_SAFE_DISP_I4(pdispparams->rgvarg[1]), pdispparams->rgvarg[0].pboolVal);
 			}
-			OnNavigateError();
-			OnNavigateError(pdispparams->rgvarg[4].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[3]), 
-					GET_SAFE_DISP_BSTR(pdispparams->rgvarg[2]), GET_SAFE_DISP_I4(pdispparams->rgvarg[1]), pdispparams->rgvarg[0].pboolVal);
-		}
-		break;
-	case DISPID_NAVIGATECOMPLETE2:
-		OnNavigateComplete();
-		OnNavigateComplete(pdispparams->rgvarg[1].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
-		break;
-	case DISPID_DOCUMENTCOMPLETE:
-		OnDocumentComplete(pdispparams->rgvarg[1].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
-		break;
-	case DISPID_DOWNLOADBEGIN:
-		OnDownloadBegin();
-		break;
-	case DISPID_DOWNLOADCOMPLETE:
-		OnDownloadComplete();
-		break;
-	case DISPID_FILEDOWNLOAD:
-		OnFileDownload(pdispparams->rgvarg[1].pboolVal, 	pdispparams->rgvarg[0].pboolVal);
-		break;
-	case DISPID_NEWWINDOW2:
-		OnNewWindow2(pdispparams->rgvarg[1].ppdispVal, pdispparams->rgvarg[0].pboolVal);
-		break;
-	case DISPID_NEWWINDOW3:
-		OnNewWindow3(pdispparams->rgvarg[4].ppdispVal, pdispparams->rgvarg[3].pboolVal, 
-					 pdispparams->rgvarg[2].intVal, pdispparams->rgvarg[1].bstrVal, pdispparams->rgvarg[0].bstrVal);
-		break;
-	case DISPID_PROGRESSCHANGE:
-		OnProgressChange(pdispparams->rgvarg[1].lVal, pdispparams->rgvarg[0].lVal);
-		break;
-	case DISPID_STATUSTEXTCHANGE:
-		OnStatusTextChange(GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
-		break;
-	case DISPID_AMBIENT_USERAGENT:
-		/* TODO:
-	      pvar->vt = VT_BSTR;
-      pvar->bstrVal = SysAllocString("...");
-      return S_OK;
-			*/
-		break;
-	case DISPID_AMBIENT_DLCONTROL:
-		pvarResult->vt = VT_I4;
-		pvarResult->lVal = dwDownloadFlags;
-		return S_OK;
-	case DISPID_ADD_TO_PLAYLIST:
-		if (pdispparams->cArgs == 3)
+			break;
+		case DISPID_NAVIGATECOMPLETE2:
+			OnNavigateComplete();
+			OnNavigateComplete(pdispparams->rgvarg[1].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
+			break;
+		case DISPID_DOCUMENTCOMPLETE:
+			OnDocumentComplete(pdispparams->rgvarg[1].pdispVal, GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
+			break;
+		case DISPID_DOWNLOADBEGIN:
+			OnDownloadBegin();
+			break;
+		case DISPID_DOWNLOADCOMPLETE:
+			OnDownloadComplete();
+			break;
+		case DISPID_FILEDOWNLOAD:
+			OnFileDownload(pdispparams->rgvarg[1].pboolVal, 	pdispparams->rgvarg[0].pboolVal);
+			break;
+		case DISPID_NEWWINDOW2:
+			OnNewWindow2(pdispparams->rgvarg[1].ppdispVal, pdispparams->rgvarg[0].pboolVal);
+			break;
+		case DISPID_NEWWINDOW3:
+			OnNewWindow3(pdispparams->rgvarg[4].ppdispVal, pdispparams->rgvarg[3].pboolVal, 
+						 pdispparams->rgvarg[2].intVal, pdispparams->rgvarg[1].bstrVal, pdispparams->rgvarg[0].bstrVal);
+			break;
+		case DISPID_PROGRESSCHANGE:
+			OnProgressChange(pdispparams->rgvarg[1].lVal, pdispparams->rgvarg[0].lVal);
+			break;
+		case DISPID_STATUSTEXTCHANGE:
+			OnStatusTextChange(GET_SAFE_DISP_BSTR(pdispparams->rgvarg[0]));
+			break;
+		case DISPID_AMBIENT_USERAGENT:
+			/* TODO:
+			  pvar->vt = VT_BSTR;
+		  pvar->bstrVal = SysAllocString("...");
+		  return S_OK;
+				*/
+			break;
+		case DISPID_AMBIENT_DLCONTROL:
+			pvarResult->vt = VT_I4;
+			pvarResult->lVal = dwDownloadFlags;
+			return S_OK;
+		/*case DISPID_ADD_TO_PLAYLIST:
+			if (pdispparams->cArgs == 3)
+			{
+				//MessageBox(m_hwnd, pdispparams->rgvarg[2].bstrVal, L"AddToPlaylist", MB_OK);
+				// TODO check: length of parameters.
+				enqueueFileWithMetaStruct eFWMS = {0};
+				eFWMS.filename = _com_util::ConvertBSTRToString(pdispparams->rgvarg[0].bstrVal);
+				eFWMS.title = _com_util::ConvertBSTRToString(pdispparams->rgvarg[1].bstrVal);
+				eFWMS.length = -1;  // Unknown.
+				SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
+				delete [] eFWMS.filename;
+				delete [] eFWMS.title;
+			}
+			return S_OK;*/
+	}
+
+	// Check if ID is in function map.
+	ExternalMethod extFn = fnIDToFnMap[dispid];
+	if (extFn)
+	{
+		// It is. Invoke the function.
+		VARIANT *retval = extFn(pdispparams);
+		if (pvarResult != NULL && retval != NULL)
 		{
-			//MessageBox(m_hwnd, pdispparams->rgvarg[2].bstrVal, L"AddToPlaylist", MB_OK);
-			// TODO check: length of parameters.
-			enqueueFileWithMetaStruct eFWMS = {0};
-			eFWMS.filename = _com_util::ConvertBSTRToString(pdispparams->rgvarg[0].bstrVal);
-			eFWMS.title = _com_util::ConvertBSTRToString(pdispparams->rgvarg[1].bstrVal);
-			eFWMS.length = -1;  // Unknown.
-			SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
-			delete [] eFWMS.filename;
-			delete [] eFWMS.title;
+			// There is a result to return.
+			*pvarResult = *retval;
 		}
 		return S_OK;
 	}
 	return DISP_E_MEMBERNOTFOUND;
+}
+
+void HTMLContainer::addToNameFnMap(char *externalMethodName, ExternalMethod externalMethod)
+{
+	fnIDToFnMap[lastFnID] = externalMethod;
+	nameToIDMap[std::string(externalMethodName)] = lastFnID;
+	lastFnID++;
 }
 
 void HTMLContainer::add(CLSID clsid)
@@ -614,6 +649,14 @@ void HTMLContainer::remove()
 
 	m_punk->Release();
 	m_punk = NULL;
+}
+
+void HTMLContainer::setNameToFnMap(NameToFnMap ntfm)
+{
+	for each (std::pair<std::string, ExternalMethod> pair in ntfm)
+	{
+		addToNameFnMap((char *)pair.first.c_str(), pair.second);
+	}
 }
 
 void HTMLContainer::setLocation(int x, int y, int width, int height)

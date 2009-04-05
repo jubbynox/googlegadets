@@ -8,6 +8,7 @@
 #include "resource.h"
 #include <strsafe.h>
 
+
 HANDLE threadEvent  = 0;
 extern winampMediaLibraryPlugin wRemote;
 HTMLControl *htmlControl = 0;
@@ -26,12 +27,12 @@ HANDLE ieThread=0;
 
 static bool bShowOnNavigate = true;
 
-static void GoToPage(int TreeID)
+static void GoToPage(ULONG_PTR param)
 {
 	HTMLControl *thisControl = (HTMLControl *)TlsGetValue(threadStorage);
 
-	thisControl->NavigateToName("http://localhost:8080/mediasearch/index");
-
+	//thisControl->NavigateToName("http://localhost:8080/getSupportedApps?callback=alert");
+	thisControl->NavigateToName((char *)param);
 }
 
 /* quick function to change a COLORREF into something we can use in sprintf("#%06X") */
@@ -157,7 +158,6 @@ static DWORD CALLBACK IEThread(LPVOID param)
 		SubclassHost(hwndHost);
 	}
 
-
 	while (1)
 	{
 		DWORD dwStatus = MsgWaitForMultipleObjectsEx(0, NULL,
@@ -256,58 +256,61 @@ INT_PTR CALLBACK MainDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 
 	switch (uMsg)
 	{
-	case WM_INITDIALOG:
+		case WM_INITDIALOG:
 
-		/* skin dialog */
-		MLSKINWINDOW sw;
-		sw.skinType = SKINNEDWND_TYPE_DIALOG;
-		sw.style = SWS_USESKINCOLORS | SWS_USESKINCURSORS | SWS_USESKINFONT;
-		sw.hwndToSkin = hwndDlg;
-		MLSkinWindow(WebMediaML.hwndLibraryParent, &sw);
+			/* skin dialog */
+			MLSKINWINDOW sw;
+			sw.skinType = SKINNEDWND_TYPE_DIALOG;
+			sw.style = SWS_USESKINCOLORS | SWS_USESKINCURSORS | SWS_USESKINFONT;
+			sw.hwndToSkin = hwndDlg;
+			MLSkinWindow(WebMediaML.hwndLibraryParent, &sw);
 
 
-		g_mainHWND = hwndDlg;
-		activeTree = lParam;
+			g_mainHWND = hwndDlg;
+			activeTree = lParam;
 
-		threadEvent = CreateEvent(0, TRUE, FALSE, 0);
+			threadEvent = CreateEvent(0, TRUE, FALSE, 0);
 
-		ieThread = CreateThread(NULL, 0, IEThread, (LPVOID)hwndDlg, 0, &threadId);
-		WaitForSingleObject(threadEvent, INFINITE);
-		htmlControl->AddRef();
-		QueueUserAPC(GoToPageURL, ieThread, (LONG_PTR)activeTree);
-		CloseHandle(threadEvent);
-		return FALSE;
-	case WM_SIZE:
-		if (wParam != SIZE_MINIMIZED)
+			ieThread = CreateThread(NULL, 0, IEThread, (LPVOID)hwndDlg, 0, &threadId);
+			WaitForSingleObject(threadEvent, INFINITE);
+			CloseHandle(threadEvent);
+			return FALSE;
+		case WM_SIZE:
+			if (wParam != SIZE_MINIMIZED)
+			{
+	//			childSizer.Resize(hwndDlg, discover_rlist, sizeof(discover_rlist) / sizeof(discover_rlist[0]));
+				QueueUserAPC(OnBrowserSizeAPC, ieThread, (ULONG_PTR)0);
+			}
+			break;
+
+		case WM_DISPLAYCHANGE:
+			if (ieThread)
+			{
+				htmlControl->AddRef();
+				QueueUserAPC(OnSkinChangedAPC, ieThread, 0);
+			}
+			break;
+		case WM_ERASEBKGND:
+			SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+			return 1;
+		case WM_PAINT:
 		{
-//			childSizer.Resize(hwndDlg, discover_rlist, sizeof(discover_rlist) / sizeof(discover_rlist[0]));
-			QueueUserAPC(OnBrowserSizeAPC, ieThread, (ULONG_PTR)0);
+			static int tab[] = { IDC_EMBEDDEDBROWSER | DCW_SUNKENBORDER };
+			ml_draw(hwndDlg, tab, sizeof(tab) / sizeof(tab[0]));
 		}
-		break;
+		return 0;
+		case WM_DESTROY:
+			htmlControl = 0;
+			activeTree = 0;
+			PostThreadMessage(threadId, WM_USER+1111, 0, 0);
+			CloseHandle(ieThread);
+			ieThread =0;
+			break;
 
-	case WM_DISPLAYCHANGE:
-		if (ieThread)
-		{
+		case WM_GOTOPAGE:
 			htmlControl->AddRef();
-			QueueUserAPC(OnSkinChangedAPC, ieThread, 0);
-		}
-		break;
-	case WM_ERASEBKGND:
-		SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-		return 1;
-	case WM_PAINT:
-	{
-		static int tab[] = { IDC_EMBEDDEDBROWSER | DCW_SUNKENBORDER };
-		ml_draw(hwndDlg, tab, sizeof(tab) / sizeof(tab[0]));
-	}
-	return 0;
-	case WM_DESTROY:
-		htmlControl = 0;
-		activeTree = 0;
-		PostThreadMessage(threadId, WM_USER+1111, 0, 0);
-		CloseHandle(ieThread);
-		ieThread =0;
-		break;
+			QueueUserAPC(GoToPageURL, ieThread, (LONG_PTR)lParam);
+			return TRUE;
 
 	}
 	return 0;
