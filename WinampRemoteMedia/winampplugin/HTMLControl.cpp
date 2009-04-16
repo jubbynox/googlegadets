@@ -12,7 +12,7 @@ extern winampMediaLibraryPlugin wRemote;
 
 HTMLControl::HTMLControl() 
 {
-	navErrorCallback = NULL;
+	navError = NULL;
 }
 
 HWND HTMLControl::CreateHWND(HWND parent)
@@ -138,16 +138,17 @@ DWORD HTMLControl::GetDownloadSettings()
 	return S_OK; //E_NOTIMPL;
 }*/
 
-void HTMLControl::setNavigateErrorFn(void (*navigateErrorCallback)())
+void HTMLControl::setNavigateErrorFn(ExternalBase* obj, NavigateError navigateError)
 {
-	navErrorCallback = navigateErrorCallback;
+	errorObj = obj;
+	navError = navigateError;
 }
 
 void HTMLControl::OnNavigateError()
 {
-	if (navErrorCallback)
+	if (errorObj && navError)
 	{
-		navErrorCallback();
+		(errorObj->*navError)();
 	}
 	else
 	{

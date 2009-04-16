@@ -2,7 +2,6 @@
 #include "main.h"
 #include "../Winamp/wa_ipc.h"
 #include <api/service/waservicefactory.h>
-#include "HTMLControl.h"
 #include "RemoteInvocation.h"
 
 #define WEB_MEDIA_VER "v1.0"
@@ -154,18 +153,6 @@ INT_PTR MessageProc(int message_type, INT_PTR param1, INT_PTR param2, INT_PTR pa
 	return 0;
 }
 
-VARIANT FAR* fnCallbackTest (DISPPARAMS FAR *pdispparams)
-{
-	MessageBox(ieControl, L"callback", L"Callback", MB_OK);
-	_variant_t *retVal = NULL;
-	return retVal;
-}
-
-void fnErrorTest()
-{
-	MessageBox(ieControl, L"error!", L"Error", MB_OK);
-}
-
 INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 {
 	if (treeItem == webMp3MlItemId)
@@ -175,7 +162,18 @@ INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 		{
 			SendMessage(ieControl, WM_GOTOPAGE, 0, (LPARAM)"http://localhost:8080/getSupportedApps?callback=alert");
 		}*/
-		remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod", "externalMethod", &fnCallbackTest, &fnErrorTest, parent);
+
+		RemoteInvocation remoteInvocation;// = new RemoteInvocation();
+		DISPPARAMS FAR *params = remoteInvocation.remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod", "externalMethod", parent);
+		if (params)
+		{
+			MessageBox(ieControl, L"callback", L"Callback", MB_OK);
+		}
+		else
+		{
+			MessageBox(ieControl, L"error!", L"Error", MB_OK);
+		}
+
 		return (INT_PTR)ieControl;
 	}
 	else

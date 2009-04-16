@@ -1,5 +1,4 @@
 #include "HTMLContainer.h"
-#include "ExternalMethods.h"
 
 #include <exdisp.h>
 #include <mshtmdid.h>
@@ -559,12 +558,13 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 			return S_OK;*/
 	}
 
-	// Check if ID is in function map.
-	ExternalMethod extFn = fnIDToFnMap[dispid];
-	if (extFn)
+	// Check if ID is in object map.
+	ExternalBase* obj = fnIDToObjMap[dispid];
+	if (obj)
 	{
 		// It is. Invoke the function.
-		VARIANT *retval = extFn(pdispparams);
+		ExternalMethod extMethod = fnIDToFnMap[dispid];
+		VARIANT *retval = (obj->*extMethod)(pdispparams);
 		if (pvarResult != NULL && retval != NULL)
 		{
 			// There is a result to return.
@@ -575,8 +575,9 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 	return DISP_E_MEMBERNOTFOUND;
 }
 
-void HTMLContainer::addToNameFnMap(char *externalMethodName, ExternalMethod externalMethod)
+void HTMLContainer::addToNameFnMap(char *externalMethodName, ExternalBase* obj, ExternalMethod externalMethod)
 {
+	fnIDToObjMap[lastFnID] = obj;
 	fnIDToFnMap[lastFnID] = externalMethod;
 	nameToIDMap[std::string(externalMethodName)] = lastFnID;
 	lastFnID++;
@@ -649,14 +650,6 @@ void HTMLContainer::remove()
 
 	m_punk->Release();
 	m_punk = NULL;
-}
-
-void HTMLContainer::setNameToFnMap(NameToFnMap ntfm)
-{
-	for each (std::pair<std::string, ExternalMethod> pair in ntfm)
-	{
-		addToNameFnMap((char *)pair.first.c_str(), pair.second);
-	}
 }
 
 void HTMLContainer::setLocation(int x, int y, int width, int height)
