@@ -9,7 +9,6 @@
 #include "../Winamp/wa_ipc.h"
 #include "../gen_ml/ml.h"
 #include "main.h"
-#include "RemoteInvocation.h"
 
 /**************************************************************************
    class definitions
@@ -33,7 +32,18 @@
 #endif 
 
 
+/* Definition window.external functions, window.external->C++ function map. */
+#include <comutil.h>
+#include <hash_map>
+#include <string>
+class ExternalBase
+{
+	// Base class for objects that have callback methods.
+};
+typedef VARIANT FAR* (ExternalBase::*ExternalMethod)(DISPPARAMS FAR *pdispparams);
+
 // Method ID maps.
+typedef stdext::hash_map <int, ExternalBase*> FnIDToObjMap;
 typedef stdext::hash_map <int, ExternalMethod> FnIDToFnMap;
 typedef stdext::hash_map <std::string, int> NameToIDMap;
 
@@ -48,6 +58,7 @@ class HTMLContainer : public IOleClientSite,
 {
 private:
 	int lastFnID;
+	FnIDToObjMap fnIDToObjMap;
 	FnIDToFnMap fnIDToFnMap;
 	NameToIDMap nameToIDMap;
 
@@ -142,11 +153,10 @@ public:
 	//	STDMETHOD (EnableModeless)(BOOL fEnable);
 
 public:
-	void addToNameFnMap(char* externalMethodName, ExternalMethod externalMethod);
+	void addToNameFnMap(char* externalMethodName, ExternalBase* obj, ExternalMethod externalMethod);
 	void add(CLSID clsid);
 	void remove();
 
-	void setNameToFnMap(NameToFnMap ntfm);
 	void setLocation(int x, int y, int width, int height);
 	void setVisible(BOOL fVisible);
 	void setFocus(BOOL fFocus);
@@ -190,9 +200,6 @@ private:
 	wchar_t		*pszHostCSS;
 	DWORD		dwDownloadFlags;
 	DWORD		dwHostInfoFlags;
-
-protected:
-	NameToFnMap functionMap;
 };
 
 
