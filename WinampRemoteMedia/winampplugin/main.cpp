@@ -1,8 +1,11 @@
 #include "resource.h"
 #include "main.h"
 #include "../Winamp/wa_ipc.h"
+#include "../gen_ml/ml_ipc_0313.h"
 #include <api/service/waservicefactory.h>
-#include "RemoteInvocation.h"
+#include "GetSupportedApps.h"
+
+#include <hash_map>
 
 #define WEB_MEDIA_VER "v1.0"
 
@@ -14,6 +17,8 @@ ColorFunc ml_color = 0;	// Functions to retrieve the skin colours.
 
 // The ID of the WEB MP3 ML item.
 int webMp3MlItemId=0;
+// App URLs
+stdext::hash_map <int, std::string> appURLs;
 
 // Exposed functions.
 INT_PTR CreateView(INT_PTR treeItem, HWND parent);	// Creates the Web Media media library view in the ML window.
@@ -42,6 +47,7 @@ int winampVersion = 0;
 WNDPROC waProc=0;
 DWORD threadStorage=TLS_OUT_OF_INDEXES;
 BOOL CALLBACK PreferencesDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+api_service *WASABI_API_SVC=0;
 
 static DWORD WINAPI wa_newWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -85,6 +91,37 @@ void Unhook(HWND winamp)
 		SetWindowLongW(winamp, GWLP_WNDPROC, (LONG_PTR)waProc);
 	waProc=0;
 }
+
+void addChildrenToMenu(int parentId, stdext::hash_map <std::string, supported_apps::SupportedApp> supportedApps)
+{
+	// Get pointers to start and end of map.
+	stdext::hash_map <std::string, supported_apps::SupportedApp>::iterator mapIterator;
+	stdext::hash_map <std::string, supported_apps::SupportedApp>::const_iterator mapEnd;
+	mapIterator = supportedApps.begin();
+	mapEnd = supportedApps.end();
+
+	// Add the children.
+	do
+	{
+		supported_apps::SupportedApp app = mapIterator->second;
+
+		// Add menu item.
+		MLTREEITEM child;
+		child.size = sizeof(MLTREEITEM);
+		child.parentId = parentId;
+		child.title = (char *)app.name.c_str();
+		child.hasChildren = 0;
+		child.id = 0;
+		MLTREEIMAGE img = {WebMediaML.hDllInstance, IDB_TREEITEM_NOWPLAYING, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
+		child.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &img, ML_IPC_TREEIMAGE_ADD);
+		SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &child, ML_IPC_TREEITEM_ADD);
+
+		// Map menu item ID to application URL.
+		appURLs[child.id] = std::string(app.appUrl);
+	}
+	while (++mapIterator != mapEnd);
+}
+
 int Init()
 {
 	// Thread memory.
@@ -95,7 +132,10 @@ int Init()
 		for definition of magic numbers, see gen_ml/ml.h	 */
 	ml_color = (ColorFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)1, ML_IPC_SKIN_WADLG_GETFUNC);
 	ml_hook_dialog_msg = (HookDialogFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)2, ML_IPC_SKIN_WADLG_GETFUNC);
-	ml_draw = (DrawFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)3, ML_IPC_SKIN_WADLG_GETFUNC);			
+	ml_draw = (DrawFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)3, ML_IPC_SKIN_WADLG_GETFUNC);	
+
+	// Get the WSABI service.
+	WASABI_API_SVC = (api_service *)SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, 0, IPC_GET_API_SERVICE);
 
 
 	Hook(WebMediaML.hwndWinampParent);
@@ -103,37 +143,40 @@ int Init()
 	// Get IDispatch object for embedded webpages
 	winampExternal  = (IDispatch *)SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, 0, IPC_GET_DISPATCH_OBJECT);
 
+	// Begin setup of tree menu.
 	MLTREEITEM newTree;
 	newTree.size = sizeof(MLTREEITEM);
 	newTree.parentId    = 0;
-	newTree.title        = "Web MP3";
+	newTree.title        = "Web Media";
 	newTree.hasChildren = 0;
 	newTree.id      = 0;
-	MLTREEIMAGE img = {WebMediaML.hDllInstance, IDB_TREEITEM_NOWPLAYING, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
-	newTree.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &img, ML_IPC_TREEIMAGE_ADD);
+
+	// Get the supported apps.
+	stdext::hash_map <std::string, supported_apps::SupportedApp> supportedApps;
+	supported_apps::getSupportedApps(WebMediaML.hwndWinampParent, supportedApps);
+
+	if (supportedApps.size() == 0)
+	{
+		// Something has gone wrong.
+		MLTREEIMAGE img = {WebMediaML.hDllInstance, IDB_TREEITEM_NOWPLAYING, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
+		newTree.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &img, ML_IPC_TREEIMAGE_ADD); 
+	}
+	else
+	{
+		// Add children to tree.
+		newTree.hasChildren = 1;
+		newTree.imageIndex = MLTREEIMAGE_BRANCH;
+	}
+
 	SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &newTree, ML_IPC_TREEITEM_ADD);
 	webMp3MlItemId = newTree.id;
 
-	return 0;
-}
+	// Add child items, if any.
+	if (newTree.hasChildren)
+	{
+		addChildrenToMenu(webMp3MlItemId, supportedApps);
+	}
 
-// Gets the current media library tree.
-int getRemoteMediaBranch()
-{
-	// Structure for get tree command.
-	mlGetTreeStruct mlGetTree;
-	mlGetTree.item_start = 0;
-	mlGetTree.cmd_offset = 0;
-	mlGetTree.max_numitems = -1;
-
-	// Get the menu handles.
-	HMENU treeMenu = HMENU(SendMessage (WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &mlGetTree, ML_IPC_GETTREE));
-	TCHAR strMenuItem[512];
-	for(int x=0; x<GetMenuItemCount(treeMenu); x++)
-    {
-		GetMenuString(treeMenu, x, LPTSTR(strMenuItem), 512, MF_BYPOSITION);
-    }
-	DestroyMenu(treeMenu);
 	return 0;
 }
 
@@ -147,33 +190,32 @@ INT_PTR MessageProc(int message_type, INT_PTR param1, INT_PTR param2, INT_PTR pa
 {
 	switch (message_type)
 	{
-	case ML_MSG_TREE_ONCREATEVIEW:     // param1 = param of tree item, param2 is HWND of parent. return HWND if it is us
-		return CreateView(param1, (HWND)param2);
+		case ML_MSG_TREE_ONCREATEVIEW:     // param1 = param of tree item, param2 is HWND of parent. return HWND if it is us
+			return CreateView(param1, (HWND)param2);
 	}
 	return 0;
 }
 
 INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 {
-	if (treeItem == webMp3MlItemId)
+	char* url;
+	bool urlAssigned = false;
+
+	if (treeItem == webMp3MlItemId)	// Root has been selected.
+	{
+		url = "http://localhost:8080/";
+		urlAssigned = true;
+	}
+	else if (appURLs.find(treeItem) != appURLs.end())	// Application has been selected.
+	{
+		url = (char *)appURLs[treeItem].c_str();
+		urlAssigned = true;
+	}
+
+	if (urlAssigned)
 	{
 		ieControl = CreateDialog(WebMediaML.hDllInstance, MAKEINTRESOURCE(IDD_SAMPLEHTTP), parent, MainDialogProc);
-		/*if (ieControl != NULL)
-		{
-			SendMessage(ieControl, WM_GOTOPAGE, 0, (LPARAM)"http://localhost:8080/getSupportedApps?callback=alert");
-		}*/
-
-		RemoteInvocation remoteInvocation;// = new RemoteInvocation();
-		DISPPARAMS FAR *params = remoteInvocation.remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod", "externalMethod", parent);
-		if (params)
-		{
-			MessageBox(ieControl, L"callback", L"Callback", MB_OK);
-		}
-		else
-		{
-			MessageBox(ieControl, L"error!", L"Error", MB_OK);
-		}
-
+		SendMessage(ieControl, WM_GOTOPAGE, 0, (LPARAM)url);
 		return (INT_PTR)ieControl;
 	}
 	else

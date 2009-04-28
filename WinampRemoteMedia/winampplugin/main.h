@@ -39,4 +39,11 @@ COLORREF GetHTMLColor(int color);
 #define GET_SAFE_DISP_BSTR(_val) ((_val.pvarVal && VT_BSTR == _val.pvarVal->vt) ? _val.pvarVal->bstrVal : NULL)
 #define GET_SAFE_DISP_I4(_val) ((_val.pvarVal && VT_I4 == _val.pvarVal->vt) ? _val.pvarVal->intVal : 0)
 
+/* Size of array. */
+template <typename T, int N> char (&array(T(&)[N]))[N];
+
+#include <api/service/api_service.h>
+extern api_service *serviceManager;
+#define WASABI_API_SVC serviceManager
+
 #endif

@@ -40,7 +40,7 @@ class ExternalBase
 {
 	// Base class for objects that have callback methods.
 };
-typedef VARIANT FAR* (ExternalBase::*ExternalMethod)(DISPPARAMS FAR *pdispparams);
+typedef void (ExternalBase::*ExternalMethod)(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);
 
 // Method ID maps.
 typedef stdext::hash_map <int, ExternalBase*> FnIDToObjMap;
