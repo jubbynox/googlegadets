@@ -558,20 +558,15 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 			return S_OK;*/
 	}
 
-	// Check if ID is in object map.
+	// Check if ID is in method map and object map.
+	ExternalMethod extMethod = fnIDToFnMap[dispid];
 	ExternalBase* obj = fnIDToObjMap[dispid];
-	if (obj)
+	if (extMethod && obj)
 	{
-		// It is. Invoke the function.
-		ExternalMethod extMethod = fnIDToFnMap[dispid];
-		VARIANT *retval = (obj->*extMethod)(pdispparams);
-		if (pvarResult != NULL && retval != NULL)
-		{
-			// There is a result to return.
-			*pvarResult = *retval;
-		}
+		(obj->*extMethod)(pdispparams, pvarResult);
 		return S_OK;
 	}
+
 	return DISP_E_MEMBERNOTFOUND;
 }
 

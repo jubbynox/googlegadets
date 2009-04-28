@@ -7,6 +7,7 @@
 #include <winbase.h>
 #include "resource.h"
 #include <strsafe.h>
+#include "WinAmpAPI.h"
 
 
 HANDLE threadEvent  = 0;
@@ -134,7 +135,6 @@ static BOOL SubclassHost(HWND hwndHost)
 	return TRUE;
 }
 
-
 static DWORD CALLBACK IEThread(LPVOID param)
 {
 	HWND parent, hwndHost;
@@ -149,7 +149,12 @@ static DWORD CALLBACK IEThread(LPVOID param)
 	thisControl->CreateHWND(parent);
 	SetEvent(threadEvent);
 
-	OnSkinChanged(thisControl);
+	// Register WinAMP APIs.
+	WinAmpAPI winampAPI;
+	thisControl->addToNameFnMap("Enqueue", &winampAPI, (ExternalMethod)&WinAmpAPI::enqueue);
+	thisControl->addToNameFnMap("GetClassicColor", &winampAPI, (ExternalMethod)&WinAmpAPI::getClassicColor);
+	thisControl->addToNameFnMap("IsRegisteredExtension", &winampAPI, (ExternalMethod)&WinAmpAPI::isRegisteredExtension);
+	thisControl->addToNameFnMap("GetMetadata", &winampAPI, (ExternalMethod)&WinAmpAPI::getMetadata);
 
 	hwndHost = thisControl->GetHostHWND();
 	if (hwndHost)

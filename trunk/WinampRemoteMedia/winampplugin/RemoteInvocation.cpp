@@ -4,19 +4,8 @@
 
 #define WM_STOP WM_USER+2000	// Message to stop IE control thread.
 
-/*VARIANT FAR* fnHandleCallback(ExternalBase* obj, DISPPARAMS FAR *pdispparams)
-{
-	return ((RemoteInvocation*)obj)->fnHandleCallback(pdispparams);
-}
-
-void navigateErrors(ExternalBase* obj)
-{
-	((RemoteInvocation*)obj)->navigateError(obj);
-}*/
-
 RemoteInvocation::RemoteInvocation()
 {
-	result = NULL;
 	remoteInvocThread = 0;
 	controlSetup.htmlControl = 0;
 	finished = false;
@@ -26,34 +15,34 @@ RemoteInvocation::~RemoteInvocation()
 {
 }
 
-VARIANT FAR* RemoteInvocation::fnHandleCallback(DISPPARAMS FAR *pdispparams)
+void RemoteInvocation::fnHandleCallback(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
 {
-	result = pdispparams;	// Set the callback parameters.
+	(*processCallback)(pdispparams);
 	finished = true;	// Signal that the remote invocation has finished.
-	return NULL;
 }
 
 void RemoteInvocation::navigateError()
 {
-	result = NULL;	// Set as error.
 	finished = true;	// Signal that the remote invocation has finished.
 }
 
 DWORD CALLBACK RemoteInvocation::handleIEThread(LPVOID param)
 {
 	IEControlSetup* setup = (IEControlSetup*)param;
+	HWND parent = setup->parent;
 
 	// Create HTML control.
 	setup->htmlControl = new HTMLControl();
-	setup->htmlControl->CreateHWND(setup->parent);
-	setup->htmlControl->setNavigateErrorFn(setup->remoteInvocationObject, (NavigateError)&RemoteInvocation::navigateError);
+	HTMLControl *localControl = setup->htmlControl;
+	localControl->CreateHWND(setup->parent);
+	localControl->setNavigateErrorFn(setup->remoteInvocationObject, (NavigateError)&RemoteInvocation::navigateError);
 
 	// Add callback method.
-	setup->htmlControl->addToNameFnMap(setup->fnName, setup->remoteInvocationObject, (ExternalMethod)&RemoteInvocation::fnHandleCallback);
+	localControl->addToNameFnMap(setup->fnName, setup->remoteInvocationObject, (ExternalMethod)&RemoteInvocation::fnHandleCallback);
 
 	// Navigate to page.
-	setup->htmlControl->AddRef();	// Tell control that something is using it.
-	setup->htmlControl->NavigateToName(setup->url);
+	localControl->AddRef();	// Tell control that something is using it.
+	localControl->NavigateToName(setup->url);
 
 	while (1)
 	{
@@ -67,20 +56,20 @@ DWORD CALLBACK RemoteInvocation::handleIEThread(LPVOID param)
 			{
 				if (msg.message == WM_QUIT || msg.message == WM_STOP)
 				{
-					if (setup->htmlControl->m_pweb)
+					if (localControl->m_pweb)
 					{
-						setup->htmlControl->m_pweb->Stop();
+						localControl->m_pweb->Stop();
 					}
-					setup->htmlControl->remove();
-					setup->htmlControl->close();
-					setup->htmlControl->Release();
+					localControl->remove();
+					localControl->close();
+					localControl->Release();
 					setup->htmlControl = 0;
 					return 0;
 				}
 
-				if (WM_KEYFIRST > msg.message || WM_KEYLAST < msg.message || !setup->htmlControl || !setup->htmlControl->translateKey(&msg))
+				if (WM_KEYFIRST > msg.message || WM_KEYLAST < msg.message || !localControl || !localControl->translateKey(&msg))
 				{
-					if (!IsDialogMessage(setup->parent, &msg))
+					if (!IsDialogMessage(parent, &msg))
 					{
 						TranslateMessage(&msg);
 						DispatchMessage(&msg);
@@ -123,7 +112,7 @@ void RemoteInvocation::waitForResponse()
 	}
 }
 
-DISPPARAMS FAR *RemoteInvocation::remoteInvoke(const char* url, const char* fnName, HWND parent)
+void RemoteInvocation::remoteInvoke(const char* url, const char* fnName, HWND parent, void (*processResults)(DISPPARAMS FAR *))
 {
 	if (!controlSetup.htmlControl)	// Only do function if a callback isn't already running.
 	{
@@ -132,6 +121,7 @@ DISPPARAMS FAR *RemoteInvocation::remoteInvoke(const char* url, const char* fnNa
 		controlSetup.url = (char *)url;
 		controlSetup.fnName = (char *)fnName;
 		controlSetup.remoteInvocationObject = this;
+		processCallback = processResults;
 
 		// Start IE control in separate thread.
 		remoteInvocThread = CreateThread(NULL, 0, handleIEThread, (LPVOID)&controlSetup, 0, &remoteInvocThreadId);
@@ -144,9 +134,5 @@ DISPPARAMS FAR *RemoteInvocation::remoteInvoke(const char* url, const char* fnNa
 
 		// Reset flag.
 		finished = false;
-
-		return result;
 	}
-
-	return 0;
 }

@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="WebMedia"
 	ProjectGUID="{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}"
+	RootNamespace="WebMedia"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -210,12 +211,20 @@
 				RelativePath=".\SampleHttp.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WinAmpAPI.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\GetSupportedApps.h"
+				>
+			</File>
 			<File
 				RelativePath=".\HTMLContainer.h"
 				>
@@ -236,6 +245,10 @@
 				RelativePath=".\resource.h"
 				>
 			</File>
+			<File
+				RelativePath=".\WinAmpAPI.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -250,6 +263,58 @@
 				RelativePath=".\webmedia.rc"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Cajun"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\Cajun\cast.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\elements.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\exception.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\quick.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\reader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\visitor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\writer.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\Cajun\elements.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\reader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Cajun\writer.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
