@@ -1,4 +1,5 @@
 import re
+import logging
 
 from mediasearch.db.objectmodel import Config
 from mediasearch.db.objectmodel import Application
@@ -24,9 +25,21 @@ class DaoApplication():
         return Application.all()
     getAll = staticmethod(getAll)
     
-    def add(name, appUrl, iconUrl):
+    def getByVer(dllVer):
+        """Gets the applications by version."""
+        logging.log(logging.INFO, dllVer)
+        query = Application.gql("WHERE dllVer = :dllVer",
+                  dllVer=dllVer, parent=getConfig())   # Use lower case for matching.
+        appIter = query.run()
+        apps = []
+        for app in appIter:
+            apps.append(app)
+        return apps
+    getByVer = staticmethod(getByVer)
+    
+    def add(dllVer, name, appUrl, iconId):
         """Adds application."""
-        dbApplication = Application(parent=getConfig(), name=name, appUrl=appUrl, iconUrl=iconUrl)
+        dbApplication = Application(parent=getConfig(), dllVer=dllVer, name=name, appUrl=appUrl, iconId=iconId)
         dbApplication.put()
     add = staticmethod(add)
     

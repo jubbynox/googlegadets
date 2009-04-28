@@ -7,9 +7,10 @@ class Config(db.Model):
     
 class Application(db.Model):
     """Supported applications."""
+    dllVer = db.FloatProperty(required=True) # The WinAmp DLL version.
     name = db.StringProperty(required=True, multiline=False) # The application name.
     appUrl = db.StringProperty(required=True, multiline=False) # The application URL.
-    iconUrl = db.StringProperty(required=True, multiline=False) # The icon URL.
+    iconId = db.IntegerProperty(required=True) # The icon ID.
 
 class Comments(db.Model):
     """Comments and suggestions."""

@@ -17,28 +17,47 @@ class TestDaoApplication(unittest.TestCase):
             db.delete(applications)
     
     def testAdd(self):
-        dao.DaoApplication.add('app1', 'url1', 'icon1')
-        dao.DaoApplication.add('app2', 'url2', 'icon2')
+        dao.DaoApplication.add(0.1, 'app1', 'url1', 1)
+        dao.DaoApplication.add(0.2, 'app2', 'url2', 2)
         applications = dao.DaoApplication.getAll()
         
         self.assertEqual(applications.count(), 2, 'not 2 applications: ' + str(applications.count()))
+        self.assertEqual(applications[0].dllVer, 0.1, 'applications[0].dllVer not 0.1: ' + str(applications[0].dllVer))
         self.assertEqual(applications[0].name, 'app1', 'applications[0].name not "app1": ' + applications[0].name)
         self.assertEqual(applications[0].appUrl, 'url1', 'applications[0].appUrl not "url1": ' + applications[0].appUrl)
-        self.assertEqual(applications[0].iconUrl, 'icon1', 'applications[0].iconUrl not "icon1": ' + applications[0].iconUrl)
-        self.assertEqual(applications[1].name, 'app2', 'applications[0].name not "app2": ' + applications[1].name)
-        self.assertEqual(applications[1].appUrl, 'url2', 'applications[0].appUrl not "url2": ' + applications[1].appUrl)
-        self.assertEqual(applications[1].iconUrl, 'icon2', 'applications[0].iconUrl not "icon2": ' + applications[1].iconUrl)
+        self.assertEqual(applications[0].iconId, 1, 'applications[0].iconId not 1: ' + str(applications[0].iconId))
+        self.assertEqual(applications[1].dllVer, 0.2, 'applications[1].dllVer not 0.2: ' + str(applications[1].dllVer))
+        self.assertEqual(applications[1].name, 'app2', 'applications[1].name not "app2": ' + applications[1].name)
+        self.assertEqual(applications[1].appUrl, 'url2', 'applications[1].appUrl not "url2": ' + applications[1].appUrl)
+        self.assertEqual(applications[1].iconId, 2, 'applications[1].iconId not 2: ' + str(applications[1].iconId))
+        
+    def testGetByVer(self):
+        dao.DaoApplication.add(0.1, 'app1', 'url1', 1)
+        dao.DaoApplication.add(0.1, 'app2', 'url2', 2)
+        dao.DaoApplication.add(0.2, 'app3', 'url3', 3)
+        dao.DaoApplication.add(0.2, 'app4', 'url4', 4)
+        applications = dao.DaoApplication.getByVer(0.2)
+        
+        self.assertEqual(applications[0].dllVer, 0.2, 'applications[0].dllVer not 0.2: ' + str(applications[0].dllVer))
+        self.assertEqual(applications[0].name, 'app3', 'applications[0].name not "app3": ' + applications[0].name)
+        self.assertEqual(applications[0].appUrl, 'url3', 'applications[0].appUrl not "url3": ' + applications[0].appUrl)
+        self.assertEqual(applications[0].iconId, 3, 'applications[0].iconId not 3: ' + str(applications[0].iconId))
+        self.assertEqual(applications[1].dllVer, 0.2, 'applications[1].dllVer not 0.2: ' + str(applications[1].dllVer))
+        self.assertEqual(applications[1].name, 'app4', 'applications[1].name not "app4": ' + applications[1].name)
+        self.assertEqual(applications[1].appUrl, 'url4', 'applications[1].appUrl not "url4": ' + applications[1].appUrl)
+        self.assertEqual(applications[1].iconId, 4, 'applications[1].iconId not 4: ' + str(applications[1].iconId))
         
     def testDelete(self):
-        dao.DaoApplication.add('app1', 'url1', 'icon1')
-        dao.DaoApplication.add('app2', 'url2', 'icon2')
+        dao.DaoApplication.add(0.1, 'app1', 'url1', 1)
+        dao.DaoApplication.add(0.2, 'app2', 'url2', 2)
         applications = dao.DaoApplication.getAll()
         dao.DaoApplication.delete(applications[0])
         
         self.assertEqual(applications.count(), 1, 'not 1 application: ' + str(applications.count()))
+        self.assertEqual(applications[0].dllVer, 0.2, 'applications[0].dllVer not 0.2: ' + str(applications[0].dllVer))
         self.assertEqual(applications[0].name, 'app2', 'applications[0].name not "app2": ' + applications[0].name)
         self.assertEqual(applications[0].appUrl, 'url2', 'applications[0].appUrl not "url2": ' + applications[0].appUrl)
-        self.assertEqual(applications[0].iconUrl, 'icon2', 'applications[0].iconUrl not "icon2": ' + applications[0].iconUrl)
+        self.assertEqual(applications[0].iconId, 2, 'applications[0].iconId not 2: ' + str(applications[0].iconId))
 
 
 class TestDaoComments(unittest.TestCase):
