@@ -9,7 +9,7 @@ class GetVideoURL(webapp.RequestHandler):
     def get(self):
         urlFetch = urlfetch
         yt = youtube.YouTube(urlFetch)
-        if yt.constructVideoURL(self.request.get("videoID")):
+        if yt.constructVideoURL(self.request.get("videoID"), self.request.get("fmt")):
             yt.clearUrlFetch()
             jsonOut = jsonpickle.encode(yt, unpicklable=False)
             self.response.out.write(jsonOut)

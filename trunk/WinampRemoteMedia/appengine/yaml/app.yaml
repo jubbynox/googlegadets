@@ -34,3 +34,7 @@ handlers:
 - url: /youtubesearch.*
   static_files: html/YouTubeSearch.html
   upload: html/(YouTubeSearch.html)
+  
+- url: /*.*
+  static_files: html/WebMedia.html
+  upload: html/(WebMedia.html)

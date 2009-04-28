@@ -3,7 +3,7 @@ import re
 from google.appengine.api import urlfetch
 
 GET_VIDEO_INFO_URL = "http://www.youtube.com/get_video_info?&video_id=VIDEO_ID"
-GET_VIDEO_URL = "http://www.youtube.com/get_video?video_id=VIDEO_ID&t=TOKEN_ID"
+GET_VIDEO_URL = "http://www.youtube.com/get_video?video_id=VIDEO_ID&t=TOKEN_ID&fmt=FMT"
 
 RE_TOKEN_ID_SEARCH = "&token=(.*?)&"
 
@@ -18,15 +18,16 @@ class YouTube:
     def clearUrlFetch(self):
         self.__urlFetch = None
         
-    def constructVideoURL(self, videoID):
+    def constructVideoURL(self, videoID, fmt):
         """Constructs the video URL."""
+        # Get the token.
         tokenID = self.__getTokenID(videoID)
         if not tokenID:
             # Failure
             return
         
-        # Construct URL to pass back.
-        self.getVideoURL = GET_VIDEO_URL.replace('VIDEO_ID', videoID).replace('TOKEN_ID', tokenID)
+        # Find the actual download URL.
+        self.getVideoURL = self.__getVideoDownloadURL(videoID, tokenID, fmt)
         
         # Success
         return True
@@ -46,7 +47,22 @@ class YouTube:
         
         # Retrieve the token ID.
         match = re.search(RE_TOKEN_ID_SEARCH, result.content, re.I)
+        match = re.search(RE_TOKEN_ID_SEARCH, result.content, re.I)
         if match:
             return match.group(1)
         else:
             return
+        
+    def __getVideoDownloadURL(self, videoID, tokenID, fmt):
+        """Gets the actual download URL of the video."""
+        url = GET_VIDEO_URL.replace('VIDEO_ID', videoID).replace('TOKEN_ID', tokenID).replace('FMT', fmt)
+        result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, False)
+        if result.status_code != 303:
+            # Website did not respond as expected, try normal quality
+            url = GET_VIDEO_URL.replace('VIDEO_ID', videoID).replace('TOKEN_ID', tokenID).replace('&fmt=FMT', '')
+            result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, False)
+            if result.status_code != 303:
+                # Something is not working.
+                return
+            
+        return result.headers["location"].decode('utf-8', 'ignore')

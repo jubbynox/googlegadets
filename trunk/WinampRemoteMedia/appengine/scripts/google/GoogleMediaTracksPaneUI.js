@@ -22,15 +22,12 @@ var GoogleMediaTracksPaneUI = Base.extend(
 	 * Constructor for GoogleMediaTracksPaneUI.
 	 * 
 	 * @param containerId The ID of the container.
+	 * @param fnTracksSelected The function to invoke when tracks are selected.
 	 */
-	constructor: function(containerId)
+	constructor: function(containerId, fnTracksSelected)
 	{
 		// Setup the sites pane UI.
-		this.__listUI = new SelectableTableUI(containerId, this.__columnDefs, this.__schema,
-				function(rowData)
-				{
-					alert(rowData[0].name);
-				});
+		this.__listUI = new SelectableTableUI(containerId, this.__columnDefs, this.__schema, fnTracksSelected, "Enqueue selection");
 	},
 	
 	/**

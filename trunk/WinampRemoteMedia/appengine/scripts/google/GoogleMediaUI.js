@@ -54,9 +54,9 @@ var GoogleMediaUI = Base.extend(
 				function(self)
 				{
 					return function(siteData)
-							{
-								self.siteSelected(siteData);
-							};
+					{
+						self.siteSelected(siteData);
+					};
 				}(this));
 				
 		// Create the site browser pane.
@@ -65,12 +65,19 @@ var GoogleMediaUI = Base.extend(
 				{
 					return function(contextData)
 					{
-						self.contextSelected(contextData)
+						self.contextSelected(contextData);
 					};
 				}(this));
 				
 		// Create the tracks pane.
-		this.__tracksPaneUI = new GoogleMediaTracksPaneUI(tracksId);
+		this.__tracksPaneUI = new GoogleMediaTracksPaneUI(tracksId,
+				function(self)
+				{
+					return function(tracks)
+					{
+						self.tracksSelected(tracks);
+					};
+				}(this));
 	},
 	
 	/**
@@ -115,5 +122,46 @@ var GoogleMediaUI = Base.extend(
 	contextSelected: function(contextData)
 	{
 		this.__tracksPaneUI.showTracks(contextData.tracks);
+	},
+	
+	/**
+	 * Tracks selected.
+	 * 
+	 * @param tracks The tracks.
+	 */
+	tracksSelected: function(tracks)
+	{
+		var tracks;
+		for (track in tracks)
+		{
+			// Get the song name.
+			var songName = winampGetMetadata(tracks[track].url, "title");
+			if (songName == -1)	// Error.
+			{
+				// Bad ID3 tag, possible bad site. Report to App engine.
+				reportBadMedia(tracks[track].url, 1);
+				alert('The track "' + tracks[track].name + '" could not be found on the site.');
+				return;
+			}
+			else if (songName == 1)
+			{
+				// WinAmp API not supported.
+				return;
+			}
+			
+			// Load remaining tag data.
+			var songLength = winampGetMetadata(tracks[track].url, "length");
+			var songArtist = winampGetMetadata(tracks[track].url, "artist");
+			
+			// Construct title from meta data.
+			var title = tracks[track].name;
+			if (songName.length > 0 && songArtist.length > 0)
+			{
+				title = songArtist + " - " + songName;
+			}
+
+			// Enqueue the track.
+			winampEnqueue(tracks[track].url, title, songLength);
+		}
 	}
 });

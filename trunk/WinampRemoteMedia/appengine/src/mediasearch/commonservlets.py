@@ -32,20 +32,25 @@ class AddComments(webapp.RequestHandler):
 class GetSupportedApps(webapp.RequestHandler):
     """Entry point for retrieving the supported applications."""
     def get(self):
-        # Get application list.
-        boApplications = DaoApplication.getAll()
+        # Get application list
+        jsonOut = None
+        try:
+            dllVer = float(self.request.get("dllVer"))
+            boApplications = DaoApplication.getByVer(dllVer)
+            # Convert to JSON
+            if len(boApplications) > 0:
+                data = []
+                for application in boApplications:
+                    app = SupportedApp()
+                    app.name = application.name
+                    app.appurl = application.appUrl
+                    app.iconid = application.iconId
+                    data.append(app)
+                jsonOut = jsonpickle.encode(data, unpicklable=False)
+        except ValueError:
+            pass
         
-        # Convert to JSON
-        if boApplications.count() > 0:
-            data = []
-            for application in boApplications:
-                app = SupportedApp()
-                app.name = application.name
-                app.appurl = application.appUrl
-                app.iconurl = application.iconUrl
-                data.append(app)
-            jsonOut = jsonpickle.encode(data, unpicklable=False)
-        else:
+        if not jsonOut:
             jsonOut = '{ }'
         
         fnCallback = self.request.get("callback")
@@ -71,4 +76,4 @@ class SupportedApp:
         """Initialiser."""
         self.name = ''
         self.appurl = ''
-        self.iconurl = ''
+        self.iconid = ''

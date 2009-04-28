@@ -8,7 +8,6 @@ var BAD_MEDIA_URL = 'google/addBadMedia';
  */
 var COMMENTS_URL = 'addComments';
 
-
 /**
  * Gets JSON from the same domain.
  * 
