@@ -2,15 +2,9 @@
 #define WINAMP_API
 
 #include "HTMLContainer.h"
-#include "main.h"
 
-#include "../Agave/Metadata/api_metadata.h"
-//extern api_metadata *metadataApi;
-//#define AGAVE_API_METADATA metadataApi
-
-#include "../Agave/DecodeFile/api_decodefile.h"
-
-#include <api/service/waservicefactory.h>
+#include "../../Agave/Metadata/api_metadata.h"
+#include "../../Agave/DecodeFile/api_decodefile.h"
 
 class WinAmpAPI : public ExternalBase
 {
@@ -31,7 +25,9 @@ class WinAmpAPI : public ExternalBase
 		WinAmpAPI();
 		~WinAmpAPI();
 		void enqueue(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Function to enqueue media.
-		void getClassicColor(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Function to get classic colour scheme.
+		void getClassicColour(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Function to get classic colour scheme.
+		void getFont(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Gets the font name.
+		void getFontSize(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Gets the font size (in px).
 		void isRegisteredExtension(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Function to check if extension has been registered.
 		void getMetadata(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult);	// Function to get meta data of media.
 };

@@ -1,19 +1,14 @@
-#include "resource.h"
+#include "../resource.h"
 #include "main.h"
 #include "../Winamp/wa_ipc.h"
 #include "../gen_ml/ml_ipc_0313.h"
 #include <api/service/waservicefactory.h>
 #include "GetSupportedApps.h"
+#include "WinAmpHooks.h"
 
 #include <hash_map>
 
 #define WEB_MEDIA_VER "v1.0"
-
-/* dialog skinning helper functions 
-see ML_IPC_SKIN_WADLG_GETFUNC in gen_ml/ml.h for details */
-HookDialogFunc ml_hook_dialog_msg = 0;	// Function hook to allow WinAmp to access the dialog first.
-DrawFunc ml_draw = 0;	// Function to make WinAmp paint the dialog using current skin.
-ColorFunc ml_color = 0;	// Functions to retrieve the skin colours.
 
 // The ID of the WEB MP3 ML item.
 int webMp3MlItemId=0;
@@ -42,12 +37,9 @@ winampMediaLibraryPlugin WebMediaML =
 	0,
 };
 
-IDispatch *winampExternal = 0;
+//IDispatch *winampExternal = 0;
 int winampVersion = 0;
 WNDPROC waProc=0;
-DWORD threadStorage=TLS_OUT_OF_INDEXES;
-BOOL CALLBACK PreferencesDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-api_service *WASABI_API_SVC=0;
 
 static DWORD WINAPI wa_newWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -124,24 +116,8 @@ void addChildrenToMenu(int parentId, stdext::hash_map <std::string, supported_ap
 
 int Init()
 {
-	// Thread memory.
-	threadStorage = TlsAlloc();
-
-	/* gen_ml has some helper functions to deal with skinned dialogs,
-		we're going to grab their function pointers.
-		for definition of magic numbers, see gen_ml/ml.h	 */
-	ml_color = (ColorFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)1, ML_IPC_SKIN_WADLG_GETFUNC);
-	ml_hook_dialog_msg = (HookDialogFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)2, ML_IPC_SKIN_WADLG_GETFUNC);
-	ml_draw = (DrawFunc)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM)3, ML_IPC_SKIN_WADLG_GETFUNC);	
-
-	// Get the WSABI service.
-	WASABI_API_SVC = (api_service *)SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, 0, IPC_GET_API_SERVICE);
-
-
+	hookToWinAmp(WebMediaML.hwndLibraryParent, WebMediaML.hwndWinampParent);
 	Hook(WebMediaML.hwndWinampParent);
-
-	// Get IDispatch object for embedded webpages
-	winampExternal  = (IDispatch *)SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, 0, IPC_GET_DISPATCH_OBJECT);
 
 	// Begin setup of tree menu.
 	MLTREEITEM newTree;

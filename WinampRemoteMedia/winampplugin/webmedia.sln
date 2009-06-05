@@ -1,6 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebMedia", "webmedia.vcproj", "{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ml_redcaza", "ml_redcaza\ml_redcaza.vcproj", "{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "in_redcaza", "in_redcaza\in_redcaza.vcproj", "{D5662201-5514-41AA-B645-DC72219FC69D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebControl", "WebControl\WebControl.vcproj", "{A1D6CD71-0828-4E1C-864B-B7850D0BD5A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,6 +16,14 @@ Global
 		{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}.Debug|Win32.Build.0 = Debug|Win32
 		{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}.Release|Win32.ActiveCfg = Release|Win32
 		{ED5B987C-9AD5-43E8-8C0A-91489D473C7A}.Release|Win32.Build.0 = Release|Win32
+		{D5662201-5514-41AA-B645-DC72219FC69D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D5662201-5514-41AA-B645-DC72219FC69D}.Debug|Win32.Build.0 = Debug|Win32
+		{D5662201-5514-41AA-B645-DC72219FC69D}.Release|Win32.ActiveCfg = Release|Win32
+		{D5662201-5514-41AA-B645-DC72219FC69D}.Release|Win32.Build.0 = Release|Win32
+		{A1D6CD71-0828-4E1C-864B-B7850D0BD5A3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A1D6CD71-0828-4E1C-864B-B7850D0BD5A3}.Debug|Win32.Build.0 = Debug|Win32
+		{A1D6CD71-0828-4E1C-864B-B7850D0BD5A3}.Release|Win32.ActiveCfg = Release|Win32
+		{A1D6CD71-0828-4E1C-864B-B7850D0BD5A3}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

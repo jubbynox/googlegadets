@@ -1,13 +1,13 @@
 #include "HTMLControl.h"
-#include "../gen_ml/ml_ipc_0313.h"
-#include "../Winamp/wa_dlg.h"
-#include "main.h"
+#include "../../gen_ml/ml_ipc_0313.h"
+#include "../../Winamp/wa_dlg.h"
 #include <map>
 #include <mshtml.h>
 #include <winbase.h>
-#include "resource.h"
+#include "../resource.h"
 #include <strsafe.h>
 #include "WinAmpAPI.h"
+#include "WinAmpHooks.h"
 
 
 HANDLE threadEvent  = 0;
@@ -49,8 +49,8 @@ static void OnSkinChanged(HTMLControl *pCtrl)
 	if (!ml_color) return; // make sure we have the function to get colors first!
 	return;  // lets not do this for now...
 	if (S_OK ==StringCchPrintfW(css, 128, L"BODY { background-color: #%06X; color:#%06X }",
-	                            GetHTMLColor(ml_color(WADLG_ITEMBG)),
-	                            GetHTMLColor(ml_color(WADLG_ITEMFG))))
+								GetHTMLColor(ml_color(WADLG_ITEMBG)),
+								GetHTMLColor(ml_color(WADLG_ITEMFG))))
 	{
 		pCtrl->SetHostCSS(css);
 	}
@@ -152,7 +152,9 @@ static DWORD CALLBACK IEThread(LPVOID param)
 	// Register WinAMP APIs.
 	WinAmpAPI winampAPI;
 	thisControl->addToNameFnMap("Enqueue", &winampAPI, (ExternalMethod)&WinAmpAPI::enqueue);
-	thisControl->addToNameFnMap("GetClassicColor", &winampAPI, (ExternalMethod)&WinAmpAPI::getClassicColor);
+	thisControl->addToNameFnMap("GetClassicColor", &winampAPI, (ExternalMethod)&WinAmpAPI::getClassicColour);
+	thisControl->addToNameFnMap("font", &winampAPI, (ExternalMethod)&WinAmpAPI::getFont);
+	thisControl->addToNameFnMap("fontsize", &winampAPI, (ExternalMethod)&WinAmpAPI::getFontSize);
 	thisControl->addToNameFnMap("IsRegisteredExtension", &winampAPI, (ExternalMethod)&WinAmpAPI::isRegisteredExtension);
 	thisControl->addToNameFnMap("GetMetadata", &winampAPI, (ExternalMethod)&WinAmpAPI::getMetadata);
 
@@ -166,8 +168,8 @@ static DWORD CALLBACK IEThread(LPVOID param)
 	while (1)
 	{
 		DWORD dwStatus = MsgWaitForMultipleObjectsEx(0, NULL,
-		                 INFINITE, QS_ALLINPUT,
-		                 MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
+						 INFINITE, QS_ALLINPUT,
+						 MWMO_ALERTABLE | MWMO_INPUTAVAILABLE);
 		if (dwStatus == WAIT_OBJECT_0)
 		{
 			MSG msg;
@@ -268,7 +270,7 @@ INT_PTR CALLBACK MainDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 			sw.skinType = SKINNEDWND_TYPE_DIALOG;
 			sw.style = SWS_USESKINCOLORS | SWS_USESKINCURSORS | SWS_USESKINFONT;
 			sw.hwndToSkin = hwndDlg;
-			MLSkinWindow(WebMediaML.hwndLibraryParent, &sw);
+			MLSkinWindow(*hwndLibraryParent, &sw);
 
 
 			g_mainHWND = hwndDlg;

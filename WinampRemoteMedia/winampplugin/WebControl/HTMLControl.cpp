@@ -3,10 +3,9 @@
 #include <mshtmdid.h>
 #include <mshtml.h>
 #include <exdispid.h>
-#include "Main.h"
-#include "../Winamp/wa_dlg.h"
-#include "resource.h"
+#include "../../Winamp/wa_dlg.h"
 #include <strsafe.h>
+#include "WinAmpHooks.h"
 
 extern winampMediaLibraryPlugin wRemote;
 

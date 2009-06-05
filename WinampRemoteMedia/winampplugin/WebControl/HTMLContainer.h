@@ -6,9 +6,8 @@
 #include <mshtmhst.h>
 #include <mshtmdid.h>
 #include <shlobj.h>
-#include "../Winamp/wa_ipc.h"
-#include "../gen_ml/ml.h"
-#include "main.h"
+#include "../../Winamp/wa_ipc.h"
+#include "../../gen_ml/ml.h"
 
 /**************************************************************************
    class definitions
@@ -153,6 +152,7 @@ public:
 	//	STDMETHOD (EnableModeless)(BOOL fEnable);
 
 public:
+	void removeFns();
 	void addToNameFnMap(char* externalMethodName, ExternalBase* obj, ExternalMethod externalMethod);
 	void add(CLSID clsid);
 	void remove();
@@ -202,5 +202,12 @@ private:
 	DWORD		dwHostInfoFlags;
 };
 
+
+/* Safe parameter conversion. */
+#define GET_SAFE_DISP_BSTR(_val) ((_val.pvarVal && VT_BSTR == _val.pvarVal->vt) ? _val.pvarVal->bstrVal : NULL)
+#define GET_SAFE_DISP_I4(_val) ((_val.pvarVal && VT_I4 == _val.pvarVal->vt) ? _val.pvarVal->intVal : 0)
+
+/* quick function to change a COLORREF into something we can use in HTML pages. */
+COLORREF GetHTMLColor(int color);
 
 #endif
