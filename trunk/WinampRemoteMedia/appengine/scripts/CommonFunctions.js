@@ -11,7 +11,7 @@ var COMMENTS_URL = 'addComments';
 /**
  * Stylesheet HTML snippet to insert dynamically.
  */
-var STYLESHEET_LINK = '<link rel="stylesheet" type="text/css" href="winamp.css?font=FONT&fontsize=FONT_SIZE&' +
+var STYLESHEET_LINK = '<link rel="stylesheet" type="text/css" href="/winamp.css?font=FONT&fontsize=FONT_SIZE&' +
 	'itemBackground=ITEM_BACKGROUND&itemForeground=ITEM_FOREGROUND&windowBackground=WINDOW_BACKGROUND&' +
 	'buttonForeground=BUTTON_FOREGROUND&hilite=HILITE&' +
 	'listHeaderBackground=LIST_HEADER_BACKGROUND&listHeaderText=LIST_HEADER_TEXT&' +
