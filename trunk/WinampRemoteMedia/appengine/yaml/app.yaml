@@ -9,6 +9,9 @@ handlers:
 
 - url: /getSupportedApps
   script: /mediasearch/start.py
+  
+- url: /winamp.css
+  script: /mediasearch/start.py
 
 - url: /addComments
   script: /mediasearch/start.py
@@ -20,7 +23,7 @@ handlers:
 - url: /google/getIgnoredSites
   script: /mediasearch/start.py
   
-- url: /youtube/getVideoURL
+- url: /youtube/getVideo
   script: /mediasearch/start.py
   
 - url: /(.*\.(gif|png|jpg|js))

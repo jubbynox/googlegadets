@@ -83,6 +83,9 @@ var GoogleMediaSiteBrowserPaneUI = Base.extend(
 
 		// Render the tree.
 		this.__siteTree.render();
+		
+		// Select result node.
+		currNode.onNodeSelect();
 	},
 	
 	/**
@@ -431,5 +434,7 @@ YAHOO.extend(MediaNode, YAHOO.widget.TextNode,
 		
 		// Loading complete.
 		fnLoadComplete();
+		this.focus();
+		this.__fnNodeSelected(this.__searchResults);
 	}
 });

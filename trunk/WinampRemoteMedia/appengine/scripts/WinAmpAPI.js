@@ -1,6 +1,31 @@
 /** Global variables. **/
 var winAmpAPI = false;
 
+var CLASSIC_COLOUR_SCHEME = {'0': '#000000',
+							'1': '#00FF00',
+							'2': '#292939',
+							'3': '#000000',
+							'4': '#00FF00',
+							'5': '#3F3F58',
+							'6': '#0000C3',
+							'7': '#3F3F58',
+							'8': '#CBCBCB',
+							'9': '#4A4A67',
+							'10': '#2E2E3F',
+							'11': '#000000',
+							'12': '#2E2E3F',
+							'13': '#000000',
+							'14': '#000000',
+							'15': '#000000',
+							'16': '#000000',
+							'17': '#292939',
+							'18': '#00FF00',
+							'19': '#0000C3',
+							'20': '#00FF00',
+							'21': '#000082',
+							'22': '#000000',
+							'23': '#000000'};
+
 // Check that hosting application has WinAmp API.
 /*if (window.external &&
 	"PlayQueue" in window.external &&
@@ -12,6 +37,8 @@ var winAmpAPI = false;
 if (window.external &&
 	"Enqueue" in window.external &&
 	"GetClassicColor" in window.external &&
+	"font" in window.external &&
+	"fontsize" in window.external &&
 	"IsRegisteredExtension" in window.external &&
 	"GetMetadata" in window.external)	// Can't be bothered yet to work out how to pass objects back from C++.
 {
@@ -35,6 +62,70 @@ function winampEnqueue(url, name, length)
 	if (winAmpAPI)
 	{
 		window.external.Enqueue(url, name, length);
+	}
+}
+
+/**
+ * Gets skin colour of UI elements.
+ * 
+ * @param classicColourNumber A number in the range 0-23 (see: http://dev.winamp.com/wiki/Complete_JavaScript_API_technology_framework#GetClassicColor.28.29).
+ */
+function winampGetClassicColour(classicColourNumber)
+{
+	if (winAmpAPI)
+	{
+		var colourRef = window.external.GetClassicColor(classicColourNumber);
+		if (colourRef)
+		{
+			return colourRef;
+		}
+		else
+		{
+			// Error.
+			return -1;
+		}
+	}
+	else
+	{
+		// No data; WinAmp API not accessible. Use classic colour scheme as default.
+		if (classicColourNumber in CLASSIC_COLOUR_SCHEME)
+		{
+			return CLASSIC_COLOUR_SCHEME[classicColourNumber];
+		}
+		else
+		{
+			return '#000000';
+		}
+	}
+}
+
+/**
+ * Gets the font name.
+ */
+function winampGetFont()
+{
+	if (winAmpAPI)
+	{
+		return window.external.font();
+	}
+	else
+	{
+		return "arial";
+	}
+}
+
+/**
+ * Gets the font size.
+ */
+function winampGetFontSize()
+{
+	if (winAmpAPI)
+	{
+		return window.external.fontsize() + "px";
+	}
+	else
+	{
+		return "1em";
 	}
 }
 
@@ -64,11 +155,12 @@ function winampGetMetadata(url, tag)
 				}
 				else
 				{
-					return 0;
+					return "";
 				}
 			}
 			else
 			{
+				// Return the number.
 				return metadata;
 			}
 		}
@@ -81,6 +173,6 @@ function winampGetMetadata(url, tag)
 	else
 	{
 		// No data; WinAmp API not accessible.
-		return 1;
+		return 0;
 	}
 }

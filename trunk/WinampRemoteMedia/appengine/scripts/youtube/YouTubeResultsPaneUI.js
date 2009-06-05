@@ -12,12 +12,12 @@ var YouTubeResultsPaneUI = Base.extend(
 	 * Definition of result columns.
 	 */
 	__columnDefs: [{key:"thumbnail", label:"Thumbnail"}, {key:"title", label:"Title"}
-		, {key:"duration", label:"Duration"}],
+		, {key:"strDuration", label:"Duration"}],
 				    
 	/**
 	 * The data schema.
 	 */			    
-	__schema: ["thumbnail", "title", "duration", "videoID"],
+	__schema: ["thumbnail", "title", "strDuration", "duration", "videoID"],
 	
 	/**
 	 * The list UI.
@@ -29,16 +29,13 @@ var YouTubeResultsPaneUI = Base.extend(
 	 * 
 	 * @param containerId The ID of the container.
 	 * @param fnGetMoreResults Callback function to get more results. 
+	 * @param fnTracksSelected The function to invoke when tracks are selected.
 	 */
-	constructor: function(containerId, fnGetMoreResults)
+	constructor: function(containerId, fnGetMoreResults, fnTracksSelected)
 	{
 		// Setup the sites pane UI.
 		this.__listUI = new SelectableTableUI(containerId, this.__columnDefs, this.__schema,
-				function(rowData)
-				{
-					alert(rowData[0].videoID);
-				},
-				null, fnGetMoreResults);
+			fnTracksSelected, "Enqueue selection", fnGetMoreResults);
 	},
 	
 	/**
@@ -47,6 +44,16 @@ var YouTubeResultsPaneUI = Base.extend(
 	clear: function()
 	{
 		this.__listUI.clear();
+	},
+	
+	/**
+	 * Adds a result.
+	 * 
+	 * @param result The result.
+	 */
+	addResult: function(result)
+	{
+		this.__listUI.addRow(this.__parseResult(result));
 	},
 	
 	/**
@@ -68,21 +75,37 @@ var YouTubeResultsPaneUI = Base.extend(
 	},
 	
 	/**
+     * Parse the result object.
+     * 
+     * @param result The result.
+     * 
+     * @return The result object.
+     */
+    __parseResult: function(result)
+    {
+		if (!result.thumbnail)
+		{
+    		// Create HTML for thumbnail.
+    		var thumbnailHTML = this.THUMBNAIL_HTML.replace('SRC', result.thumbnailURL);
+    		result.thumbnail = thumbnailHTML.replace('ALT', result.title);
+		}
+    	
+    	return result;
+    },
+	
+	/**
      * Parse the result objects.
      * 
      * @param results The results.
+     * 
+     * @return The result objects.
      */
     __parseResults: function(results)
     {
     	for (var index in results)
     	{
     		var result = results[index];
-    		if (!result.thumbnail)
-    		{
-	    		// Create HTML for thumbnail.
-	    		var thumbnailHTML = this.THUMBNAIL_HTML.replace('SRC', result.thumbnailURL);
-	    		result.thumbnail = thumbnailHTML.replace('ALT', result.title);
-    		}
+    		result = this.__parseResult(result);
     	}
     	
     	return results;

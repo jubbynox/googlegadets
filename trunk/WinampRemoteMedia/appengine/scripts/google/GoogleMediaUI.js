@@ -24,6 +24,11 @@ var GoogleMediaUI = Base.extend(
 	__tracksPaneUI: null,
 	
 	/**
+	 * A flag to indicate whether or not to allow site browsing.
+	 */
+	__noResults: false,
+	
+	/**
 	 * Constructor for GoogleMediaSearchUI.
 	 * 
 	 * @param containerId The ID of the container.
@@ -38,15 +43,15 @@ var GoogleMediaUI = Base.extend(
 		
 		// Setup sizes.
 		var elContainer = $('#' + containerId);
-		var height = $(window).height() - elContainer.offset().top - 40; // Leave gap at bottom.
-		var width = elContainer.width();
+		var height = $(window).height() - elContainer.offset().top + 20;// - 40; // Leave gap at bottom.
+		var width = $(window).width();
 		
 		// Create the layout.
 		this.__layout = new YAHOO.widget.Layout(containerId, {height: height, width: width,
 			units: [
-        		{ position: 'left', width: width/2, scroll: true, resize: true, body: '<div id="' + sitesId + '"></div>' },
+        		{ position: 'left', width: width/2, scroll: true, resize: true, body: '<div id="' + sitesId + '"></div>', gutter: '0 9px 0 0', minWidth: 50, maxWidth: width-50 },
         		{ position: 'center', scroll: true, body: '<div id="' + siteBrowserId + '"></div>' },
-        		{ position: 'bottom', height: height/3, scroll: true, resize: true, body: '<div id="' + tracksId + '"></div>' }]});
+        		{ position: 'bottom', height: height/3, scroll: true, resize: true, body: '<div id="' + tracksId + '"></div>', gutter: '9px, 0 0 0', minHeight: 50, maxHeight: height-50 }]});
 		this.__layout.render();
 		
 		// Create the sites pane.
@@ -91,6 +96,30 @@ var GoogleMediaUI = Base.extend(
 		this.__siteBrowserPaneUI.clear();
 		// Clear the tracks browser pane UI.
 		this.__tracksPaneUI.clear();
+		
+		// Set no results.
+		this.__noResults = true;
+	},
+	
+	/**
+	 * Adds details to the pane to indicate that searching has started.
+	 */
+	searchStarted: function()
+	{
+		var tmp = new Object();
+		tmp.url = 'Scanning...';
+		this.__sitesPaneUI.addSite(tmp);
+	},
+	
+	/**
+	 * Adds indication that there were no results.
+	 */
+	noResults: function()
+	{
+		this.__sitesPaneUI.clear();
+		var tmp = new Object();
+		tmp.url = 'No results.';
+		this.__sitesPaneUI.addSite(tmp);
 	},
 	
 	/**
@@ -100,6 +129,12 @@ var GoogleMediaUI = Base.extend(
 	 */
 	addResult: function(result)
 	{
+		if (this.__noResults == true)
+		{
+			// Clear the sites pane UI.
+			this.__sitesPaneUI.clear();
+			this.__noResults = false;
+		}
 		this.__sitesPaneUI.addSite(result);
 	},
 	
@@ -110,8 +145,12 @@ var GoogleMediaUI = Base.extend(
 	 */
 	siteSelected: function(siteData)
 	{
-		this.__tracksPaneUI.clear();
-		this.__siteBrowserPaneUI.showSite(siteData);
+		// Only continue if there are results.
+		if (!this.__noResults)
+		{
+			this.__tracksPaneUI.clear();
+			this.__siteBrowserPaneUI.showSite(siteData);
+		}
 	},
 	
 	/**
@@ -134,34 +173,35 @@ var GoogleMediaUI = Base.extend(
 		var tracks;
 		for (track in tracks)
 		{
-			// Get the song name.
-			var songName = winampGetMetadata(tracks[track].url, "title");
-			if (songName == -1)	// Error.
+			// Get the track length.
+			var songLength = winampGetMetadata(tracks[track].url, "length");
+			if (songLength == -1)	// Error.
 			{
 				// Bad ID3 tag, possible bad site. Report to App engine.
 				reportBadMedia(tracks[track].url, 1);
 				alert('The track "' + tracks[track].name + '" could not be found on the site.');
-				return;
 			}
-			else if (songName == 1)
+			else if (songName == 0)
 			{
 				// WinAmp API not supported.
 				return;
 			}
-			
-			// Load remaining tag data.
-			var songLength = winampGetMetadata(tracks[track].url, "length");
-			var songArtist = winampGetMetadata(tracks[track].url, "artist");
-			
-			// Construct title from meta data.
-			var title = tracks[track].name;
-			if (songName.length > 0 && songArtist.length > 0)
+			else
 			{
-				title = songArtist + " - " + songName;
+				// Load remaining tag data.
+				var songName = winampGetMetadata(tracks[track].url, "title");
+				var songArtist = winampGetMetadata(tracks[track].url, "artist");
+				
+				// Construct title from meta data.
+				var title = tracks[track].name;
+				if (songName.length > 0 && songArtist.length > 0)
+				{
+					title = songArtist + " - " + songName;
+				}
+	
+				// Enqueue the track.
+				enqueueMedia(0, tracks[track].url, title, songLength)
 			}
-
-			// Enqueue the track.
-			winampEnqueue(tracks[track].url, title, songLength);
 		}
 	}
 });
