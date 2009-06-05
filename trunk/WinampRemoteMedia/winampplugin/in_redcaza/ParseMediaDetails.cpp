@@ -32,55 +32,63 @@ std::string ws2s(const std::wstring& s)
 	return r;
 }
 
-MediaDetails parseMediaDetails(wchar_t *pJSON)
+MediaDetails parseMediaDetails(wchar_t *pJSON, HWND hwndParent)
 {
 	std::wstring wJSON(pJSON);
 	std::string sJSON = ws2s(wJSON);
-
-	// Parse JSON.
-	std::istringstream streamJSON(sJSON, std::istringstream::in);
-	json::Element elemRootFile = json::String();
-	json::Reader::Read(elemRootFile, streamJSON);
-
-	// Extract data.
-	json::QuickInterpreter interpreter(elemRootFile);
 	MediaDetails mediaDetails;
-	json::Object obj = interpreter.As<json::Object>();
 
-	// Required data.
-	if (obj.Find("operation") == obj.End() || obj.Find("url") == obj.End())
+	try
 	{
-		// Required data missing. Return error.
+		// Parse JSON.
+		std::istringstream streamJSON(sJSON, std::istringstream::in);
+		json::Element elemRootFile = json::String();
+		json::Reader::Read(elemRootFile, streamJSON);
+
+		// Extract data.
+		json::QuickInterpreter interpreter(elemRootFile);
+		json::Object obj = interpreter.As<json::Object>();
+
+		// Required data.
+		if (obj.Find("operation") == obj.End() || obj.Find("url") == obj.End())
+		{
+			// Required data missing. Return error.
+			mediaDetails.error = true;
+			return mediaDetails;
+		}
+		mediaDetails.operation = (int)interpreter["operation"].As<json::Number>();
+		mediaDetails.url = interpreter["url"].As<json::String>();
+
+		// Optional data.
+		if (obj.Find("title") != obj.End())
+		{
+			mediaDetails.title = interpreter["title"].As<json::String>();
+		}
+		if (obj.Find("duration") != obj.End())
+		{
+			mediaDetails.duration = (int)interpreter["duration"].As<json::Number>();
+		}
+		if (obj.Find("seekable") != obj.End())
+		{
+			mediaDetails.seekable = (int)interpreter["seekable"].As<json::Number>();
+		}
+		if (obj.Find("transcoded") != obj.End())
+		{
+			mediaDetails.transcoded = (bool)interpreter["transcoded"].As<json::Boolean>();
+		}
+		if (obj.Find("transcodeConfig") != obj.End())
+		{
+			mediaDetails.transcodeConfig = interpreter["transcodeConfig"].As<json::String>();
+		}
+		if (obj.Find("transcoderOptions") != obj.End())
+		{
+			mediaDetails.transcoderOptions = interpreter["transcoderOptions"].As<json::String>();
+		}
+	}
+	catch(...)
+	{
 		mediaDetails.error = true;
-		return mediaDetails;
-	}
-	mediaDetails.operation = (int)interpreter["operation"].As<json::Number>();
-	mediaDetails.url = interpreter["url"].As<json::String>();
-
-	// Optional data.
-	if (obj.Find("title") != obj.End())
-	{
-		mediaDetails.title = interpreter["title"].As<json::String>();
-	}
-	if (obj.Find("duration") != obj.End())
-	{
-		mediaDetails.duration = (int)interpreter["duration"].As<json::Number>();
-	}
-	if (obj.Find("seekable") != obj.End())
-	{
-		mediaDetails.seekable = (int)interpreter["seekable"].As<json::Number>();
-	}
-	if (obj.Find("transcoded") != obj.End())
-	{
-		mediaDetails.transcoded = (bool)interpreter["transcoded"].As<json::Boolean>();
-	}
-	if (obj.Find("transcodeConfig") != obj.End())
-	{
-		mediaDetails.transcodeConfig = interpreter["transcodeConfig"].As<json::String>();
-	}
-	if (obj.Find("transcoderOptions") != obj.End())
-	{
-		mediaDetails.transcoderOptions = interpreter["transcoderOptions"].As<json::String>();
+		MessageBox(hwndParent, L"There was a problem with the media information.", L"RedCaza Error", MB_OK);
 	}
 	
 
@@ -104,4 +112,12 @@ MediaDetails mergeMediaDetails(MediaDetails newDetails, MediaDetails oldDetails)
 	mergedDetails.transcoderOptions = newDetails.transcoderOptions.length() > 0 ? newDetails.transcoderOptions : oldDetails.transcoderOptions;
 
 	return mergedDetails;
+}
+
+void clearMediaDetails(MediaDetails &mediaDetails)
+{
+	mediaDetails.error = false;
+	mediaDetails.duration = -1;
+	mediaDetails.seekable = -1;
+	mediaDetails.transcoded = false;
 }

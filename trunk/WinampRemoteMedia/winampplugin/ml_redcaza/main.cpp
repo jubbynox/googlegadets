@@ -179,7 +179,8 @@ INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 
 	if (treeItem == webMp3MlItemId)	// Root has been selected.
 	{
-		url = "http://localhost:8080/";
+		//url = "http://localhost:8080/";
+		url = "http://winamp.banacek.org";
 		urlAssigned = true;
 	}
 	else if (appURLs.find(treeItem) != appURLs.end())	// Application has been selected.
