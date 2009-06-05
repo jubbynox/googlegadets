@@ -47,6 +47,11 @@ class GetSupportedApps(webapp.RequestHandler):
                     app.iconid = application.iconId
                     data.append(app)
                 jsonOut = jsonpickle.encode(data, unpicklable=False)
+            else:
+                # Check if there are any applications stored.
+                boApplications = DaoApplication.getAll()
+                if boApplications.count() == 0:
+                    DaoApplication.add(1.0, "name", "appUrl", 1)
         except ValueError:
             pass
         

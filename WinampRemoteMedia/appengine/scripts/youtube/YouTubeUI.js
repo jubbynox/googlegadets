@@ -6,7 +6,7 @@ var YouTubeUI = Base.extend(
 	/**
 	 * The App Engine request string to get mode info about the video.
 	 */
-	APP_ENGINE_REQUEST: APP_ENGINE_URL + 'youtube/getVideo?videoID=VIDEO_ID&fmt=FMT',
+	APP_ENGINE_REQUEST: 'http://' + location.host + '/youtube/getVideo?videoID=VIDEO_ID&fmt=FMT',
 	
 	/**
 	 * The layout.
