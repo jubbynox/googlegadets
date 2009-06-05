@@ -2,6 +2,7 @@
 #define PARSE_MEDIA_DETAILS
 
 #include <string>
+#include <windows.h>
 
 struct MediaDetails
 {
@@ -22,8 +23,10 @@ std::wstring s2ws(const std::string& s);
 
 std::string ws2s(const std::wstring& s);
 
-MediaDetails parseMediaDetails(wchar_t *pJSON);
+MediaDetails parseMediaDetails(wchar_t *pJSON, HWND hwndParent);
 
 MediaDetails mergeMediaDetails(MediaDetails newDetails, MediaDetails oldDetails);
+
+void clearMediaDetails(MediaDetails &mediaDetails);
 
 #endif

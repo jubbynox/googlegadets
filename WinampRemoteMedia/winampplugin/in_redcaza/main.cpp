@@ -97,7 +97,7 @@ void GetFileInfo(const wchar_t *file, wchar_t *title, int *length_in_ms)
 	else
 	{
 		// Get details from file name passed in.
-		tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file));
+		tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file), plugin.hMainWindow);
 	}
 
 	if (title)
@@ -117,7 +117,7 @@ int InfoBox(const wchar_t *file, HWND hwndParent)
 {
 	if (inMod)
 	{
-		MediaDetails tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file));
+		MediaDetails tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file), plugin.hMainWindow);
 		if (inMod->version & IN_UNICODE)
 		{
 			std::wstring url = s2ws(tmpMediaDetails.url);
@@ -217,7 +217,7 @@ int playMedia(wchar_t* pJSON)
 	int res = 1;	// By default, quit.
 
 	// Parse the JSON and merge with existing media details.
-	MediaDetails newMediaDetails = parseMediaDetails(pJSON);
+	MediaDetails newMediaDetails = parseMediaDetails(pJSON, plugin.hMainWindow);
 	if (newMediaDetails.error)
 	{
 		return 1;	// An error occurred. Quit.
@@ -262,6 +262,9 @@ void Pause()
 		if (mediaDetails.transcoded)
 		{
 			transcoder::pause();
+			inMod->Stop();
+			inMod->SetInfo = plugin.SetInfo; // unhook
+			plugin.outMod->Close();
 		}
 		else
 		{
@@ -277,6 +280,7 @@ void UnPause()
 		if (mediaDetails.transcoded)
 		{
 			transcoder::unPause();
+			playUsingWinAmpModule();
 		}
 		else
 		{
@@ -303,10 +307,12 @@ void Stop()
 	{
 		inMod->Stop();
 		inMod->SetInfo = plugin.SetInfo; // unhook
+		plugin.outMod->Close();
 		if (mediaDetails.transcoded)
 		{
 			transcoder::stopTranscoding();
 		}
+		clearMediaDetails(mediaDetails);	// Resest media details.
 	}
 }
 
@@ -340,8 +346,7 @@ int GetOutputTime()
 			{
 				// The stream has stopped.
 				// Move to next item in playlist.
-				//transcoder::stopTranscoding();
-				PostMessage(plugin.hMainWindow, WM_EOF, 0, 0);
+				PostMessage(plugin.hMainWindow, WM_WA_MPEG_EOF, 0, 0);
 			}
 			return outputTime;
 		}

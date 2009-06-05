@@ -511,13 +511,13 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		Sleep(500);	// The length of --sout-mux-caching option.
 
 		// Wait until stream available.
-		/*state = waitForTranscodeStream(strPort.c_str());
+		state = waitForTranscodeStream(strPort.c_str());
 		if (state == libvlc_Error)
 		{
 			stopTranscoding();
 			// Log an error?
 			return false;
-		}*/
+		}
 
 		// Pause and move back to start now that stream is available.
 		libvlc_media_player_pause(mediaPlayer, &ex);
@@ -714,6 +714,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			else if (endReached && endTrapStarted != 0 && modTime == lastModTime && clock()-endTrapStarted > 1000)
 			{
 				// 1 second has passed without anything happening. Assume end.
+				endTrapStarted = 0;
 				return -1;
 			}
 			else if (endReached && endTrapStarted != 0 && modTime != lastModTime)
