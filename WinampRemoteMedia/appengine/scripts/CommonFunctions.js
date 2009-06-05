@@ -9,6 +9,21 @@ var BAD_MEDIA_URL = 'google/addBadMedia';
 var COMMENTS_URL = 'addComments';
 
 /**
+ * Stylesheet HTML snippet to insert dynamically.
+ */
+var STYLESHEET_LINK = '<link rel="stylesheet" type="text/css" href="winamp.css?font=FONT&fontsize=FONT_SIZE&' +
+	'itemBackground=ITEM_BACKGROUND&itemForeground=ITEM_FOREGROUND&windowBackground=WINDOW_BACKGROUND&' +
+	'buttonForeground=BUTTON_FOREGROUND&hilite=HILITE&' +
+	'listHeaderBackground=LIST_HEADER_BACKGROUND&listHeaderText=LIST_HEADER_TEXT&' +
+	'selectionBarForeground=SELECTION_BAR_FOREGROUND&selectionBarBackground=SELECTION_BAR_BACKGROUND&' +
+	'inactiveSelectionBarBackground=INACTIVE_SELECTION_BAR_BACKGROUND">';
+	
+/**
+ * Request string for enqueuing media.
+ */
+var ENQUEUE_MEDIA = 'redcaza://{"operation": OPERATION, "url": "URL", "title": "TITLE", "duration": DURATION}';
+
+/**
  * Gets JSON from the same domain.
  * 
  * @param url The request URL.
@@ -174,3 +189,65 @@ var ThreadedLoop = Base.extend(
 		this.__fnFinished();
 	}
 });
+
+
+/**
+ * Sets up the stylesheet.
+ */
+function setupStylesheet()
+{
+	stylesheetLink = STYLESHEET_LINK.replace(/FONT/, winampGetFont());
+	stylesheetLink = stylesheetLink.replace(/FONT_SIZE/, winampGetFontSize());
+	stylesheetLink = stylesheetLink.replace(/ITEM_BACKGROUND/, winampGetClassicColour(0));
+	stylesheetLink = stylesheetLink.replace(/ITEM_FOREGROUND/, winampGetClassicColour(1));
+	stylesheetLink = stylesheetLink.replace(/WINDOW_BACKGROUND/, winampGetClassicColour(2));
+	stylesheetLink = stylesheetLink.replace(/BUTTON_FOREGROUND/, winampGetClassicColour(3));
+	stylesheetLink = stylesheetLink.replace(/HILITE/, winampGetClassicColour(5));
+	stylesheetLink = stylesheetLink.replace(/LIST_HEADER_BACKGROUND/, winampGetClassicColour(7));
+	stylesheetLink = stylesheetLink.replace(/LIST_HEADER_TEXT/, winampGetClassicColour(8));
+	stylesheetLink = stylesheetLink.replace(/SELECTION_BAR_FOREGROUND/, winampGetClassicColour(18));
+	stylesheetLink = stylesheetLink.replace(/SELECTION_BAR_BACKGROUND/, winampGetClassicColour(19));
+	stylesheetLink = stylesheetLink.replace(/INACTIVE_SELECTION_BAR_BACKGROUND/, winampGetClassicColour(21));
+	stylesheetLink = stylesheetLink.replace(/#/g, '%23');
+	$('head').append(stylesheetLink);
+	
+	// Perform IE hacks.
+	var inputCSS = getInputCSS(winampGetClassicColour(1), winampGetClassicColour(0), winampGetClassicColour(2),
+		winampGetClassicColour(5), winampGetClassicColour(2), winampGetClassicColour(5));
+	var buttonCSS = getInputCSS(winampGetClassicColour(3), winampGetClassicColour(8), winampGetClassicColour(0),
+		winampGetClassicColour(0), winampGetClassicColour(0), winampGetClassicColour(0));
+	$('input[type="text"]').css(inputCSS);
+	$('input[type="button"]').css(buttonCSS);
+}
+
+/**
+ * Returns a CSS object for an input box.
+ */
+function getInputCSS(foreground, background, borderTop, borderBottom, borderLeft, borderRight)
+{
+	var inputCSS = new Object();
+	inputCSS['color'] = foreground;
+	inputCSS['background-color'] = background;
+	inputCSS['border-top'] = '1px solid ' + borderTop;
+	inputCSS['border-bottom'] = '1px solid ' + borderBottom;
+	inputCSS['border-left'] = '1px solid ' + borderLeft;
+	inputCSS['border-right'] = '1px solid ' + borderRight;
+	return inputCSS;
+}
+
+/**
+ * Enqueues media.
+ * 
+ * @param operation Operation to perform: 0: use WinAmp module; 1: use transcoding; 2: ask app engine for more information.
+ * @param url The URL of the media (or app engine request).
+ * @param title The title of the media.
+ * @param duration The duration of the media.
+ */
+function enqueueMedia(operation, url, title, duration)
+{
+	var enqueueMedia = ENQUEUE_MEDIA.replace(/OPERATION/, operation);
+	enqueueMedia = enqueueMedia.replace(/URL/, url);
+	enqueueMedia = enqueueMedia.replace(/TITLE/, title);
+	enqueueMedia = enqueueMedia.replace(/DURATION/, duration);
+	winampEnqueue(enqueueMedia, title, duration);
+}

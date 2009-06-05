@@ -24,6 +24,11 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	__fnSiteSelected: null,
 	
 	/**
+	 * The number of sites.
+	 */
+	__numSites: null,
+	
+	/**
 	 * Constructor for GoogleMediaSitesPaneUI.
 	 * 
 	 * @param containerId The ID of the container.
@@ -32,6 +37,7 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	constructor: function(containerId, fnSiteSelected)
 	{
 		this.__fnSiteSelected = fnSiteSelected;
+		this.__numSites = 0;
 		
 		// Setup the sites pane UI.
 		this.__listUI = new SelectableTableUI(containerId, this.__columnDefs, this.__schema,
@@ -50,6 +56,7 @@ var GoogleMediaSitesPaneUI = Base.extend(
 	clear: function()
 	{
 		this.__listUI.clear();
+		this.__numSites = 0;
 	},
 	
 	/**
@@ -77,5 +84,6 @@ var GoogleMediaSitesPaneUI = Base.extend(
 		
 		// Add row.
 		this.__listUI.addRow(siteData);
+		this.__numSites++;
 	}
 });

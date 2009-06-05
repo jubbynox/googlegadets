@@ -14,6 +14,7 @@ class Branch:
     def __init__(self, urlFetch):
         """Initialiser."""
         self.__urlFetch = urlFetch    # The URL fetch processor
+        self.searchCriteria = ''
         self.url = ''
         self.title = ''
         self.tracks = []
@@ -24,6 +25,9 @@ class Branch:
         
     def build(self, url, searchCriteria):
         """Builds the tree from the supplied URL."""
+        # Set the search criteria.
+        self.searchCriteria = searchCriteria
+        
         # Check that the URL isn't a query string.
         if re.search(r'\?', url):
             return

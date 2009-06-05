@@ -5,6 +5,16 @@ function onLoadExtended()
 {
 	// Setup YouTube search.
 	searchObject = new YouTubeSearch('ResultsPane');
+	
+	// Bind enter key to search input.
+	$("#SearchInput").keypress(
+		function (e)
+		{
+			if (e.which == 13)
+			{
+				search($('#SearchInput')[0].value)
+			}
+		});
 }
 
 
@@ -77,6 +87,9 @@ var YouTubeSearch = Base.extend(
 		// Store the search string.
 		this.__searchCriteria = searchString;
 		
+		// Indicate that the search has started.
+		this.__youtubeUI.searchStarted();
+		
 		// Perform the search.
 		this.__perfomSearch();
 	},
@@ -125,14 +138,23 @@ var YouTubeSearch = Base.extend(
 			// Create result entry.
 			resultSet[resultIndex] = new Object();
 			resultSet[resultIndex].videoID = this.VIDEO_ID_RE.exec(data.feed.entry[index].media$group.media$player[0].url)[1];
-			resultSet[resultIndex].title = data.feed.entry[index].media$group.media$title.$t;
-			resultSet[resultIndex].duration = this.__formatTime(data.feed.entry[index].media$group.yt$duration.seconds);
+			resultSet[resultIndex].title = "" + data.feed.entry[index].media$group.media$title.$t;
+			resultSet[resultIndex].strDuration = this.__formatTime(data.feed.entry[index].media$group.yt$duration.seconds);
+			resultSet[resultIndex].duration = parseInt(data.feed.entry[index].media$group.yt$duration.seconds);
 			resultSet[resultIndex].thumbnailURL = data.feed.entry[index].media$group.media$thumbnail[0].url;
 			resultIndex++;
 		}
 		
-		// Show the results.
-		this.__youtubeUI.addResults(resultSet);
+		if (this.__searchIndex == 1 && resultSet.length == 0)
+		{
+			// No results.
+			this.__youtubeUI.noResults();
+		}
+		else
+		{
+			// Show the results.
+			this.__youtubeUI.addResults(resultSet);
+		}
 	},
 	
 	/**

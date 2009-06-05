@@ -1,6 +1,107 @@
 <HTML>
-	<HEAD></HEAD>
+	<HEAD>
+		<!-- http://developer.yahoo.com/yui/articles/hosting/?datasource&datatable&dragdrop&layout&resize&MIN -->
+		<!-- Combo-handled YUI CSS files: -->
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.7.0/build/assets/skins/sam/skin.css">
+		<!-- Combo-handled YUI JS files: -->
+		<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.7.0/build/yahoo-dom-event/yahoo-dom-event.js&2.7.0/build/datasource/datasource-min.js&2.7.0/build/dragdrop/dragdrop-min.js&2.7.0/build/element/element-min.js&2.7.0/build/datatable/datatable-min.js&2.7.0/build/resize/resize-min.js&2.7.0/build/layout/layout-min.js"></script>
+		
+		<script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w"></script>
+		<script type="text/javascript" src="scripts/CommonCode.js"></script>
+		<script>
+			/**
+			 * Function to be invoked on page load. Sets up the required objects.
+			 */
+			function onLoadExtended()
+			{
+				for (var i=0; i<=23; i++)
+				{
+					$('#'+i).css("background", winampGetClassicColour(i));
+					$('#'+i).append(winampGetClassicColour(i));
+				}
+				alert(winampGetFontSize());
+				$('body').css("font-family", winampGetFont());
+				$('body').css("font-size", winampGetFontSize());
+				$('td').css("font-size", winampGetFontSize());
+			}
+		</script>
+	</HEAD>
 	<BODY>
+	Dashboard<p>
 	Root page for web media application.
+	<table width="100%">
+		<tr>
+			<td id="0">0</td>
+		</tr>
+		<tr>
+			<td id="1">1</td>
+		</tr>
+		<tr>			
+			<td id="2">2</td>
+		</tr>
+		<tr>
+			<td id="3">3</td>
+		</tr>
+		<tr>
+			<td id="4">4</td>
+		</tr>
+		<tr>
+			<td id="5">5</td>
+		</tr>
+		<tr>
+			<td id="6">6</td>
+		</tr>
+		<tr>
+			<td id="7">7</td>
+		</tr>
+		<tr>
+			<td id="8">8</td>
+		</tr>
+		<tr>
+			<td id="9">9</td>
+		</tr>
+		<tr>
+			<td id="10">10</td>
+		</tr>
+		<tr>
+			<td id="11">11</td>
+		</tr>
+		<tr>
+			<td id="12">12</td>
+		</tr>
+		<tr>
+			<td id="13">13</td>
+		</tr>
+		<tr>
+			<td id="14">14</td>
+		</tr>
+		<tr>
+			<td id="15">15</td>
+		</tr>
+		<tr>
+			<td id="16">16</td>
+		</tr>
+		<tr>
+			<td id="17">17</td>
+		</tr>
+		<tr>
+			<td id="18">18</td>
+		</tr>
+		<tr>
+			<td id="19">19</td>
+		</tr>
+		<tr>
+			<td id="20">20</td>
+		</tr>
+		<tr>
+			<td id="21">21</td>
+		</tr>
+		<tr>
+			<td id="22">22</td>
+		</tr>
+		<tr>
+			<td id="23">23</td>
+		</tr>
+	</table>
 	</BODY>
 </HTML>

@@ -5,4 +5,5 @@ mkdir %3\scripts
 xcopy %2\src\*.* %3\ /E /Y
 xcopy %2\yaml\*.* %3\ /E /Y
 xcopy %2\html\*.* %3\html\ /E /Y
+xcopy %2\img\*.* %3\img\ /E /Y
 xcopy %2\templates\*.* %3\templates\ /E /Y

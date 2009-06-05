@@ -12,9 +12,10 @@ def main():
                                          [('/google/searchUrl', mediaservlets.SearchUrl),
                                           ('/google/getIgnoredSites', mediaservlets.GetIgnoredSites),
                                           ('/google/addBadMedia', mediaservlets.AddBadMedia),
-                                          ('/youtube/getVideoURL', youtubeservlets.GetVideoURL),
+                                          ('/youtube/getVideo', youtubeservlets.GetVideo),
                                           ('/addComments', commonservlets.AddComments),
-                                          ('/getSupportedApps', commonservlets.GetSupportedApps)],
+                                          ('/getSupportedApps', commonservlets.GetSupportedApps),
+                                          ('/winamp.css', commonservlets.GetWinAmpCSS)],
                                           debug=True)
     wsgiref.handlers.CGIHandler().run(application)
   

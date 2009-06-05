@@ -9,6 +9,16 @@ function onLoadExtended()
 {
 	// Setup Google media search.
 	searchObject = new GoogleMediaSearch('HiddenElement', 'ResultsPane', test);
+	
+	// Bind enter key to search input.
+	$("#SearchInput").keypress(
+		function (e)
+		{
+			if (e.which == 13)
+			{
+				search($('#SearchInput')[0].value)
+			}
+		});
 }
 
 
@@ -66,6 +76,11 @@ var GoogleMediaSearch = Base.extend(
 	 * The current result index.
 	 */
 	__resultsCounter: null,
+	
+	/**
+	 * The number of processed results.
+	 */
+	__processedResults: null,
 	
 	/**
 	 * The Google media UI.
@@ -129,6 +144,9 @@ var GoogleMediaSearch = Base.extend(
 		// Store the search string.
 		this.__searchCriteria = searchString;
 		
+		// Show that a search is in progress.
+		this.__mediaUI.searchStarted();
+		
 		if (this.__test)
 		{
 			var search = new Object();
@@ -170,15 +188,21 @@ var GoogleMediaSearch = Base.extend(
 		this.__searchControl.cancelSearch();
 		this.__searchControl.clearAllResults();
 		
+		// Clear search criteria.
+		this.__searchCriteria = null;
+		
 		// Clear results UI.
 		this.__mediaUI.clear();
+		
+		// Clear processed results counter.
+		this.__processedResults = 0;
 	},
 	
 	/**
 	 * The callback search function.
 	 */
 	__onSearchComplete: function()
-	{	
+	{
 		// Setup result counter.
 		this.__resultsCounter = 0;
 		
@@ -197,13 +221,16 @@ var GoogleMediaSearch = Base.extend(
 			// Test index.
 			if (this.__resultsCounter >= this.__webSearch.results.length)	// Get next page as all results have been processed.
 			{
-				if (this.__webSearch.cursor)	// Test if there are more pages to load.
+				// Test if there are more pages to load.
+				if (this.__webSearch.cursor &&
+					this.__webSearch.cursor.currentPageIndex < this.__webSearch.cursor.pages.length-1)
 				{
-					if (this.__webSearch.cursor.currentPageIndex < this.__webSearch.cursor.pages.length-1)
-					{
-						// Load next page of results.
-						this.__webSearch.gotoPage(this.__webSearch.cursor.currentPageIndex+1);
-					}
+					// Load next page of results.
+					this.__webSearch.gotoPage(this.__webSearch.cursor.currentPageIndex+1);
+				}
+				else	// No more results to process.
+				{
+					this.__noMoreResults();
 				}
 			}
 			else	// Process web search.
@@ -223,6 +250,22 @@ var GoogleMediaSearch = Base.extend(
 				// Move to next result.
 				this.__resultsCounter++;
 			}
+		}
+		else	// No more results to process.
+		{
+			this.__noMoreResults();
+		}
+	},
+	
+	/**
+	 * Called when there are no more results to process.
+	 */
+	__noMoreResults: function()
+	{
+		if (this.__processedResults == 0)
+		{
+			// No results.
+			this.__mediaUI.noResults();
 		}
 	},
 	
@@ -273,9 +316,11 @@ var GoogleMediaSearch = Base.extend(
 	 */
 	__processResult: function(data)
 	{
-		// If there is data then continue.
-		if (data.url && (data.tracks.length > 0 || data.directories.length > 0))
+		// If there is data (and it is for the current search criteria) then continue.
+		if (data.url && data.searchCriteria == this.__searchCriteria
+			&& (data.tracks.length > 0 || data.directories.length > 0))
 		{
+			this.__processedResults++;
 			this.__mediaUI.addResult(data);
 		}
 		

@@ -78,10 +78,12 @@ var SelectableTableUI = Base.extend(
 		
 			// Create the table.
 			this.__createTable(tmpData);
+			this.__dataTable.hideMore();	// Can't be bothered to re-write YouTubeUI, so 1 result (e.g. "Scanning...") means there is no more.
 		}
 		else	// ...else add row.
 		{
 			this.__dataTable.addRow(data);
+			this.__dataTable.showMore();
 		}
 	},
 	
@@ -100,6 +102,16 @@ var SelectableTableUI = Base.extend(
 		{
 			this.__dataTable.addRows(data);
 		}
+	},
+	
+	/**
+	 * Selects a row by number.
+	 * 
+	 * @param rowNum The row number.
+	 */
+	selectRow: function(rowNum)
+	{
+		this.__dataTable.selectRow(rowNum);
 	},
 		
 	/**
@@ -179,6 +191,11 @@ YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
 	__contextMenu: null,
 	
 	/**
+	 * The "more..." ID.
+	 */
+	__moreID: null,
+	
+	/**
      * Setup the selectable table.
      *
      * @param containerId The element ID of the HTML element to contain the list.
@@ -205,15 +222,37 @@ YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
     		// Single click acts selects row if there is no context menu.
     		this.subscribe("rowClickEvent", this.__singleClickAndSelect);
     		// Disable multi-select if there is no context menu.
-    		this.set("selectionMode","singlecell");
+    		this.set("selectionMode","single");
     	}
     	
     	// Add "more" functionality, if required.
     	if (fnMore)
     	{
-    		var aID = containerId + '_a';
-    		$('#' + containerId).append(this.MORE_HTML.replace('ID', aID));
-    		$('#' + aID).bind('click', fnMore);
+    		this.__moreID = containerId + '_a';
+    		$('#' + containerId).append(this.MORE_HTML.replace('ID', this.__moreID));
+    		$('#' + this.__moreID).bind('click', fnMore);
+    	}
+    },
+    
+    /**
+     * Shows the "more...".
+     */
+    showMore: function()
+    {
+    	if (this.__moreID)
+    	{
+    		$('#' + this.__moreID).show();
+    	}
+    },
+    
+    /**
+     * Hides the "more...".
+     */
+    hideMore: function()
+    {
+    	if (this.__moreID)
+    	{
+    		$('#' + this.__moreID).hide();
     	}
     },
     
@@ -252,7 +291,7 @@ YAHOO.extend(SelectableDataTable, YAHOO.widget.DataTable,
                 {trigger:dataTable.getTbodyEl()});
         	this.__contextMenu.addItem(this.__contextMenuTxt);
         	this.__contextMenu.render(this.__containerId);
-        	this.__contextMenu.clickEvent.subscribe(this.__contextClick, this);
+        	this.__contextMenu.clickEvent.subscribe(dataTable.__contextClick, dataTable);
     	}
     },
     

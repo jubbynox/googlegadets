@@ -13,7 +13,6 @@ var searchObject;
 /** Application loader. **/
 google.setOnLoadCallback(onLoad);
 
-
 /**
  * Function to be invoked on page load. Sets up the required objects.
  */
@@ -21,6 +20,9 @@ function onLoad()
 {
 	// Setup default JQuery AJAX settings.
 	$.ajaxSetup({timeout: 10000});
+	
+	// Setup stylesheet.
+	setupStylesheet();
 	
 	// Call application onLoad method.
 	onLoadExtended();

@@ -63,7 +63,7 @@ class GetSupportedApps(webapp.RequestHandler):
                               }
         
             # Write response.
-            path = os.path.join(os.path.dirname(__file__), '../templates/SupportedApps.html')
+            path = os.path.join(os.path.dirname(__file__), '../templates/Callback.html')
             self.response.out.write(template.render(path, templateValues))
         else:
             # Return data.
@@ -77,3 +77,42 @@ class SupportedApp:
         self.name = ''
         self.appurl = ''
         self.iconid = ''
+        
+        
+class GetWinAmpCSS(webapp.RequestHandler):
+    """Entry point for retrieving the WinAmp CSS."""
+    def get(self):
+        # Get application list
+        jsonOut = None
+        font = self.request.get("font")
+        fontsize = self.request.get("fontsize")
+        itemBackground = self.request.get("itemBackground")
+        itemForeground = self.request.get("itemForeground")
+        windowBackground = self.request.get("windowBackground")
+        buttonForeground = self.request.get("buttonForeground")
+        hilite = self.request.get("hilite")
+        listHeaderBackground = self.request.get("listHeaderBackground")
+        listHeaderText = self.request.get("listHeaderText")
+        selectionBarForeground = self.request.get("selectionBarForeground")
+        selectionBarBackground = self.request.get("selectionBarBackground")
+        inactiveSelectionBarBackground = self.request.get("inactiveSelectionBarBackground")
+        
+        # Create template values.
+        templateValues = {
+                          'FONT': font,
+                          'FONT_SIZE': fontsize,
+                          'ITEM_BACKGROUND': itemBackground,
+                          'ITEM_FOREGROUND': itemForeground,
+                          'WINDOW_BACKGROUND': windowBackground,
+                          'BUTTON_FOREGROUND': buttonForeground,
+                          'HILITE': hilite,
+                          'LIST_HEADER_BACKGROUND': listHeaderBackground,
+                          'LIST_HEADER_TEXT': listHeaderText,
+                          'SELECTION_BAR_FOREGROUND': selectionBarForeground,
+                          'SELECTION_BAR_BACKGROUND': selectionBarBackground,
+                          'INACTIVE_SELECTION_BAR_BACKGROUND': inactiveSelectionBarBackground
+                          }
+        
+        # Write response.
+        path = os.path.join(os.path.dirname(__file__), '../templates/winamp.css')
+        self.response.out.write(template.render(path, templateValues))
