@@ -1,4 +1,7 @@
 #include "WinAmpAPI.h"
+#include <strsafe.h>
+#include "WinAmpHooks.h"
+#include <api/service/waservicefactory.h>
 
 WinAmpAPI::WinAmpAPI()
 {
@@ -7,17 +10,18 @@ WinAmpAPI::WinAmpAPI()
 	mt = 0;
 	fileLoaded = false;
 	currentUrl = "";
+	trackLength = -1;
 
 	// Load Agave meta data service.
-	if (WASABI_API_SVC)
+	if (wasabiServiceManager)
 	{
 		// Load the meta data API.
-		waServiceFactory *factory = WASABI_API_SVC->service_getServiceByGuid(api_metadataGUID);
+		waServiceFactory *factory = wasabiServiceManager->service_getServiceByGuid(api_metadataGUID);
 		if (factory)
 			metaDataApi = (api_metadata*)factory->getInterface();
 
 		// Load the decode file API.
-		factory = WASABI_API_SVC->service_getServiceByGuid(decodeFileGUID);
+		factory = wasabiServiceManager->service_getServiceByGuid(decodeFileGUID);
 		if (factory)
 			decodeFileApi = (api_decodefile*)factory->getInterface();
 	}
@@ -25,15 +29,15 @@ WinAmpAPI::WinAmpAPI()
 
 WinAmpAPI::~WinAmpAPI()
 {
-	if (WASABI_API_SVC)
+	if (wasabiServiceManager)
 	{
 		// Release meta data API.
-		waServiceFactory *factory = WASABI_API_SVC->service_getServiceByGuid(api_metadataGUID);
+		waServiceFactory *factory = wasabiServiceManager->service_getServiceByGuid(api_metadataGUID);
 		if (factory)
 			factory->releaseInterface(metaDataApi);
 
 		// Release decode file API.
-		factory = WASABI_API_SVC->service_getServiceByGuid(decodeFileGUID);
+		factory = wasabiServiceManager->service_getServiceByGuid(decodeFileGUID);
 		if (factory)
 			factory->releaseInterface(decodeFileApi);
 	}
@@ -76,14 +80,37 @@ void WinAmpAPI::enqueue(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
 	
 	if (enqueue)	// Enqueue the song.
 	{
-		SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
+		SendMessage(*hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
 		delete [] eFWMS.filename;
 		delete [] eFWMS.title;
 	}
 }
 
-void WinAmpAPI::getClassicColor(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
+void WinAmpAPI::getClassicColour(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
 {
+	if (pdispparams->cArgs == 1 && pdispparams->rgvarg[0].vt == VT_I4)
+	{
+		wchar_t htmlColour[10];
+		StringCchPrintfW(htmlColour, 10, L"#%06X", GetHTMLColor(ml_color(pdispparams->rgvarg[0].lVal)));
+		pvarResult->vt = VT_BSTR;
+		pvarResult->bstrVal = SysAllocString(htmlColour);
+	}
+}
+
+void WinAmpAPI::getFont(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
+{
+	LOGFONT lf;
+	GetObject(ml_font, sizeof(lf), &lf);
+	pvarResult->vt = VT_BSTR;
+	pvarResult->bstrVal = SysAllocString(lf.lfFaceName);
+}
+
+void WinAmpAPI::getFontSize(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
+{
+	LOGFONT lf;
+	GetObject(ml_font, sizeof(lf), &lf);
+	pvarResult->vt = VT_I4;
+	pvarResult->lVal = abs(lf.lfHeight);
 }
 
 void WinAmpAPI::isRegisteredExtension(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
@@ -125,7 +152,7 @@ void WinAmpAPI::getMetadata(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult
 				if (tag[0] == 0)	// Test for no result.
 				{
 					pvarResult->vt = VT_BSTR;
-					pvarResult->bstrVal = SysAllocString(L" ");	// At least return something.
+					pvarResult->bstrVal = SysAllocString(L"");	// At least return something.
 				}
 				else	// Result returned.
 				{

@@ -3,10 +3,10 @@
 #include <comutil.h>
 #include <hash_map>
 
-#include "Cajun/elements.h"
-#include "Cajun/reader.h"
-#include "Cajun/quick.h"
-#include "Cajun/cast.h"
+#include "../Cajun/elements.h"
+#include "../Cajun/reader.h"
+#include "../Cajun/quick.h"
+#include "../Cajun/cast.h"
 
 #include "RemoteInvocation.h"
 
@@ -64,7 +64,7 @@ namespace supported_apps	// Can't be arsed to write another C++ object.
 	void getSupportedApps(HWND parent, stdext::hash_map <std::string, SupportedApp> &supportedAppMap)
 	{
 		supportedApps = &supportedAppMap;
-		RemoteInvocation remoteInvocation;
-		remoteInvocation.remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod&dllVer=0.1", "externalMethod", parent, &processResults);
+		RemoteInvocation remoteInvocation(parent);
+		remoteInvocation.remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod&dllVer=0.1", "externalMethod", &processResults);
 	}
 }

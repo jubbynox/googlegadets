@@ -2,7 +2,6 @@
 #define NULLSOFT_HTMLCONTROLH
 
 #include "HTMLContainer.h"
-//#include "main.h"
 
 typedef void (ExternalBase::*NavigateError)();
 

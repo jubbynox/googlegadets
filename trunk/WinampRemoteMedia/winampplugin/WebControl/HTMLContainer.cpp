@@ -570,12 +570,33 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 	return DISP_E_MEMBERNOTFOUND;
 }
 
+void HTMLContainer::removeFns()
+{
+	// Remove all mapped external functions.
+	fnIDToObjMap.clear();
+	fnIDToFnMap.clear();
+	nameToIDMap.clear();
+}
+
 void HTMLContainer::addToNameFnMap(char *externalMethodName, ExternalBase* obj, ExternalMethod externalMethod)
 {
-	fnIDToObjMap[lastFnID] = obj;
-	fnIDToFnMap[lastFnID] = externalMethod;
-	nameToIDMap[std::string(externalMethodName)] = lastFnID;
-	lastFnID++;
+	int thisFnID;
+	if (nameToIDMap.find(std::string(externalMethodName)) ==  nameToIDMap.end())
+	{
+		// Function name is new.
+		thisFnID = lastFnID;
+		lastFnID++;
+	}
+	else
+	{
+		// Function name already used. Replace existing data.
+		thisFnID = nameToIDMap[std::string(externalMethodName)];
+	}
+
+	// Store details.
+	fnIDToObjMap[thisFnID] = obj;
+	fnIDToFnMap[thisFnID] = externalMethod;
+	nameToIDMap[std::string(externalMethodName)] = thisFnID;
 }
 
 void HTMLContainer::add(CLSID clsid)
