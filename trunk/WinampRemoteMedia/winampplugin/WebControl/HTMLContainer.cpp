@@ -61,7 +61,7 @@ static const CLSID CLSID_MozillaBrowser=
  {
 	lastFnID = 1000;
 	bInitialized = (S_OK == CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)) ? true : false;
-	dwHostInfoFlags = DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
+	dwHostInfoFlags = DOCHOSTUIFLAG_SCROLL_NO | DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
 	dwDownloadFlags = GetDownloadSettings();
 
 	// Allocate memory of window rectangle.
@@ -93,7 +93,7 @@ HTMLContainer::HTMLContainer()
 {
 	lastFnID = 1000;
 	bInitialized = (S_OK == CoInitializeEx(NULL, COINIT_APARTMENTTHREADED)) ? true : false;
-	dwHostInfoFlags = DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
+	dwHostInfoFlags = DOCHOSTUIFLAG_SCROLL_NO | DOCHOSTUIFLAG_NO3DOUTERBORDER | DOCHOSTUIFLAG_ENABLE_INPLACE_NAVIGATION | DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIDBLCLK_DEFAULT;
 	dwDownloadFlags = GetDownloadSettings();
 
 	memset(&m_rect, 0, sizeof(m_rect));
@@ -542,20 +542,6 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 			pvarResult->vt = VT_I4;
 			pvarResult->lVal = dwDownloadFlags;
 			return S_OK;
-		/*case DISPID_ADD_TO_PLAYLIST:
-			if (pdispparams->cArgs == 3)
-			{
-				//MessageBox(m_hwnd, pdispparams->rgvarg[2].bstrVal, L"AddToPlaylist", MB_OK);
-				// TODO check: length of parameters.
-				enqueueFileWithMetaStruct eFWMS = {0};
-				eFWMS.filename = _com_util::ConvertBSTRToString(pdispparams->rgvarg[0].bstrVal);
-				eFWMS.title = _com_util::ConvertBSTRToString(pdispparams->rgvarg[1].bstrVal);
-				eFWMS.length = -1;  // Unknown.
-				SendMessage(WebMediaML.hwndWinampParent, WM_WA_IPC, (WPARAM)&eFWMS, IPC_ENQUEUEFILE);
-				delete [] eFWMS.filename;
-				delete [] eFWMS.title;
-			}
-			return S_OK;*/
 	}
 
 	// Check if ID is in method map and object map.
@@ -862,7 +848,7 @@ HRESULT HTMLContainer::ResizeBorder(LPCRECT prcBorder, IOleInPlaceUIWindow __RPC
 
 HRESULT HTMLContainer::TranslateAccelerator(LPMSG lpMsg, const GUID __RPC_FAR *pguidCmdGroup, DWORD nCmdID)
 {
-	return E_NOTIMPL;
+	return S_FALSE;
 }
 
 HRESULT HTMLContainer::GetOptionKeyPath(LPOLESTR __RPC_FAR *pchKey, DWORD dw)

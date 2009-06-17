@@ -25,11 +25,11 @@ void HTMLControl::NavigateToName(char * pszUrl)
 	if (!m_pweb) return ;
 	DWORD dwChars = (int)strlen(pszUrl) + 1;
 	LPWSTR pwszUrl = (LPWSTR)LocalAlloc (LPTR, dwChars * sizeof (WCHAR));
-	long moptions = navNoReadFromCache | navNoWriteToCache ;
+	//long moptions = navNoReadFromCache | navNoWriteToCache ;
 	VARIANT options;
 	memset( (void*)&options, 0, sizeof(VARIANT));
 	V_VT(&options) = VT_I4;
-	V_I4(&options) = moptions;
+	//V_I4(&options) = moptions;
 	if (pwszUrl)
 	{
 		MultiByteToWideChar(CP_ACP, 0, pszUrl, -1, pwszUrl, dwChars);
@@ -103,7 +103,7 @@ cleanup:
 
 HRESULT HTMLControl::TranslateAccelerator(LPMSG lpMsg, const GUID __RPC_FAR *pguidCmdGroup, DWORD nCmdID)
 {
-	if ((0x8000 & GetAsyncKeyState(VK_MENU)) || (0x8000 & GetAsyncKeyState(VK_CONTROL)))
+	if (0x8000 & GetAsyncKeyState(VK_MENU))
 	{
 		HWND hwndParent;
 		hwndParent = GetParent(m_hwnd);
@@ -112,7 +112,27 @@ HRESULT HTMLControl::TranslateAccelerator(LPMSG lpMsg, const GUID __RPC_FAR *pgu
 			PostMessageW(hwndParent, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
 			return S_OK;
 		}
-	}	
+	}
+	else if (0x8000 & GetAsyncKeyState(VK_CONTROL))
+	{
+		switch (lpMsg->wParam &= 0xFF)
+		{
+					case 'C':
+					case 'V':
+					case 'X':
+					case 'Z':
+					case 'Y':
+						return HTMLContainer::TranslateAccelerator(lpMsg, pguidCmdGroup, nCmdID);
+					default:
+						HWND hwndParent;
+						hwndParent = GetParent(m_hwnd);
+						if (hwndParent)
+						{
+							PostMessageW(hwndParent, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
+							return S_OK;
+						}
+		}
+	}
 	
 	return HTMLContainer::TranslateAccelerator(lpMsg, pguidCmdGroup, nCmdID);
 }

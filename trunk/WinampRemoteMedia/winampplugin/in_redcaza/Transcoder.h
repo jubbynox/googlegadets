@@ -17,17 +17,12 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 	bool endReached = false;
 	bool buffering = false;
 	bool error = false;
-	bool tmpPlaying = false;
-	bool tmpEndReached = false;
 	bool tmpBuffering = false;
 	bool tmpError = false;
 	bool modConnected = false;	// Whether or not the module has connected to the stream.
 	bool transcodeInvoked = false;	// Whether or not transcoding has been invoked.
-	//bool streamOffsetCalculated = false;
 	int length = 0;	// Length of the stream.
-	int bufferLength = 0;	// The calculated module buffer length.
-	//int streamOffset = 0;	// The offset between the actual stream and that being played.
-	clock_t pauseStart;
+	clock_t pauseStart = 0;
 	int pauseOffset = 0;
 	int lastModTime = 0;
 	int endTrapStarted = 0;	// When the end trap was started.
@@ -50,16 +45,12 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		endReached = false;
 		buffering = false;
 		error = false;
-		tmpPlaying = false;
-		tmpEndReached = false;
 		tmpBuffering = false;
 		tmpError = false;
-		//streamOffsetCalculated = false;
 		modConnected = false;
 		transcodeInvoked = false;
 		length = 0;
-		bufferLength = 0;
-		//streamOffset = 0;
+		pauseStart = 0;
 		pauseOffset = 0;
 		lastModTime = 0;
 		endTrapStarted = 0;
@@ -120,17 +111,6 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		error = transcodeInvoked;
 	}
 
-	void trapTmpPlayingEvent(const libvlc_event_t *, void *)
-	{
-		tmpPlaying = transcodeInvoked;
-	}
-
-	void trapTmpEndReachedEvent(const libvlc_event_t *, void *)
-	{
-		tmpEndReached = transcodeInvoked;
-		tmpPlaying = false;
-	}
-
 	void trapTmpBufferingEvent(const libvlc_event_t *, void *)
 	{
 		tmpBuffering = transcodeInvoked;
@@ -157,8 +137,6 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		}
 		else
 		{
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, (libvlc_callback_t)trapTmpPlayingEvent, NULL, &ex);
-			libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, (libvlc_callback_t)trapTmpEndReachedEvent, NULL, &ex);
 			libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, (libvlc_callback_t)trapTmpBufferingEvent, NULL, &ex);
 			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapTmpErrorEvent, NULL, &ex);
 			if (handleError(&ex))
@@ -420,7 +398,6 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 
 	libvlc_state_t waitForTranscodeStream(const char *port)
 	{
-		tmpPlaying = false;
 		tmpBuffering = false;
 		tmpError = false;
 
@@ -533,123 +510,8 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			return false;
 		}
 
-		
-		
-		/*float position = 0;
-		while (position == 0)
-		{
-			Sleep(1);
-			position = libvlc_media_player_get_position(mp, &ex);
-			if (handleError(handle, &ex))
-			{
-				libvlc_exception_clear(&ex);
-				return 0;
-			}
-		}*/
-
-		/*// Add this broadcast.
-		libvlc_vlm_add_broadcast(inst, "broadcast", (char*)input, (char*)output.c_str(), numVLCOptions, vlcOptions, 1, 0, &ex);
-		// Check for exception.
-		if (handleError(handle, &ex))
-		{
-			libvlc_exception_clear(&ex);
-			return 0;
-		}
-
-		// Start playing the media.
-		libvlc_vlm_play_media(inst, "broadcast", &ex);
-		// Check for exception.
-		if (handleError(handle, &ex))
-		{
-			libvlc_exception_clear(&ex);
-			return 0;
-		}
-
-		// Work out if and when to let WinAmp connect to stream.
-		int length = libvlc_vlm_get_media_instance_length(inst, "broadcast", NULL, &ex);
-		while (length <= 0 && !handleError(handle, &ex))
-		{
-			libvlc_exception_clear(&ex);
-			Sleep(1);
-			length = libvlc_vlm_get_media_instance_length(inst, "broadcast", NULL, &ex);
-		}
-		// Quit if stream unavailable.
-		if (libvlc_exception_raised(&ex))
-		{
-			libvlc_exception_clear(&ex);
-			return 0;
-		}
-
-		// Get stream details.
-		char* info = libvlc_vlm_show_media(inst, "broadcast", &ex);
-		while(1)
-		{
-			if (libvlc_exception_raised(&ex))
-			{
-				libvlc_exception_clear(&ex);
-				Sleep(1000);
-				info = libvlc_vlm_show_media(inst, "broadcast", &ex);
-			}
-		}
-
-
-		// Wait for 1 second to play.
-		float position = libvlc_vlm_get_media_instance_position(inst, "broadcast", NULL, &ex);
-		/*while (length * position < 1000000 * 2)
-		{
-			Sleep(1);
-			position = libvlc_vlm_get_media_instance_position(inst, "broadcast", NULL, &ex);
-		}
-		libvlc_exception_clear(&ex);*/
-
-
-
-		/*std::ostringstream buff;
-		buff<<time;
-		std::string tempString(buff.str());
-		std::wstring exWString = s2ws(tempString);
-		MessageBox(handle, exWString.c_str(), L"Transcoder error", MB_OK);*/
-
-		/*libvlc_exception_clear(&ex);
-		std::stringstream buff2;
-		buff2<<length;
-		std::string tempString2(buff2.str());
-		std::wstring exWString2 = s2ws(tempString2);
-		MessageBox(handle, exWString2.c_str(), L"Transcoder error", MB_OK);*/
-
 		return true;
 	}
-
-	void calculateBufferLength(int modTime)
-	{
-		bufferLength = (int)(length * libvlc_media_player_get_position(mediaPlayer, &ex)) - modTime;
-		if (libvlc_exception_raised(&ex))
-		{
-			libvlc_exception_clear(&ex);
-			bufferLength = 0;
-		}
-	}
-
-	/*void calculateStreamOffset(int modTime)
-	{
-		if (!streamOffsetCalculated && modTime > 0)
-		{
-			// Calculate offset.
-			streamOffsetCalculated = true;
-			int streamPosition = (int)(length * libvlc_media_player_get_position(mediaPlayer, &ex));
-			if (libvlc_exception_raised(&ex))
-			{
-				libvlc_exception_clear(&ex);
-				streamPosition = 0;
-			}
-			streamOffset = streamPosition - modTime;
-			std::ostringstream buff;
-		buff<<streamOffset;
-		std::string tempString(buff.str());
-		std::wstring exWString = s2ws(tempString);
-		MessageBox(wndHandle, exWString.c_str(), L"Transcoder error", MB_OK);
-		}
-	}*/
 
 	void pause()
 	{
@@ -671,7 +533,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		{
 			libvlc_exception_clear(&ex);
 		}
-		else
+		else if (pauseStart > 0)
 		{
 			pauseOffset = pauseOffset + (clock() - pauseStart);
 		}
@@ -696,9 +558,8 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			modConnected = true;
 			unPause();
 		}
-		//calculateStreamOffset(modTime);
 
-		return length;// - streamOffset;
+		return length;
 	}
 
 	int getOutputTime(int modTime)
@@ -725,17 +586,39 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		}
 
 		lastModTime = modTime;
-		return modTime >= 0 ? modTime : 0;	// Never return negative number, as the main method uses this to determine the end of the stream.
-		//calculateBufferLength(modTime - pauseOffset);
-		//return modTime - pauseOffset;
+		int calcTime = modTime - pauseOffset;
+		return calcTime >= 0 ? calcTime : 0;	// Never return negative number, as the main method uses this to determine the end of the stream.
 	}
 
-	void setOutputTime(int outputTime)
+	void setOutputTime(int newTime, int modTime)
 	{
-		libvlc_media_player_set_position(mediaPlayer, outputTime / (length*1.0), &ex);
+		int calcTime = modTime - pauseOffset;	// The time WinAmp is showing.
+
+		// Calculate buffer size.
+		int bufferSize;
+		int vlcPos = (int)(length * libvlc_media_player_get_position(mediaPlayer, &ex));
 		if (libvlc_exception_raised(&ex))
 		{
 			libvlc_exception_clear(&ex);
+			return;
+		}
+		bufferSize = vlcPos - calcTime;
+
+		// Calculate new pause offset.
+		int newPauseOffset = pauseOffset + (calcTime - (newTime-bufferSize));
+
+		if (calcTime - newPauseOffset < modTime)	// Will WinAmp let this new time be displayed with stopping for some reason?
+		{
+			// Move VLC position.
+			libvlc_media_player_set_position(mediaPlayer, newTime / (length*1.0), &ex);
+			if (libvlc_exception_raised(&ex))
+			{
+				libvlc_exception_clear(&ex);
+				return;
+			}
+
+			// Set new pause offset.
+			pauseOffset = newPauseOffset;
 		}
 	}
 }
