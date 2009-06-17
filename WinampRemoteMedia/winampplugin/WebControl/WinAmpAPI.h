@@ -11,6 +11,7 @@ class WinAmpAPI : public ExternalBase
 	private:
 		api_metadata *metaDataApi;	// Meta data API.
 		api_decodefile *decodeFileApi;	// File decoder API.
+		HTMLContainer *htmlContainer;	// The HTML container.
 
 		svc_metaTag *mt;	// Meta tag reader of current loaded file.
 		std::string currentUrl;	// URL of current loaded file.

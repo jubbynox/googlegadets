@@ -53,43 +53,32 @@ END
 //
 
 IDD_SAMPLEHTTP DIALOGEX 0, 0, 225, 108
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS | 
-    WS_CLIPCHILDREN
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MENU MENU 
-BEGIN
-    POPUP "NowPlayingContext"
-    BEGIN
-        MENUITEM "Allow media to automatically switch to this view", 40001
-        MENUITEM "Allow Java/Javascript scripts and ActiveX controls", 40002
-    END
-END
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_SAMPLEHTTP, DIALOG
-    BEGIN
-        BOTTOMMARGIN, 96
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
 #endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_AUDIO               BITMAP                  "resources\\audio.bmp"
+IDB_VIDEO               BITMAP                  "resources\\video.bmp"
+#endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

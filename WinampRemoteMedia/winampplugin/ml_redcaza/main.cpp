@@ -8,8 +8,6 @@
 
 #include <hash_map>
 
-#define WEB_MEDIA_VER "v1.0"
-
 // The ID of the WEB MP3 ML item.
 int webMp3MlItemId=0;
 // App URLs
@@ -28,7 +26,7 @@ HWND ieControl = NULL;
 winampMediaLibraryPlugin WebMediaML =
 {
 	MLHDR_VER,
-	"Web Media " WEB_MEDIA_VER,
+	"redcaza online media v1.0",
 	Init,
 	Quit,
 	MessageProc,
@@ -92,6 +90,9 @@ void addChildrenToMenu(int parentId, stdext::hash_map <std::string, supported_ap
 	mapIterator = supportedApps.begin();
 	mapEnd = supportedApps.end();
 
+	MLTREEIMAGE audioImg = {WebMediaML.hDllInstance, IDB_AUDIO, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
+	MLTREEIMAGE videoImg = {WebMediaML.hDllInstance, IDB_VIDEO, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
+
 	// Add the children.
 	do
 	{
@@ -104,8 +105,18 @@ void addChildrenToMenu(int parentId, stdext::hash_map <std::string, supported_ap
 		child.title = (char *)app.name.c_str();
 		child.hasChildren = 0;
 		child.id = 0;
-		MLTREEIMAGE img = {WebMediaML.hDllInstance, IDB_TREEITEM_NOWPLAYING, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
-		child.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &img, ML_IPC_TREEIMAGE_ADD);
+		switch (app.iconId)
+		{
+			case 1:
+				child.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &audioImg, ML_IPC_TREEIMAGE_ADD);
+				break;
+			case 2:
+				child.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &videoImg, ML_IPC_TREEIMAGE_ADD);
+				break;
+			default:
+				child.imageIndex = MLTREEIMAGE_DEFAULT;
+
+		}
 		SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &child, ML_IPC_TREEITEM_ADD);
 
 		// Map menu item ID to application URL.
@@ -123,7 +134,7 @@ int Init()
 	MLTREEITEM newTree;
 	newTree.size = sizeof(MLTREEITEM);
 	newTree.parentId    = 0;
-	newTree.title        = "Web Media";
+	newTree.title        = "redcaza";
 	newTree.hasChildren = 0;
 	newTree.id      = 0;
 
@@ -134,8 +145,7 @@ int Init()
 	if (supportedApps.size() == 0)
 	{
 		// Something has gone wrong.
-		MLTREEIMAGE img = {WebMediaML.hDllInstance, IDB_TREEITEM_NOWPLAYING, -1, (BMPFILTERPROC)FILTER_DEFAULT1, 0, 0};
-		newTree.imageIndex = (int)(INT_PTR)SendMessage(WebMediaML.hwndLibraryParent, WM_ML_IPC, (WPARAM) &img, ML_IPC_TREEIMAGE_ADD); 
+		newTree.imageIndex = MLTREEIMAGE_BRANCH_NOCHILD;
 	}
 	else
 	{

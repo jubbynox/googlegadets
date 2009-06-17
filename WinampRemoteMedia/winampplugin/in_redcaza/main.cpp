@@ -21,8 +21,13 @@ MediaDetails mediaDetails; // The currently playing media details.
 // Post this to the main window at end of the media (after playback as stopped during transcoding).
 #define WM_EOF WM_USER+2
 
+// Current MRL being played.
 wchar_t* wMRL;
 char* sMRL;
+
+bool paused = false;	// Whether or not the current track is paused.
+int lastKnownLength = 0;	// Last known length; used when paused.
+int lastKnownOutputTime = 0;	// Last known output time; used when paused.
 
 void SyncPluginFlags()
 {
@@ -257,18 +262,14 @@ int Play(const wchar_t *file)
 
 void Pause()
 {
+	paused = true;
+
 	if (inMod)
 	{
+		inMod->Pause();
 		if (mediaDetails.transcoded)
 		{
 			transcoder::pause();
-			inMod->Stop();
-			inMod->SetInfo = plugin.SetInfo; // unhook
-			plugin.outMod->Close();
-		}
-		else
-		{
-			inMod->Pause();
 		}
 	}
 }
@@ -280,13 +281,11 @@ void UnPause()
 		if (mediaDetails.transcoded)
 		{
 			transcoder::unPause();
-			playUsingWinAmpModule();
 		}
-		else
-		{
-			inMod->UnPause();
-		}
+		inMod->UnPause();
 	}
+
+	paused = false;
 }
 
 int IsPaused()
@@ -308,26 +307,33 @@ void Stop()
 		inMod->Stop();
 		inMod->SetInfo = plugin.SetInfo; // unhook
 		plugin.outMod->Close();
+
 		if (mediaDetails.transcoded)
 		{
 			transcoder::stopTranscoding();
 		}
-		clearMediaDetails(mediaDetails);	// Resest media details.
 	}
+
+	clearMediaDetails(mediaDetails);	// Resest media details.
 }
 
 int GetLength()
 {
-	if (inMod)
+	if (paused)
+	{
+		return lastKnownLength;
+	}
+	else if (inMod)
 	{
 		if (mediaDetails.transcoded)
 		{
-			return transcoder::getLength(inMod->GetOutputTime());
+			lastKnownLength = transcoder::getLength(inMod->GetOutputTime());
 		}
 		else
 		{
-			return inMod->GetLength();
+			lastKnownLength = inMod->GetLength();
 		}
+		return lastKnownLength;
 	}
 	else
 	{
@@ -337,23 +343,27 @@ int GetLength()
 
 int GetOutputTime()
 {
-	if (inMod)
+	if (paused)
+	{
+		return lastKnownOutputTime;
+	}
+	else if (inMod)
 	{
 		if (mediaDetails.transcoded)
 		{
-			int outputTime = transcoder::getOutputTime(inMod->GetOutputTime());
-			if (outputTime == -1)
+			lastKnownOutputTime = transcoder::getOutputTime(inMod->GetOutputTime());
+			if (lastKnownOutputTime == -1)
 			{
 				// The stream has stopped.
 				// Move to next item in playlist.
 				PostMessage(plugin.hMainWindow, WM_WA_MPEG_EOF, 0, 0);
 			}
-			return outputTime;
 		}
 		else
 		{
-			return inMod->GetOutputTime();
+			lastKnownOutputTime = inMod->GetOutputTime();
 		}
+		return lastKnownOutputTime;
 	}
 	else
 	{
@@ -367,9 +377,10 @@ void SetOutputTime(int time_in_ms)
 	{
 		if (mediaDetails.transcoded && mediaDetails.seekable)
 		{
-			transcoder::setOutputTime(time_in_ms);
+			transcoder::setOutputTime(time_in_ms, inMod->GetOutputTime());
 		}
-		else if (inMod->is_seekable)
+
+		if (inMod->is_seekable)
 		{
 			inMod->SetOutputTime(time_in_ms);
 		}
@@ -403,7 +414,7 @@ void EQSet(int on, char data[10], int preamp)
 In_Module plugin =
 {
 	IN_VER,	// defined in IN2.H
-	"RedCaza input plugin.",
+	"redcaza input plugin v1.0",
 	0,	// hMainWindow (filled in by winamp)
 	0,  // hDllInstance (filled in by winamp)
 	"\0",	// this is a double-null limited list. "EXT\0Description\0EXT\0Description\0" etc.

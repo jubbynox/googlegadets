@@ -88,7 +88,8 @@ MediaDetails parseMediaDetails(wchar_t *pJSON, HWND hwndParent)
 	catch(...)
 	{
 		mediaDetails.error = true;
-		MessageBox(hwndParent, L"There was a problem with the media information.", L"RedCaza Error", MB_OK);
+		MessageBox(hwndParent, pJSON, L"RedCaza Error", MB_OK);
+//		MessageBox(hwndParent, L"There was a problem with the media information.", L"RedCaza Error", MB_OK);
 	}
 	
 
