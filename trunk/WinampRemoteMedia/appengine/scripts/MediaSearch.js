@@ -26,6 +26,9 @@ function onLoad()
 	
 	// Call application onLoad method.
 	onLoadExtended();
+	
+	// Set focus on input box.
+	$('#SearchInput')[0].focus();
 }
 
 /**

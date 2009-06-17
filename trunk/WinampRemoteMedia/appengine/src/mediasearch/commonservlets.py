@@ -1,4 +1,5 @@
 import os
+import datetime
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
@@ -14,6 +15,12 @@ def convertJsonInputToObject(jsonIn):
     firstPass['classmodule__'] = 'mediasearch.start'
     classJson = simplejson.dumps(firstPass)
     return jsonpickle.decode(classJson)
+
+def setHeaders(response):
+    expires_date = datetime.datetime.utcnow() + datetime.timedelta(0, 86400)
+    expires_str = expires_date.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    response.headers.add_header("Expires", expires_str)
+    response.headers["Cache-Control"] = "public, max-age=86400"
         
         
 class AnyObject:
@@ -32,6 +39,9 @@ class AddComments(webapp.RequestHandler):
 class GetSupportedApps(webapp.RequestHandler):
     """Entry point for retrieving the supported applications."""
     def get(self):
+        # Set the headers.
+        setHeaders(self.response)
+        
         # Get application list
         jsonOut = None
         try:
@@ -87,6 +97,9 @@ class SupportedApp:
 class GetWinAmpCSS(webapp.RequestHandler):
     """Entry point for retrieving the WinAmp CSS."""
     def get(self):
+        # Set the headers.
+        #setHeaders(self.response)    # Unfortunately IE goes all funny when CSS is cached.
+        
         # Get application list
         jsonOut = None
         font = self.request.get("font")

@@ -196,6 +196,15 @@ var ThreadedLoop = Base.extend(
  */
 function setupStylesheet()
 {
+	// Perform IE hacks.
+	var inputCSS = getInputCSS(winampGetClassicColour(1), winampGetClassicColour(0), winampGetClassicColour(2),
+		winampGetClassicColour(5), winampGetClassicColour(2), winampGetClassicColour(5));
+	var buttonCSS = getInputCSS(winampGetClassicColour(3), winampGetClassicColour(8), winampGetClassicColour(0),
+		winampGetClassicColour(0), winampGetClassicColour(0), winampGetClassicColour(0));
+	$('input[type="text"]').css(inputCSS);
+	$('input[type="button"]').css(buttonCSS);
+	$('input[type="submit"]').css(buttonCSS);
+	
 	stylesheetLink = STYLESHEET_LINK.replace(/FONT/, winampGetFont());
 	stylesheetLink = stylesheetLink.replace(/FONT_SIZE/, winampGetFontSize());
 	stylesheetLink = stylesheetLink.replace(/ITEM_BACKGROUND/, winampGetClassicColour(0));
@@ -210,14 +219,6 @@ function setupStylesheet()
 	stylesheetLink = stylesheetLink.replace(/INACTIVE_SELECTION_BAR_BACKGROUND/, winampGetClassicColour(21));
 	stylesheetLink = stylesheetLink.replace(/#/g, '%23');
 	$('head').append(stylesheetLink);
-	
-	// Perform IE hacks.
-	var inputCSS = getInputCSS(winampGetClassicColour(1), winampGetClassicColour(0), winampGetClassicColour(2),
-		winampGetClassicColour(5), winampGetClassicColour(2), winampGetClassicColour(5));
-	var buttonCSS = getInputCSS(winampGetClassicColour(3), winampGetClassicColour(8), winampGetClassicColour(0),
-		winampGetClassicColour(0), winampGetClassicColour(0), winampGetClassicColour(0));
-	$('input[type="text"]').css(inputCSS);
-	$('input[type="button"]').css(buttonCSS);
 }
 
 /**
@@ -247,7 +248,7 @@ function enqueueMedia(operation, url, title, duration)
 {
 	var enqueueMedia = ENQUEUE_MEDIA.replace(/OPERATION/, operation);
 	enqueueMedia = enqueueMedia.replace(/URL/, url);
-	enqueueMedia = enqueueMedia.replace(/TITLE/, title);
+	enqueueMedia = enqueueMedia.replace(/TITLE/, title.replace(/"/g, '\\"'));	// Ensure " is escaped.
 	enqueueMedia = enqueueMedia.replace(/DURATION/, duration);
 	winampEnqueue(enqueueMedia, title, duration);
 }

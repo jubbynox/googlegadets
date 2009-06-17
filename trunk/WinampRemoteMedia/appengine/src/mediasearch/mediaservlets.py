@@ -1,5 +1,6 @@
 from google.appengine.ext import webapp
 from google.appengine.api import urlfetch
+from mediasearch import commonservlets
 from mediasearch import jsonpickle
 from mediasearch import mediabranch
 from mediasearch import testobjects
@@ -10,6 +11,9 @@ from mediasearch.db.dao import DaoIgnoredSites
 class SearchUrl(webapp.RequestHandler):
     """Entry point for processing query."""
     def get(self):
+        # Set the headers.
+        commonservlets.setHeaders(self.response)
+        
         test = self.request.get("test")
         if test:
             urlFetch = testobjects.TestUrlFetch()
@@ -41,6 +45,9 @@ class AddBadMedia(webapp.RequestHandler):
 class GetIgnoredSites(webapp.RequestHandler):
     """Entry point for retrieving a list of ignored sites."""
     def get(self):
+        # Set the headers.
+        commonservlets.setHeaders(self.response)
+        
         boIgnoredSites = DaoIgnoredSites.getAll()
         ignoredSites = []
         for ignoredSite in boIgnoredSites:
