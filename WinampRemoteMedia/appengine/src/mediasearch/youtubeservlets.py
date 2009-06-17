@@ -12,6 +12,7 @@ TRANSCODE_CONFIG = "#transcode{vcodec=DIV3,vb=2048,scale=1,hq,acodec=mp3,ab=320,
 class GetVideo(webapp.RequestHandler):
     """Entry point for processing get video query."""
     def get(self):
+        # Don't set headers as we need fresh info every time.
         jsonOut = None
         urlFetch = urlfetch
         yt = youtube.YouTube(urlFetch)
