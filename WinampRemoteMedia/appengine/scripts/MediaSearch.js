@@ -1,31 +1,17 @@
-/**
- * Load common libraries.
- * Requires hosting page to include Google's AJAX APIs.
- */
-google.load("jquery", "1");
-google.load("jqueryui", "1");
-
 /** Global variables **/
 var test = 0; // 0, 1, 2
 var searchObject;
 
-
-/** Application loader. **/
-google.setOnLoadCallback(onLoad);
-
 /**
- * Function to be invoked on page load. Sets up the required objects.
+ * Function to be invoked on page load. Sets up the media search.
  */
-function onLoad()
+function onLoadMediaSearch()
 {
-	// Setup default JQuery AJAX settings.
-	$.ajaxSetup({timeout: 10000});
-	
+	// Check WinAmp API available.
+    checkForWinAmpAPI();
+    
 	// Setup stylesheet.
 	setupStylesheet();
-	
-	// Call application onLoad method.
-	onLoadExtended();
 	
 	// Set focus on input box.
 	$('#SearchInput')[0].focus();

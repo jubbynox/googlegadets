@@ -34,20 +34,22 @@ var CLASSIC_COLOUR_SCHEME = {'0': '#000000',
 	"GetClassicColor" in window.external.Skin &&
 	"MediaCore" in window.external &&
 	"IsRegisteredExtension" in window.external.MediaCore)*/
-if (window.external &&
-	"Enqueue" in window.external &&
-	"GetClassicColor" in window.external &&
-	"font" in window.external &&
-	"fontsize" in window.external &&
-	"IsRegisteredExtension" in window.external &&
-	"GetMetadata" in window.external)	// Can't be bothered yet to work out how to pass objects back from C++.
+function checkForWinAmpAPI()
 {
-	winAmpAPI = true;
-}
-else
-{
-	//alert("The hosting container does not expose the WinAmp JavaScript API, e.g.: window.external.API.Method.\n You will not be able to listen to or view media.");
-	alert("The hosting container does not expose the Web Media JavaScript API, e.g.: window.external.Method.\n You will not be able to listen to or view media.");
+	if (window.external &&
+		"Enqueue" in window.external &&
+		"GetClassicColor" in window.external &&
+		"font" in window.external &&
+		"fontsize" in window.external &&
+		"IsRegisteredExtension" in window.external &&
+		"GetMetadata" in window.external)	// Can't be bothered yet to work out how to pass objects back from C++.
+	{
+		winAmpAPI = true;
+	}
+	else
+	{
+		alert("The hosting container does not expose the redcaza JavaScript API, e.g.: window.external.Method.\n You will not be able to listen to or view media.");
+    }
 }
 
 /**

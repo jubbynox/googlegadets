@@ -15,6 +15,7 @@ def main():
                                           ('/youtube/getVideo', youtubeservlets.GetVideo),
                                           ('/addComments', commonservlets.AddComments),
                                           ('/getSupportedApps', commonservlets.GetSupportedApps),
+                                          ('/pluginPage.*', commonservlets.PluginPage),
                                           ('/winamp.css', commonservlets.GetWinAmpCSS)],
                                           debug=True)
     wsgiref.handlers.CGIHandler().run(application)

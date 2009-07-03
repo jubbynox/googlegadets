@@ -7,6 +7,9 @@ google.load("search", "1")
  */
 function onLoadExtended()
 {
+    // Load the base media search.
+    onLoadMediaSearch();
+	
 	// Setup Google media search.
 	searchObject = new GoogleMediaSearch('HiddenElement', 'ResultsPane', test);
 	

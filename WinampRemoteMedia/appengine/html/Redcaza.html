@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/DTD/strict.dtd">
+<html>
+	<head>
+	   <title>redcaza - Winamp Plugin</title>
+	   
+	   <!-- JQuery themes: -->
+	   <link type="text/css" href="/css/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+
+	   <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w"></script>
+       <script type="text/javascript" src="scripts/CommonCode.js"></script>
+       <script type="text/javascript" src="scripts/HomePage.js"></script>
+	</head>
+	<body>
+	<div id="page">
+	<div id="tabs">
+	   <ul>
+	       <li><a href="#redcazaTab"><span>redcaza</span></a></li>
+	       <li><a href="#changeHistoryTab"><span>Change History / TODOs / Issues</span></a></li>
+	       <li><a href="#commentsTab"><span>Comments / Feedback</span></a></li>
+	   </ul>
+	   
+       <div id="redcazaTab">
+       <div id="column1">
+	       <div id="about" class="paragraph ui-corner-all">
+	           <div class="paragraph-header ui-corner-all">About</div>
+	        ... enables you to hunt for and play media from the Internet.<br>
+	        This is a <a href="http://www.winamp.com/">Winamp</a> plug-in and so you must have installed Winamp
+	        (<a href="http://www.winamp.com/">http://www.winamp.com/</a>) before
+		    <a href="/install_redcaza.exe">installing it</a>. The plug-in uses <a href="http://www.videolan.org/vlc/">VLC</a>
+		    to transcode certain media types into a format that Winamp can understand; the <a href="/install_redcaza.exe">redcaza installer</a>
+		    will help you install VLC, if not already done so.</div>
+		   <div id="howTo" class="paragraph ui-corner-all">
+		      <div class="paragraph-header ui-corner-all">How to use</div>
+		    A "redcaza" item is added to the Winamp media library, beneath which you can select different
+		    types of media to hunt for. Media that you find is enqueued to the current Winamp playlist with double-click or
+		    select > right-click > Enqueue selection.</div>
+		   <div id="disclaimer" class="paragraph ui-corner-all">
+		      <div class="paragraph-header ui-corner-all">Disclaimer</div>
+		    Is this legal?<br>No - no money is transferred; therefore the owners of any copyrighted media that you play
+		    are not paid (this need not be the case, though, because despite the copyright law there are ways to
+		    cut distribution costs and ensure everyone gets paid accordingly - here is one solution: <a href="http://news.bbc.co.uk/1/hi/technology/8128551.stm">
+		    http://news.bbc.co.uk/1/hi/technology/8128551.stm</a>).<br>But, consider the following points when deciding whether or not to use this:
+		   <dl>
+		       <dt>redcaza uses published, legal APIs to hunt for media</dt>
+		       <dd>All the media that redcaza finds can also be found using only an Internet browser. From that browser you could use Google
+		        or YouTube, for example, to get exactly the same results. There is nothing unusual or illegal about the information that leaves
+		        your computer.</dd>
+		       <dt>redcaza does not store media on your computer</dt>
+		       <dd>All the media that you play, using redcaza, is streamed (a small part may be held for buffering purposes, but is then
+		        removed) - why store gigabytes of media locally when today's Internet speeds allow you to stream it from a remote source?
+		        This also means that your computer never transmits media to anyone else. Again, the same can be done using only an Internet browser,
+		        so there is nothing unusual in the way that redcaza works: from the browser you could listen to an MP3 on a website or go to YouTube.</dd>
+		       <dt>redcaza enqueues remote media in Winamp</dt>
+		       <dd>redcaza adds media links to Winamp playlists allowing you to mix locally stored and remote media from many different sources;
+		        therefore, you can enqueue hours of audio and video from within a single application, rather than having to switch applications
+		        to access media that is stored and managed elsewhere.</dd>
+		   </dl></div>
+	   </div>
+	   <div id="column2">
+		   <a href="/install_redcaza.exe" id="downloadLink"><div id="download" class="paragraph ui-corner-all">
+		      <div class="paragraph-header ui-corner-all">Download</div>
+              <img src="/img/download_arrow.png" alt="download arrow image" id="downloadArrowImage"/>
+		      Get redcaza v0.1<br>
+		      Tested against Winamp version: v5.552 (x86)<br>
+		      (uses VLC version: v0.9.9)
+		    </div></a>
+		    <img src="/img/no_entry_blink.gif" alt="no entry" id="noEntryImage"/>
+	   </div>
+	   <div id="footer"></div>
+	   </div>
+	   
+	   <div id="changeHistoryTab">
+	       <div id="changeHistoryAccordion">
+	       <h3><a href="#">Change history</a></h3>
+		       <div id="changeHistory"><dl>
+		           <dt>06/07/2009 v0.1</dt>
+		           <dd><ul>
+		               <li>Released for beta testing.</li>
+		           </ul></dd>
+		       </dl></div>
+		   <h3><a href="#">Todo:</a></h3>
+		       <div id="todo">nothing scheduled.</div>
+		   <h3><a href="#">Feature requests:</a></h3>
+			   <div id="featureRequests"><ul>
+			       <li>*If unable to load on startup, then check availability when redcaza next clicked.</li>
+		           <li>*Ability to send media to saved playlist.</li>
+		           <li>Move buttons to far right and fill gap with search box.</li>
+		           <li>Display table headers before results are shown.</li>
+		           <li>Add play and enqueue buttons to bottom of screen.</li>
+			   </ul>* requires rebuild of plug-in.</div>
+		   <h3><a href="#">Current issues:</a></h3>
+			   <div id="currentIssues"><ul>
+			       <li>*Resizing media library window doesn't resize redcaza window.</li>
+			       <li>*Theme changes not picked-up unless redcaza navigated away from and back to.</li>
+			       <li>CSS not cached. Couldn't get around weird issue of certain CSS elements not activiated until focus given to HTML component.</li>
+			       <li>For audio site tree results background colour appears if branch wraps line.</li>
+			       <li>"Scanning..." and "No results" are selectable.</li>
+			       <li>Full window height not utilised.</li>
+			       <li>Result headers don't span result pane.</li>
+			       <li>Result headers are not resizable.</li>
+			       <li>If track has no ID3 then HTML encoded characters can appear in playlist, e.g. &amp;gt;.</li>
+			       <li>Audio site tree loses focus when track or something else is selected.</li>
+			       <li>Collapsing audio tree node highlights it but does not actually select it.</li>
+			       <li>Button styles change when clicked.</li>
+			       <li>Result headers not visible when scrolling list.</li>
+			   </ul>* requires rebuild of plug-in.</div>
+	       </div>
+	   </div>
+	   
+	   
+	   <div id="commentsTab">
+		   <div id="sendFeedback">
+		   <form name="feedbackForm" method="post" onsubmit="return false">
+		       <label for="feedback">Comments/Feedback:</label>
+	           <textarea name="Feedback" id="feedback" cols="50" rows="5"></textarea>
+	           <label for="sendFeedback">&nbsp;</label>
+	           <input type="submit" name="SendFeedback" id="sendFeedback" value="Send"/>
+	           <div id="feedbackSent">Comments/feedback sent.</div>
+	       </form>
+		   </div>
+	   </div>
+	   
+	   </div><div id="footer"></div>
+
+
+	</div>
+	</body>
+</html>

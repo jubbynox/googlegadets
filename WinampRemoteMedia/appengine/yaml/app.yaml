@@ -7,6 +7,9 @@ default_expiration: "24h"
 
 handlers:
 
+- url: /pluginPage.*
+  script: /mediasearch/start.py
+
 - url: /getSupportedApps
   script: /mediasearch/start.py
   
@@ -26,9 +29,9 @@ handlers:
 - url: /youtube/getVideo
   script: /mediasearch/start.py
   
-- url: /(.*\.(gif|png|jpg|js))
+- url: /((img|scripts|css).*\.(gif|png|jpg|js|css))
   static_files: \1
-  upload: (.*\.(gif|png|jpg|js))
+  upload: ((img|scripts|css).*\.(gif|png|jpg|js|css))
   
 - url: /googlemediasearch.*
   static_files: html/GoogleMediaSearch.html
@@ -38,6 +41,10 @@ handlers:
   static_files: html/YouTubeSearch.html
   upload: html/(YouTubeSearch.html)
   
+- url: /install_redcaza.exe
+  static_files: installer/install_redcaza.exe
+  upload: installer/(install_redcaza.exe)
+  
 - url: /*.*
-  static_files: html/WebMedia.html
-  upload: html/(WebMedia.html)
+  static_files: html/Redcaza.html
+  upload: html/(Redcaza.html)

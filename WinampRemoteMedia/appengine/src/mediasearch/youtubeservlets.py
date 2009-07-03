@@ -6,6 +6,7 @@ from mediasearch import jsonpickle
 from mediasearch import youtube
 from mediasearch import redcazaresponse
 
+#TRANSCODE_CONFIG = "#transcode{vcodec=DIV3,vb=2048,scale=1,hq,acodec=mp3,ab=320,channels=2}:duplicate{dst=std{access=mmsh,mux=ts,dst=DST}}"
 TRANSCODE_CONFIG = "#transcode{vcodec=DIV3,vb=2048,scale=1,hq,acodec=mp3,ab=320,channels=2}:duplicate{dst=std{access=mmsh,mux=ts,dst=DST}}"
 
 

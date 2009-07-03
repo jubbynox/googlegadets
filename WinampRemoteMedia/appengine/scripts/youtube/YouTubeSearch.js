@@ -3,6 +3,9 @@
  */
 function onLoadExtended()
 {
+	// Load the base media search.
+    onLoadMediaSearch();
+    
 	// Setup YouTube search.
 	searchObject = new YouTubeSearch('ResultsPane');
 	
