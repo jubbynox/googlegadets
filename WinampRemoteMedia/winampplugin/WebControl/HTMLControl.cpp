@@ -122,6 +122,8 @@ HRESULT HTMLControl::TranslateAccelerator(LPMSG lpMsg, const GUID __RPC_FAR *pgu
 					case 'X':
 					case 'Z':
 					case 'Y':
+					case VK_LEFT:
+					case VK_RIGHT:
 						return HTMLContainer::TranslateAccelerator(lpMsg, pguidCmdGroup, nCmdID);
 					default:
 						HWND hwndParent;

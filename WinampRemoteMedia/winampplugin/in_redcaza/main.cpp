@@ -21,6 +21,8 @@ MediaDetails mediaDetails; // The currently playing media details.
 // Post this to the main window at end of the media (after playback as stopped during transcoding).
 #define WM_EOF WM_USER+2
 
+bool transcoderSetup = false;	// Whether or not the transcoder has been setup.
+
 // Current MRL being played.
 wchar_t* wMRL;
 char* sMRL;
@@ -73,7 +75,7 @@ void Init()
 	hookToWinAmp(plugin.hMainWindow, plugin.hMainWindow);
 	// Setup remote invocation namespace.
 	ask_app_engine::setup(plugin.hMainWindow);
-	transcoder::setup(plugin.hMainWindow);
+	transcoderSetup = transcoder::setup(plugin.hMainWindow);
 }
 
 void Quit()
@@ -120,24 +122,10 @@ void GetFileInfo(const wchar_t *file, wchar_t *title, int *length_in_ms)
 
 int InfoBox(const wchar_t *file, HWND hwndParent)
 {
-	if (inMod)
-	{
-		MediaDetails tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file), plugin.hMainWindow);
-		if (inMod->version & IN_UNICODE)
-		{
-			std::wstring url = s2ws(tmpMediaDetails.url);
-			return inMod->InfoBox(url.c_str(), hwndParent);
-		}
-		else
-		{
-			// if our chained plugin is ANSI, 
-			return inMod->InfoBox((const in_char *)tmpMediaDetails.url.c_str(), hwndParent);
-		}
-	}
-	else
-	{
-		return INFOBOX_UNCHANGED;
-	}
+	MediaDetails tmpMediaDetails = parseMediaDetails(getJSONStringFromFilename(file), hwndParent);
+	std::wstring title = s2ws(tmpMediaDetails.title);
+	MessageBox(hwndParent, title.c_str(), L"redcaza Media", MB_OK);
+	return INFOBOX_UNCHANGED;
 }
 
 int IsOurFile(const wchar_t *file)
@@ -241,7 +229,14 @@ int playMedia(wchar_t* pJSON)
 			res = playUsingWinAmpModule();//wLocation.c_str(), mediaDetails.url.c_str());
 			break;
 		case 1: // Use transcoding.
-			res = playTranscoded();
+			if (transcoderSetup)
+			{
+				res = playTranscoded();
+			}
+			/*else
+			{
+				MessageBox(plugin.hMainWindow, L"Unable to play media. Check that VLC is installed.", L"redcaza Media", MB_OK | MB_ICONWARNING);
+			}*/
 			break;
 		case 2:	// Ask app engine for more information.
 			res = askAppEngine(&mediaDetails.url);
@@ -414,7 +409,7 @@ void EQSet(int on, char data[10], int preamp)
 In_Module plugin =
 {
 	IN_VER,	// defined in IN2.H
-	"redcaza input plugin v1.0",
+	"redcaza input plugin v0.1",
 	0,	// hMainWindow (filled in by winamp)
 	0,  // hDllInstance (filled in by winamp)
 	"\0",	// this is a double-null limited list. "EXT\0Description\0EXT\0Description\0" etc.

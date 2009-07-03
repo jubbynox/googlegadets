@@ -7,7 +7,7 @@
 namespace transcoder	// LIB_VLC is a singleton, so is this.
 {
 	HWND wndHandle;
-	const char *vlcVersion;
+	const char *vlcVersion = "?";
 	const int startPort = 1755;	// MMS port.
 	libvlc_instance_t * inst = 0;	// LIB VLC instance
 	libvlc_exception_t ex;	// LIB VLC exception handler.
@@ -26,6 +26,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 	int pauseOffset = 0;
 	int lastModTime = 0;
 	int endTrapStarted = 0;	// When the end trap was started.
+	int modBreakdownTrapStarted = 0;	// When the mod breakdown trap was started.
 
 	bool handleError(libvlc_exception_t *exception)
 	{
@@ -33,7 +34,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		{
 			std::string exString(libvlc_exception_get_message(exception));
 			std::wstring exWString = s2ws(exString);
-			MessageBox(wndHandle, exWString.c_str(), L"Transcoder error", MB_OK);
+			MessageBox(wndHandle, exWString.c_str(), L"Transcoder error", MB_OK | MB_ICONERROR);
 			return true;
 		}
 		return false;
@@ -54,6 +55,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		pauseOffset = 0;
 		lastModTime = 0;
 		endTrapStarted = 0;
+		modBreakdownTrapStarted = 0;
 
 		if (mediaPlayer)
 		{
@@ -65,29 +67,32 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 
 	void destroy()
 	{
-		// Stop any active transcoding.
-		stopTranscoding();
-
-		if (mediaPlayer)
-		{
-			libvlc_media_player_release(mediaPlayer);
-			mediaPlayer = 0;
-		}
-
-		if (tempMediaPlayer)
-		{
-			libvlc_media_player_release(tempMediaPlayer);
-			tempMediaPlayer = 0;
-		}
-
 		if (inst)
 		{
-			// Release VLC.
-			libvlc_release(inst);
-			inst = 0;
-		}
+			// Stop any active transcoding.
+			stopTranscoding();
 
-		libvlc_exception_clear(&ex);
+			if (mediaPlayer)
+			{
+				libvlc_media_player_release(mediaPlayer);
+				mediaPlayer = 0;
+			}
+
+			if (tempMediaPlayer)
+			{
+				libvlc_media_player_release(tempMediaPlayer);
+				tempMediaPlayer = 0;
+			}
+
+			if (inst)
+			{
+				// Release VLC.
+				libvlc_release(inst);
+				inst = 0;
+			}
+
+			libvlc_exception_clear(&ex);
+		}
 	}
 
 	void trapPlayingEvent(const libvlc_event_t *, void *)
@@ -155,7 +160,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		DWORD buffersize = 1024;
 		wchar_t* lpData = new wchar_t[buffersize];
 
-		if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, L"SOFTWARE\\VideoLAN\\VLC", NULL, KEY_READ, &hKey)  == ERROR_SUCCESS)
+		if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, L"SOFTWARE\\VideoLAN\\VLC", NULL, KEY_READ, &hKey) == ERROR_SUCCESS)
 		{
 			RegQueryValueEx(hKey, L"InstallDir", NULL, NULL, (LPBYTE)lpData, &buffersize);
 			pluginPathOption.assign(lpData);
@@ -172,33 +177,60 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		return ws2s(pluginPathOption);
 	}
 
-	void loadVLC(std::wstring vlcPath)
+	bool loadVLC(HWND handle, std::wstring vlcPath)
 	{
+		if (vlcPath.length() == 0)
+		{
+			MessageBox(handle, L"Unable to load VLC libraries.\nWill not be able to play some types of online media.\nCheck VLC is installed.", L"redcaza Error", MB_OK | MB_ICONWARNING);
+			return false;
+		}
+		HMODULE modHandle;
+
 		// Load core.
 		std::wstring dllPath(vlcPath);
 		dllPath.append(L"\\libvlccore.dll");
-		LoadLibrary(dllPath.c_str());
+		modHandle = LoadLibrary(dllPath.c_str());
+		if (modHandle == NULL)
+		{
+			dllPath.insert(0, L"Unable to load: ");
+			dllPath.append(L"\nWill not be able to play some types of online media.\nCheck VLC is installed.");
+			MessageBox(handle, dllPath.c_str(), L"redcaza Error", MB_OK | MB_ICONWARNING);
+			return false;
+		}
 
 		// Load library.
 		dllPath.assign(vlcPath);
 		dllPath.append(L"\\libvlc.dll");
-		LoadLibrary(dllPath.c_str());
+		modHandle = LoadLibrary(dllPath.c_str());
+		if (modHandle == NULL)
+		{
+			dllPath.insert(0, L"Unable to load: ");
+			dllPath.append(L"\nWill not be able to play some types of online media.\nCheck VLC is installed.");
+			MessageBox(handle, dllPath.c_str(), L"redcaza Error", MB_OK | MB_ICONWARNING);
+			return false;
+		}
+
+		return true;
 	}
 
-	void setup(HWND handle)
+	bool setup(HWND handle)
 	{
 		if (!inst)
 		{
 			wndHandle = handle;
 			std::wstring vlcPath = getVLCPath();
-			loadVLC(vlcPath);
+			if (!loadVLC(handle, vlcPath))
+			{
+				return false;	// Could not load VLC libraries.
+			}
+
 			std::string pluginPathOption = getPluginPathOption(vlcPath);
 			const char * const vlc_args[] = {
 					  "-I", "dummy", /* Don't use any interface */
 					  pluginPathOption.c_str(),
 					  "--ignore-config", /* Don't use VLC's config */
 					  "--http-caching", "5000",
-					  "--sout-mux-caching", "500",
+					  "--sout-mux-caching", "1000",
 					  "--sout-keep"};
 			libvlc_exception_init (&ex);
 
@@ -209,7 +241,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			if (handleError(&ex))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Initialise media player.
@@ -219,7 +251,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			if (handleError(&ex))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Initialise temp media player.
@@ -229,7 +261,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			if (handleError(&ex))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Get an event manager for the media player.
@@ -237,14 +269,14 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			if (handleError(&ex))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Attach events.
 			if (!attachEventHandlers(eventManager, false))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Get the event manager for the temporary media player.
@@ -252,19 +284,21 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			if (handleError(&ex))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Attach events.
 			if (!attachEventHandlers(eventManager, true))
 			{
 				destroy();
-				return;
+				return false;
 			}
 
 			// Get the version.
 			vlcVersion = libvlc_get_version();
 		}
+
+		return true;
 	}
 
 	int getFreePort()
@@ -465,7 +499,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		int port = getFreePort();
 		if (port == -1)
 		{
-			MessageBox(wndHandle, L"Unable to find free port for transcoding.", L"Transcoder error", MB_OK);
+			MessageBox(wndHandle, L"Unable to find free port for transcoding.", L"Transcoder error", MB_OK | MB_ICONERROR);
 			return false;
 		}
 
@@ -485,7 +519,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			return false;
 		}
 
-		Sleep(500);	// The length of --sout-mux-caching option.
+		Sleep(1000);	// The length of --sout-mux-caching option.
 
 		// Wait until stream available.
 		state = waitForTranscodeStream(strPort.c_str());
@@ -564,15 +598,15 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 
 	int getOutputTime(int modTime)
 	{
-		// Check for end of stream.
-		if (transcodeInvoked)	// Don't bother detecting end of stream if not transcoding.
+		if (transcodeInvoked)	// Don't bother checing if not transcoding.
 		{
+			// Check for end of stream.
 			if (endReached && endTrapStarted == 0 && modTime == lastModTime)	// Difficult to determine when mod has reached the end of the stream!
 			{
 				// Start a timer.
 				endTrapStarted = clock();
 			}
-			else if (endReached && endTrapStarted != 0 && modTime == lastModTime && clock()-endTrapStarted > 1000)
+			else if (endReached && endTrapStarted != 0 && modTime == lastModTime && clock()-endTrapStarted > 1000)	// 1 second wait.
 			{
 				// 1 second has passed without anything happening. Assume end.
 				endTrapStarted = 0;
@@ -582,6 +616,23 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 			{
 				// Must have been a blip; continue...
 				endTrapStarted = 0;
+			}
+			// Check for mod break down.
+			else if (modTime == lastModTime && modBreakdownTrapStarted == 0 && !endReached)
+			{
+				// Start a timer.
+				modBreakdownTrapStarted = clock();
+			}
+			else if (modTime == lastModTime && modBreakdownTrapStarted != 0 && !endReached && clock()-modBreakdownTrapStarted > 60000) // 1 minute wait.
+			{
+				// 1 minute has passed without anything happening. Assume mod has broken.
+				modBreakdownTrapStarted = 0;
+				return -1;
+			}
+			else if (modBreakdownTrapStarted != 0 && !endReached && modTime != lastModTime)
+			{
+				// Blip is over; continue...
+				modBreakdownTrapStarted = 0;
 			}
 		}
 

@@ -183,7 +183,7 @@ bool WinAmpAPI::loadFile(BSTR url)
 		{
 			// Copy the new URL.
 			char* tmpCharArray = _com_util::ConvertBSTRToString(url);
-			currentUrl = tmpCharArray;
+			currentUrl = tmpCharArray;	// Overloaded operator. currentUrl is of type std::string.
 			delete[] tmpCharArray;
 
 			// Get new meta info.
@@ -209,7 +209,6 @@ int WinAmpAPI::compareBStr(BSTR str1, char* str2)
 	delete[] tmpCharArray;
 
 	return tmpString.compare(str2);
-	//return _bstr_t(str1) == _bstr_t(str2);
 }
 
 long WinAmpAPI::getLength(AudioParameters parameters)

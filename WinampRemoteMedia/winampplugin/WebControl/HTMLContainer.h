@@ -56,6 +56,7 @@ class HTMLContainer : public IOleClientSite,
 			public IDispatch
 {
 private:
+	static const unsigned int maxStringSize = 2000;	// Strings longer than this will be ignored to avoid malicious buffer overflow from Javascript invocations.
 	int lastFnID;
 	FnIDToObjMap fnIDToObjMap;
 	FnIDToFnMap fnIDToFnMap;
@@ -150,6 +151,9 @@ public:
 	STDMETHOD (TranslateUrl)(DWORD dwTranslate, OLECHAR __RPC_FAR *pchURLIn, OLECHAR __RPC_FAR *__RPC_FAR *ppchURLOut);
 	STDMETHOD (FilterDataObject)(IDataObject __RPC_FAR *pDO, IDataObject __RPC_FAR *__RPC_FAR *ppDORet);
 	//	STDMETHOD (EnableModeless)(BOOL fEnable);
+
+private:
+	bool checkParameterSafety(DISPPARAMS FAR *pdispparams); 
 
 public:
 	void removeFns();

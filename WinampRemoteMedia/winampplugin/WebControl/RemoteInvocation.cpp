@@ -1,6 +1,15 @@
 #include "RemoteInvocation.h"
 #include <winbase.h>
 #include "time.h"
+#include <string>
+
+//const char* RemoteInvocation::baseURL = "http://localhost:8080/";
+const char* RemoteInvocation::baseURL = "http://winamp.banacek.org/";
+
+//const char* RemoteInvocation::pluginPageURL = "http://localhost:8080/pluginPage&dllVer=0.1";
+const char* RemoteInvocation::pluginPageURL = "http://winamp.banacek.org/pluginPage&dllVer=0.1";
+
+const char* RemoteInvocation::dllVer = "0.1";
 
 RemoteInvocation::RemoteInvocation(HWND parent)
 {
@@ -21,6 +30,11 @@ RemoteInvocation::~RemoteInvocation()
 	delete htmlControl;
 }
 
+const char* RemoteInvocation::getPluginPageURL()
+{
+	return pluginPageURL;
+}
+
 void RemoteInvocation::fnHandleCallback(DISPPARAMS FAR *pdispparams, VARIANT FAR* pvarResult)
 {
 	(*processCallback)(pdispparams);
@@ -32,8 +46,20 @@ void RemoteInvocation::navigateError()
 	finished = true;	// Signal that the remote invocation has finished.
 }
 
-void RemoteInvocation::remoteInvoke(const char* url, const char* fnName, void (*processResults)(DISPPARAMS FAR *))
+void RemoteInvocation::remoteInvoke(const char* context, const char* fnName, void (*processResults)(DISPPARAMS FAR *), bool useBaseURL)
 {
+	// Construct url.
+	std::string strUrl;
+	if (useBaseURL)	// Use base URL, otherwise supplied in method invocation.
+	{
+		strUrl.append(baseURL);
+	}
+	// Append context.
+	strUrl.append(context);
+	// Add plugin version.
+	strUrl.append("&dllVer=");
+	strUrl.append(dllVer);
+
 	// Remove existing external functions.
 	htmlControl->removeFns();
 
@@ -44,7 +70,7 @@ void RemoteInvocation::remoteInvoke(const char* url, const char* fnName, void (*
 	htmlControl->addToNameFnMap((char *)fnName, this, (ExternalMethod)&RemoteInvocation::fnHandleCallback);
 
 	// Navigate to page.
-	htmlControl->NavigateToName((char *)url);
+	htmlControl->NavigateToName((char *)strUrl.c_str());
 
 	clock_t start_time;
 	start_time = clock();
