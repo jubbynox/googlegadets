@@ -14,6 +14,7 @@ class Application(db.Model):
 
 class Comments(db.Model):
     """Comments and suggestions."""
+    dummyIndex = db.IntegerProperty(required=False) # So that I can see comments in admin panel.
     comments = db.TextProperty(required=True)
 
 class BadMedia(db.Model):

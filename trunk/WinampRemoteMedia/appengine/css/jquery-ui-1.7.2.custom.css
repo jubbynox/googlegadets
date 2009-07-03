@@ -50,14 +50,24 @@ div#column2
     float: left;
 }
 
+img#noEntryImage
+{
+    float: right;
+}
+
 img#downloadArrowImage
 {
     float: left;
 }
 
-A#downloadLink:link, A#downloadLink:visited, A#downloadLink:hover, A#downloadLink:active
+a.downloads:link, a.downloads:visited, a.downloads:hover, a.downloads:active
 {
     text-decoration: none;
+}
+
+img.downloads
+{
+    border-style: none;
 }
 
 div#footer
