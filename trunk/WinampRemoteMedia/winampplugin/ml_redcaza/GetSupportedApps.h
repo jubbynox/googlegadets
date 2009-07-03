@@ -44,6 +44,7 @@ namespace supported_apps	// Can't be arsed to write another C++ object.
 				BSTR inJSON = results->rgvarg[0].bstrVal;
 				char* tmpString = _com_util::ConvertBSTRToString(inJSON);
 				std::string strJSON(tmpString);
+				delete[] tmpString;
 				std::istringstream streamJSON(strJSON, std::istringstream::in);
 
 				// Parse as JSON.
@@ -65,16 +66,14 @@ namespace supported_apps	// Can't be arsed to write another C++ object.
 		}
 		catch(...)
 		{
-			MessageBox(hwndParent, L"There was a problem determining the supported applications.", L"RedCaza Error", MB_OK);
+			MessageBox(hwndParent, L"There was a problem determining the supported applications.", L"redcaza Error", MB_OK | MB_ICONERROR);
 		}
 	}
 
-	void getSupportedApps(HWND parent, stdext::hash_map <std::string, SupportedApp> &supportedAppMap)
+	void getSupportedApps(HWND parent, RemoteInvocation *remoteInvocation, stdext::hash_map <std::string, SupportedApp> &supportedAppMap)
 	{
 		supportedApps = &supportedAppMap;
 		hwndParent = parent;
-		RemoteInvocation remoteInvocation(parent);
-		//remoteInvocation.remoteInvoke("http://localhost:8080/getSupportedApps?callback=window.external.externalMethod&dllVer=0.1", "externalMethod", &processResults);
-		remoteInvocation.remoteInvoke("http://winamp.banacek.org/getSupportedApps?callback=window.external.externalMethod&dllVer=0.1", "externalMethod", &processResults);
+		remoteInvocation->remoteInvoke("getSupportedApps?callback=window.external.externalMethod", "externalMethod", &processResults, true);
 	}
 }

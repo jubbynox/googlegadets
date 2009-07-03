@@ -5,6 +5,7 @@
 #include <api/service/waservicefactory.h>
 #include "GetSupportedApps.h"
 #include "WinAmpHooks.h"
+#include "RemoteInvocation.h"
 
 #include <hash_map>
 
@@ -26,7 +27,7 @@ HWND ieControl = NULL;
 winampMediaLibraryPlugin WebMediaML =
 {
 	MLHDR_VER,
-	"redcaza online media v1.0",
+	"redcaza online media v0.1",
 	Init,
 	Quit,
 	MessageProc,
@@ -38,6 +39,8 @@ winampMediaLibraryPlugin WebMediaML =
 //IDispatch *winampExternal = 0;
 int winampVersion = 0;
 WNDPROC waProc=0;
+
+RemoteInvocation *remoteInvocation;	// Remote invocation object.
 
 static DWORD WINAPI wa_newWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -138,9 +141,12 @@ int Init()
 	newTree.hasChildren = 0;
 	newTree.id      = 0;
 
+	// Create remote invocation object.
+	remoteInvocation = new RemoteInvocation(WebMediaML.hwndWinampParent);
+
 	// Get the supported apps.
 	stdext::hash_map <std::string, supported_apps::SupportedApp> supportedApps;
-	supported_apps::getSupportedApps(WebMediaML.hwndWinampParent, supportedApps);
+	supported_apps::getSupportedApps(WebMediaML.hwndWinampParent, remoteInvocation, supportedApps);
 
 	if (supportedApps.size() == 0)
 	{
@@ -168,6 +174,7 @@ int Init()
 
 void Quit()
 {
+	delete remoteInvocation;
 //	Unhook(WebMediaML.hwndWinampParent); // don't unhook because we'll unleash subclassing hell
 
 }
@@ -189,8 +196,7 @@ INT_PTR CreateView(INT_PTR treeItem, HWND parent)
 
 	if (treeItem == webMp3MlItemId)	// Root has been selected.
 	{
-		//url = "http://localhost:8080/";
-		url = "http://winamp.banacek.org";
+		url = (char *)RemoteInvocation::getPluginPageURL();
 		urlAssigned = true;
 	}
 	else if (appURLs.find(treeItem) != appURLs.end())	// Application has been selected.

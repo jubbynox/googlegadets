@@ -32,6 +32,6 @@ namespace ask_app_engine	// Can't be arsed to write another C++ object.
 		inJSON = &responseJSON;
 		url->append("&callback=window.external.externalMethod");
 		
-		remoteInvocation->remoteInvoke(url->c_str(), "externalMethod", &processResults);
+		remoteInvocation->remoteInvoke(url->c_str(), "externalMethod", &processResults, false);
 	}
 }

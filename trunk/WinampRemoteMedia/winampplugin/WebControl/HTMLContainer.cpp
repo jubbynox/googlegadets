@@ -397,7 +397,7 @@ HRESULT HTMLContainer::ShowPropertyFrame(void)
 
 HRESULT HTMLContainer::GetIDsOfNames(REFIID riid, OLECHAR FAR* FAR* rgszNames, unsigned int cNames, LCID lcid, DISPID FAR* rgdispid)
 {
-	if (cNames > 0)
+	if (cNames > 0 && _bstr_t(rgszNames[0]).length() <= maxStringSize)	// Check for buffer overflow.
 	{
 		// Check if function name is in name map;
 		char* tmpString = _com_util::ConvertBSTRToString(rgszNames[0]);
@@ -549,11 +549,29 @@ HRESULT HTMLContainer::Invoke(DISPID dispid, REFIID riid, LCID lcid, WORD wFlags
 	ExternalBase* obj = fnIDToObjMap[dispid];
 	if (extMethod && obj)
 	{
-		(obj->*extMethod)(pdispparams, pvarResult);
+		if (checkParameterSafety(pdispparams))
+		{
+			(obj->*extMethod)(pdispparams, pvarResult);
+		}
 		return S_OK;
 	}
 
 	return DISP_E_MEMBERNOTFOUND;
+}
+
+bool HTMLContainer::checkParameterSafety(DISPPARAMS FAR *pdispparams)
+{
+	bool paramsSafe = true;
+	for (unsigned int index=0; index<pdispparams->cArgs; index++)
+	{
+		if (pdispparams->rgvarg[index].vt == VT_BSTR && _bstr_t(pdispparams->rgvarg[index].bstrVal).length() > maxStringSize)	// Check for string and its length.
+		{
+			paramsSafe = false;
+			break;
+		}
+	}
+
+	return paramsSafe;
 }
 
 void HTMLContainer::removeFns()
