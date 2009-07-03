@@ -1,4 +1,26 @@
 /**
+ * Load common libraries.
+ * Requires hosting page to include Google's AJAX APIs.
+ */
+google.load("jquery", "1");
+google.load("jqueryui", "1");
+
+/** Application loader. **/
+google.setOnLoadCallback(onLoad);
+
+/**
+ * Function to be invoked on page load. Sets up the required objects.
+ */
+function onLoad()
+{
+    // Setup default JQuery AJAX settings.
+    $.ajaxSetup({timeout: 10000});
+
+    // Call application onLoad method.
+    onLoadExtended();
+}
+
+/**
  * URL to report bad media.
  */
 var BAD_MEDIA_URL = 'google/addBadMedia';
@@ -16,7 +38,9 @@ var STYLESHEET_LINK = '<link rel="stylesheet" type="text/css" href="/winamp.css?
 	'buttonForeground=BUTTON_FOREGROUND&hilite=HILITE&' +
 	'listHeaderBackground=LIST_HEADER_BACKGROUND&listHeaderText=LIST_HEADER_TEXT&' +
 	'selectionBarForeground=SELECTION_BAR_FOREGROUND&selectionBarBackground=SELECTION_BAR_BACKGROUND&' +
-	'inactiveSelectionBarBackground=INACTIVE_SELECTION_BAR_BACKGROUND">';
+	'inactiveSelectionBarBackground=INACTIVE_SELECTION_BAR_BACKGROUND&' +
+	'alternateItemBackground=ALTERNATE_ITEM_BACKGROUND&' +
+	'alternateItemForeground=ALTERNATE_ITEM_FOREGROUND">';
 	
 /**
  * Request string for enqueuing media.
@@ -99,11 +123,22 @@ function reportBadMedia(mediaUrl, cause)
  */
 function addComments(comments)
 {
-	// Make comments safe.
-	comments = comments.replace(/("|\\)/g, '\\$1')
-	
-	// Post data.
-	postDomainJSON(COMMENTS_URL, comments);
+	if (comments.length && comments.length > 0)
+	{
+		// Make comments safe.
+		comments = comments.replace(/("|\\)/g, '\\$1');
+		if (comments.length > 512)
+		{
+			comments = comments.substring(0, 512);
+		}
+		
+		// Construct object.
+		var data = new Object();
+		data.comments = comments;
+		
+		// Post data.
+		postDomainJSON(COMMENTS_URL, data);
+	}
 }
 
 
@@ -199,7 +234,7 @@ function setupStylesheet()
 	// Perform IE hacks.
 	var inputCSS = getInputCSS(winampGetClassicColour(1), winampGetClassicColour(0), winampGetClassicColour(2),
 		winampGetClassicColour(5), winampGetClassicColour(2), winampGetClassicColour(5));
-	var buttonCSS = getInputCSS(winampGetClassicColour(3), winampGetClassicColour(8), winampGetClassicColour(0),
+	var buttonCSS = getInputCSS("#000000", "#CBCBCB", winampGetClassicColour(0),
 		winampGetClassicColour(0), winampGetClassicColour(0), winampGetClassicColour(0));
 	$('input[type="text"]').css(inputCSS);
 	$('input[type="button"]').css(buttonCSS);
@@ -217,6 +252,8 @@ function setupStylesheet()
 	stylesheetLink = stylesheetLink.replace(/SELECTION_BAR_FOREGROUND/, winampGetClassicColour(18));
 	stylesheetLink = stylesheetLink.replace(/SELECTION_BAR_BACKGROUND/, winampGetClassicColour(19));
 	stylesheetLink = stylesheetLink.replace(/INACTIVE_SELECTION_BAR_BACKGROUND/, winampGetClassicColour(21));
+	stylesheetLink = stylesheetLink.replace(/ALTERNATE_ITEM_BACKGROUND/, winampGetClassicColour(22));
+	stylesheetLink = stylesheetLink.replace(/ALTERNATE_ITEM_FOREGROUND/, winampGetClassicColour(23));
 	stylesheetLink = stylesheetLink.replace(/#/g, '%23');
 	$('head').append(stylesheetLink);
 }

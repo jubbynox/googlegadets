@@ -1,5 +1,4 @@
 import re
-import logging
 
 from mediasearch.db.objectmodel import Config
 from mediasearch.db.objectmodel import Application
@@ -27,7 +26,6 @@ class DaoApplication():
     
     def getByVer(dllVer):
         """Gets the applications by version."""
-        logging.log(logging.INFO, dllVer)
         query = Application.gql("WHERE dllVer = :dllVer",
                   dllVer=dllVer, parent=getConfig())   # Use lower case for matching.
         appIter = query.run()

@@ -31,10 +31,16 @@ class AnyObject:
 class AddComments(webapp.RequestHandler):
     """Entry point for adding comments."""
     def post(self):
-        dataIn = convertJsonInputToObject(self.request.body)
-        if dataIn.comments:
-            DaoComments.add(dataIn.comments);
+        comments = self.request.get("comments")
+        if len(comments)>0 and len(comments)<513:
+            DaoComments.add(comments);
             
+            
+class PluginPage(webapp.RequestHandler):
+    """Entry point for plugin page."""
+    def get(self):
+        self.redirect("/Redcaza.html#changeHistoryTab", False);
+        
 
 class GetSupportedApps(webapp.RequestHandler):
     """Entry point for retrieving the supported applications."""
@@ -114,6 +120,8 @@ class GetWinAmpCSS(webapp.RequestHandler):
         selectionBarForeground = self.request.get("selectionBarForeground")
         selectionBarBackground = self.request.get("selectionBarBackground")
         inactiveSelectionBarBackground = self.request.get("inactiveSelectionBarBackground")
+        alternateItemBackground = self.request.get("alternateItemBackground")
+        alternateItemForeground = self.request.get("alternateItemForeground")
         
         # Create template values.
         templateValues = {
@@ -128,7 +136,9 @@ class GetWinAmpCSS(webapp.RequestHandler):
                           'LIST_HEADER_TEXT': listHeaderText,
                           'SELECTION_BAR_FOREGROUND': selectionBarForeground,
                           'SELECTION_BAR_BACKGROUND': selectionBarBackground,
-                          'INACTIVE_SELECTION_BAR_BACKGROUND': inactiveSelectionBarBackground
+                          'INACTIVE_SELECTION_BAR_BACKGROUND': inactiveSelectionBarBackground,
+                          'ALTERNATE_ITEM_BACKGROUND': alternateItemBackground,
+                          'ALTERNATE_ITEM_FOREGROUND': alternateItemForeground
                           }
         
         # Write response.

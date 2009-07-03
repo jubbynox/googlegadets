@@ -12,6 +12,8 @@
 19 - SELECTION_BAR_BACKGROUND
 20 - inactive selected text foreground colour
 21 - INACTIVE_SELECTION_BAR_BACKGROUND
+22 - ALTERNATE_ITEM_BACKGROUND
+23 - ALTERNATE_ITEM_FOREGROUND
 **/
 
 /*** GLOBAL STYLE ***/
@@ -169,19 +171,19 @@ select
 
 /* striping */
 .yui-skin-sam tr.yui-dt-even { background-color: {{ ITEM_BACKGROUND }}; }
-.yui-skin-sam tr.yui-dt-odd { background-color: {{ ITEM_BACKGROUND }}; }
+.yui-skin-sam tr.yui-dt-odd { background-color: {{ ALTERNATE_ITEM_BACKGROUND }}; }
 .yui-skin-sam tr.yui-dt-even td.yui-dt-asc,
 .yui-skin-sam tr.yui-dt-even td.yui-dt-desc { background-color: {{ ITEM_BACKGROUND }}; }
 .yui-skin-sam tr.yui-dt-odd td.yui-dt-asc,
-.yui-skin-sam tr.yui-dt-odd td.yui-dt-desc { background-color: {{ ITEM_BACKGROUND }}; }
+.yui-skin-sam tr.yui-dt-odd td.yui-dt-desc { background-color: {{ ALTERNATE_ITEM_BACKGROUND }}; }
 
-/* disable striping in list mode */
+/* Don't disable striping in list mode */
 .yui-skin-sam .yui-dt-list tr.yui-dt-even { background-color: {{ ITEM_BACKGROUND }}; }
-.yui-skin-sam .yui-dt-list tr.yui-dt-odd { background-color: {{ ITEM_BACKGROUND }}; }
+.yui-skin-sam .yui-dt-list tr.yui-dt-odd { background-color: {{ ALTERNATE_ITEM_BACKGROUND }}; }
 .yui-skin-sam .yui-dt-list tr.yui-dt-even td.yui-dt-asc,
 .yui-skin-sam .yui-dt-list tr.yui-dt-even td.yui-dt-desc { background-color: {{ ITEM_BACKGROUND }}; }
 .yui-skin-sam .yui-dt-list tr.yui-dt-odd td.yui-dt-asc,
-.yui-skin-sam .yui-dt-list tr.yui-dt-odd td.yui-dt-desc { background-color: {{ ITEM_BACKGROUND }}; }
+.yui-skin-sam .yui-dt-list tr.yui-dt-odd td.yui-dt-desc { background-color: {{ ALTERNATE_ITEM_BACKGROUND }}; }
 
 /* highlighting */
 .yui-skin-sam th.yui-dt-highlighted,
