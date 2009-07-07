@@ -1,4 +1,5 @@
 import re
+import logging
 
 from google.appengine.api import urlfetch
 from mediasearch.db.dao import DaoBadMedia
@@ -35,31 +36,38 @@ class Branch:
         # Set the URL.
         self.url = url
         
-        # Get the Web page content.
-        result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
-        if result.status_code != 200:
-            # Website did not respond correctly. Report error.
-            DaoBadMedia.add(url, 1)
-            return
-        # Ensure the content is in the right format.
-        result.content = result.content.decode('utf-8', 'ignore')
-        
-        # Set the branch title.
-        if not self.__setTitle(result.content):
-            return
-        
-        # Find the MP3s.
-        self.__findMP3s(result.content, searchCriteria, url)
-        
-        # Find any child directories.
-        self.__findChildDirectories(result.content)
-        
-        # No tracks or directories means nothing of worth.
-        #if len(self.tracks) == 0 and len(self.directories) == 0:
-        #    return
-        
-        # Success
-        return True
+        try:
+            # Get the Web page content.
+            result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
+            if result.status_code != 200:
+                # Website did not respond correctly. Report error.
+                logging.error('Could not get MP3 information from site: ' + url)
+                DaoBadMedia.add(url, 1)
+                return False
+            # Ensure the content is in the right format.
+            result.content = result.content.decode('utf-8', 'ignore')
+            
+            # Set the branch title.
+            if not self.__setTitle(result.content):
+                return False
+            
+            # Find the MP3s.
+            self.__findMP3s(result.content, searchCriteria, url)
+            
+            # Find any child directories.
+            self.__findChildDirectories(result.content)
+            
+            # No tracks or directories means nothing of worth.
+            #if len(self.tracks) == 0 and len(self.directories) == 0:
+            #    return
+            
+            # Success
+            return True
+        except:
+            # Log bad site and return error.
+            logging.error('Site did not respond successfully: ' + url)
+            DaoBadMedia.add(url, 2)
+            return False
         
     def __setTitle(self, content):
         """Sets the branch title."""

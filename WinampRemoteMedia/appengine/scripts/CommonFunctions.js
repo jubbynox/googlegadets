@@ -13,7 +13,7 @@ google.setOnLoadCallback(onLoad);
  */
 function onLoad()
 {
-    // Setup default JQuery AJAX settings.
+    // Setup default JQuery AJAX settings. Default 10 seconds timeout.
     $.ajaxSetup({timeout: 10000});
 
     // Call application onLoad method.

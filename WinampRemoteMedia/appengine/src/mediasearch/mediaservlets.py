@@ -30,7 +30,9 @@ class SearchUrl(webapp.RequestHandler):
             jsonOut = jsonpickle.encode(branch, unpicklable=False)
             self.response.out.write(jsonOut)
         else:
-            self.response.out.write('{ }')
+            self.response.clear()
+            self.response.set_status(500)
+            self.response.out.write("This operation failed; most likely there was a problem at: " + url)
         
         
 class AddBadMedia(webapp.RequestHandler):
@@ -45,9 +47,6 @@ class AddBadMedia(webapp.RequestHandler):
 class GetIgnoredSites(webapp.RequestHandler):
     """Entry point for retrieving a list of ignored sites."""
     def get(self):
-        # Set the headers.
-        commonservlets.setHeaders(self.response)
-        
         boIgnoredSites = DaoIgnoredSites.getAll()
         ignoredSites = []
         for ignoredSite in boIgnoredSites:
