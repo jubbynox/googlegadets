@@ -239,19 +239,42 @@ var GoogleMediaSearch = Base.extend(
 			else	// Process web search.
 			{
 				var url = this.__webSearch.results[this.__resultsCounter].unescapedUrl;
-				var self = this;
-				this.__searchURL(url,
-									function(data)
-									{
-										self.__processResult(data);
-									},
-									function()
-									{
-										reportBadMedia(url, 2);	// Report the error.
-										self.__processWebSearch();	// Continue to next result.
-									});
 				// Move to next result.
-				this.__resultsCounter++;
+                this.__resultsCounter++;
+				
+				// Check if an ignored URL has made it through.
+				var ignoredSite;
+				var re;
+				var isIgnoredSite = false;
+				for (ignoredSite in this.IGNORED_SITES)
+		        {
+		        	re = new RegExp(this.IGNORED_SITES[ignoredSite], "i");   // Case-insensitive match.
+		        	if (re.test(url))    // If this is a site to ignore.
+		        	{
+		        		isIgnoredSite = true;
+		        		break;
+		        	}
+		        }
+				
+				if (!isIgnoredSite) // Only proceed if this site is not to be ignored.
+				{
+					var self = this;
+					this.__searchURL(url,
+										function(data)
+										{
+											self.__processResult(data);
+										},
+										function()
+										{
+											// No need to report anything now that this is handled by webapp.
+											//reportBadMedia(url, 2);	// Report the error (app engine took too long to respond).
+											self.__processWebSearch();	// Continue to next result.
+										});
+				}
+				else
+				{
+					this.__processWebSearch();
+				}
 			}
 		}
 		else	// No more results to process.

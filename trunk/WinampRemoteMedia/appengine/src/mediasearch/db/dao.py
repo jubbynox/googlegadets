@@ -57,7 +57,7 @@ class DaoComments():
     
     def add(comments):
         """Adds comments."""
-        dbComments = Comments(parent=getConfig(), comments=comments)
+        dbComments = Comments(parent=getConfig(), comments=comments, dummyIndex=1)
         dbComments.put()
     add = staticmethod(add)
     
