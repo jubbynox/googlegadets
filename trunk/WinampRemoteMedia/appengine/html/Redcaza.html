@@ -7,8 +7,8 @@
 	   <link type="text/css" href="/css/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
 
 	   <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAjFZz82Fxst0zXB3yRV-cyxQIsL_vD6NBfavXSd0hLaujD3hwXhQApYtEu2-fMGU9VHc_jm6jDIti-w"></script>
-       <script type="text/javascript" src="scripts/CommonCode.js"></script>
-       <script type="text/javascript" src="scripts/HomePage.js"></script>
+       <script type="text/javascript" src="/scripts/CommonCode.js"></script>
+       <script type="text/javascript" src="/scripts/HomePage.js"></script>
 	</head>
 	<body>
 	<div id="page">
@@ -58,7 +58,7 @@
 		   </dl></div>
 	   </div>
 	   <div id="column2">
-		   <a href="/install_redcaza.exe" id="downloadRedcaza" class="downloads"><div id="download" class="paragraph ui-corner-all">
+		   <a href="/install_redcaza.exe" id="downloadRedcaza" class="downloads"><div id="download" class="paragraph ui-corner-all" onclick="pageTracker._trackEvent('Download', 'redcaza', 'v0.1');">
 		      <div class="paragraph-header ui-corner-all">Download</div>
               <img src="/img/download_arrow.png" alt="download arrow image" id="downloadArrowImage" class="downloads"/>
 		      Get redcaza v0.1<br>
@@ -128,5 +128,15 @@
 
 
 	</div>
+	
+	<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-2268697-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
 	</body>
 </html>

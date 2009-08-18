@@ -141,6 +141,9 @@ var YouTubeUI = Base.extend(
 				var appEngineRequest = this.APP_ENGINE_REQUEST.replace(/VIDEO_ID/, track.videoID);
 				appEngineRequest = appEngineRequest.replace(/FMT/, fmt);
 				enqueueMedia(2, appEngineRequest, track.title, track.duration);
+				
+				// Track enqueue.
+                pageTracker._trackEvent('Video', 'Enqueue', track.videoID);
 			}
 		}
 	}
