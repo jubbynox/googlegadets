@@ -84,6 +84,9 @@ var YouTubeSearch = Base.extend(
 	 */
 	search: function(searchString)
 	{
+		// Track search.
+        pageTracker._trackEvent('Video', 'Search', searchString);
+            
 		// Clear results.
 		this.clearResults();
 		

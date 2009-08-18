@@ -201,6 +201,9 @@ var GoogleMediaUI = Base.extend(
 	
 				// Enqueue the track.
 				enqueueMedia(0, tracks[track].url, title, songLength)
+				
+				// Track enqueue.
+                pageTracker._trackEvent('Audio', 'Enqueue', tracks[track].url);
 			}
 		}
 	}

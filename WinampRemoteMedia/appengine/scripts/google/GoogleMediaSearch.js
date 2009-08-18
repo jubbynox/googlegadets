@@ -165,6 +165,9 @@ var GoogleMediaSearch = Base.extend(
 		}
 		else
 		{
+			// Track search.
+			pageTracker._trackEvent('Audio', 'Search', searchString);
+			
 			// Setup the search string for the MP3 search (replaces spaces with ".").
 			searchString = searchString.replace(/\s/g, ".");
 			
