@@ -173,13 +173,17 @@ var GoogleMediaUI = Base.extend(
 		var tracks;
 		for (track in tracks)
 		{
+			// Get useful info.
+			var url = tracks[track].url;
+            var title = tracks[track].name;
+            
 			// Get the track length.
-			var songLength = winampGetMetadata(tracks[track].url, "length");
+			var songLength = winampGetMetadata(url, "length");
 			if (songLength == -1)	// Error.
 			{
 				// Bad ID3 tag, possible bad site. Report to App engine.
-				reportBadMedia(tracks[track].url, 1);
-				alert('The track "' + tracks[track].name + '" could not be found on the site.');
+				reportBadMedia(url, 1);
+				alert('The track "' + title + '" could not be found on the site.');
 			}
 			else if (songName == 0)
 			{
@@ -189,21 +193,35 @@ var GoogleMediaUI = Base.extend(
 			else
 			{
 				// Load remaining tag data.
-				var songName = winampGetMetadata(tracks[track].url, "title");
-				var songArtist = winampGetMetadata(tracks[track].url, "artist");
+				var songName = winampGetMetadata(url, "title");
+				var songArtist = winampGetMetadata(url, "artist");
 				
 				// Construct title from meta data.
-				var title = tracks[track].name;
 				if (songName.length > 0 && songArtist.length > 0)
 				{
+					// Truncate songName if there are zeros. Happens occasionallyh, error in Winamp API?
+					for (i=0; i<songName.length; i++)
+					{
+						if (songName.charCodeAt(i) == 0)
+						{
+							if (i == 0)
+							{
+								songName = "";
+							}
+							else
+							{
+                                songName = songName.substr(0, i)
+							}
+						}
+					}
 					title = songArtist + " - " + songName;
 				}
 	
 				// Enqueue the track.
-				enqueueMedia(0, tracks[track].url, title, songLength)
+				enqueueMedia(0, url, title, songLength)
 				
 				// Track enqueue.
-                pageTracker._trackEvent('Audio', 'Enqueue', tracks[track].url);
+                pageTracker._trackEvent('Audio', 'Enqueue', title + "; " + url);
 			}
 		}
 	}

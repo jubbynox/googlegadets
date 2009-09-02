@@ -2,6 +2,8 @@
 <html>
 	<head>
 	   <title>redcaza - Winamp Plugin</title>
+	   <meta name="description" content="Winamp plugin to find and play online media." />
+       <meta name="keywords" content="winamp,plugin,MP3,audio,video,free" /
 	   
 	   <!-- JQuery themes: -->
 	   <link type="text/css" href="/css/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
@@ -15,6 +17,7 @@
 	<div id="tabs">
 	   <ul>
 	       <li><a href="#redcazaTab"><span>redcaza</span></a></li>
+	       <li><a href="#disclaimerTab"><span>Disclaimer</span></a></li>
 	       <li><a href="#changeHistoryTab"><span>Change History / TODOs / Issues</span></a></li>
 	       <li><a href="#commentsTab"><span>Comments / Feedback</span></a></li>
 	   </ul>
@@ -23,46 +26,38 @@
        <div id="column1">
 	       <div id="about" class="paragraph ui-corner-all">
 	           <div class="paragraph-header ui-corner-all">About</div>
-	        ... enables you to hunt for and play media from the Internet.<br>
-	        This is a <a href="http://www.winamp.com/">Winamp</a> plug-in and so you must have installed Winamp
-	        (<a href="http://www.winamp.com/">http://www.winamp.com/</a>) before
-		    <a href="/install_redcaza.exe">installing it</a>. The plug-in uses <a href="http://www.videolan.org/vlc/">VLC</a>
-		    to transcode certain media types into a format that Winamp can understand; the <a href="/install_redcaza.exe">redcaza installer</a>
-		    will help you install VLC, if not already done so.<br><br><img src="/img/screenshot.png" alt="screenshot" width="100%"/></div>
+	           redcaza enables you to hunt for and play media directly from the Internet. Media is never stored on your machine, it is
+	           always streamed from its source.
+	           <p>The Internet is changing the way we store and access media... fast. Today, many people have external drives holding gigabytes
+	           of music and video that they have collected over the years - most of which they'll probably access rarely, if at all. They also
+	           run the risk of losing it all in the event of a hard disk failure; except for the few who spend more on even larger storage
+	           space and diligently make backups. However, a virtually infinite amount of music and video is already available through the
+	           Internet, so why bother storing it at home if it is readily accessible whenever you are online? Whilst the phonographic
+	           industry panics about piracy and people copying music illegally they lose sight of the direction that media distribution is
+	           headed: with increasing ubiquity and speed of the Internet it will become more common for media to be <i>streamed</i> rather
+	           than stored at home, more like a radio or television (with the exception that you tell it what to play).</p>
+	           <p>redcaza is a a <a href="http://www.winamp.com/">Winamp</a> plug-in that takes a step in this direction.
+	           It uses <a href="http://www.videolan.org/vlc/">VLC</a> to transcode certain media types into a format that Winamp can
+	           understand; the <a href="/install_redcaza.exe" onclick="pageTracker._trackEvent('Download', 'redcaza', 'v0.1');"> redcaza installer</a>
+	           will help you install VLC, if not already done so.</p>
+	           <p>Start enjoying music you don't have, now! With nothing previously installed, you can get going within a couple of minutes.</p>
+	           </div>
 		   <div id="howTo" class="paragraph ui-corner-all">
-		      <div class="paragraph-header ui-corner-all">How to use</div>
-		    A "redcaza" item is added to the Winamp media library, beneath which you can select different
-		    types of media to hunt for. Media that you find is enqueued to the current Winamp playlist with double-click or
-		    select > right-click > Enqueue selection.</div>
-		   <div id="disclaimer" class="paragraph ui-corner-all">
-		      <div class="paragraph-header ui-corner-all">Disclaimer</div>
-		    <img src="/img/no_entry_blink.gif" alt="no entry" id="noEntryImage"/>
-		    Is this legal?<br>No - no money is transferred; therefore the owners of any copyrighted media that you play
-		    are not paid (this need not be the case, though, because despite the copyright law there are ways to
-		    cut distribution costs and ensure everyone gets paid accordingly - here is one solution: <a href="http://news.bbc.co.uk/1/hi/technology/8128551.stm">
-		    http://news.bbc.co.uk/1/hi/technology/8128551.stm</a>).<br>But, consider the following points when deciding whether or not to use this:
-		   <dl>
-		       <dt>redcaza uses published, legal APIs to hunt for media</dt>
-		       <dd>All the media that redcaza finds can also be found using only an Internet browser. From that browser you could use Google
-		        or YouTube, for example, to get exactly the same results. There is nothing unusual or illegal about the information that leaves
-		        your computer.</dd>
-		       <dt>redcaza does not store media on your computer</dt>
-		       <dd>All the media that you play, using redcaza, is streamed (a small part may be held for buffering purposes, but is then
-		        removed) - why store gigabytes of media locally when today's Internet speeds allow you to stream it from a remote source?
-		        This also means that your computer never transmits media to anyone else. Again, the same can be done using only an Internet browser,
-		        so there is nothing unusual in the way that redcaza works: from the browser you could listen to an MP3 on a website or go to YouTube.</dd>
-		       <dt>redcaza enqueues remote media in Winamp</dt>
-		       <dd>redcaza adds media links to Winamp playlists allowing you to mix locally stored and remote media from many different sources;
-		        therefore, you can enqueue hours of audio and video from within a single application, rather than having to switch applications
-		        to access media that is stored and managed elsewhere.</dd>
-		   </dl></div>
+		      <div class="paragraph-header ui-corner-all">How to install and use</div>
+		      <ol>
+		          <li>install <a href="http://www.winamp.com/">Winamp</a></li>
+		          <li>install <a href="/install_redcaza.exe" onclick="pageTracker._trackEvent('Download', 'redcaza', 'v0.1');">redcaza</a></li>
+		      </ol>
+		      A "redcaza" item is added to the Winamp media library, as shown below, from which you can select different
+		      types of media to hunt for. Media that you find can be enqueued to the current Winamp playlist with a double-click or
+		      select > right-click > Enqueue selection.<br><br><img src="/img/screenshot.png" alt="screenshot" width="100%"/></div>
 	   </div>
 	   <div id="column2">
 		   <a href="/install_redcaza.exe" id="downloadRedcaza" class="downloads"><div id="download" class="paragraph ui-corner-all" onclick="pageTracker._trackEvent('Download', 'redcaza', 'v0.1');">
 		      <div class="paragraph-header ui-corner-all">Download</div>
               <img src="/img/download_arrow.png" alt="download arrow image" id="downloadArrowImage" class="downloads"/>
-		      Get redcaza v0.1<br>
-		      Tested against Winamp version: v5.552 (x86)<br>
+		      Get redcaza v1.0<br>
+		      Tested against Winamp version: v5.552 (x86) and higher<br>
 		      (uses VLC version: v0.9.9)
 		    </div></a>
 		    <a href="http://www.winamp.com/" id="getWinamp" class="downloads"><div id="getWinamp" class="paragraph ui-corner-all">
@@ -73,10 +68,54 @@
 	   <div id="footer"></div>
 	   </div>
 	   
+	   <div id="disclaimerTab">
+	       <div id="disclaimer" class="paragraph ui-corner-all">
+              <div class="paragraph-header ui-corner-all">Disclaimer</div>
+              This section was going to be about the legality of this software, considering that no money is transferred to copyright owners.
+              It was also going to be about how it could be fashioned to benefit all concerned
+              (re: <a href="http://news.bbc.co.uk/1/hi/technology/8128551.stm">http://news.bbc.co.uk/1/hi/technology/8128551.stm</a>).
+              Instead, it is about the philosophy behind the software. So, take a while to consider how many years of work and the fantastic discoveries that have preceeded this moment in order
+              to not only enable the creation of music and its recording, but also to carry it to you in this way. You are entitled to enjoy
+              these things (all things, not just music), regardless of what anyone else may say or how any economic system may attempt to control them.
+              You are, after all, a person on this planet, just like everyone else. All that is really important is that you strive to better
+              yourself and contribute whatever you can.
+              <p>This is better put, though perhaps a little out of context, with the following quotation:</p>
+              <blockquote>What we call civilization - the accumulation of knowledge which has come down to us from our forefathers - is
+              the fruit of thousands of years of human thought and toil. It is not the result of the labour of the ancestors of any
+              separate class of people who exist today, and therefore it is by right the common heritage of all. Every little child that is
+              born into the world, no matter whether he is clever, or dull, whether he is physically perfect or lame, or blind; no matter how
+              much he may excel or fall short of his fellows in other respects, in one thing at least he is their equal - he is one of the
+              heirs of all the ages that have gone before.</blockquote>
+              - <a href="http://en.wikipedia.org/wiki/The_Ragged_Trousered_Philanthropists"><i>The Ragged Trousered Philanthropists</i></a>, Robert Tressell.
+              <p>If you are still reading, and have some concerns, consider the following points when deciding whether or not to use this:
+	           <dl>
+	               <dt>redcaza uses published, legal APIs to hunt for media</dt>
+	               <dd>All the media that redcaza finds can also be found using only an Internet browser. From that browser you could use Google
+	                or YouTube, for example, to get exactly the same results. There is nothing unusual or illegal about the information that leaves
+	                your computer.</dd>
+	               <dt>redcaza does not store media on your computer</dt>
+	               <dd>All the media that you play, using redcaza, is streamed (a small part may be held for buffering purposes, but is then
+	                removed) - why store gigabytes of media locally when today's Internet speeds allow you to stream it from a remote source?
+	                This also means that your computer never transmits media to anyone else. Again, the same can be done using only an Internet browser,
+	                so there is nothing unusual in the way that redcaza works: from the browser you could listen to an MP3 on a website or go to YouTube.</dd>
+	               <dt>redcaza enqueues remote media in Winamp</dt>
+	               <dd>redcaza adds media links to Winamp playlists allowing you to mix locally stored and remote media from many different sources;
+	                therefore, you can enqueue hours of audio and video from within a single application, rather than having to switch applications
+	                to access media that is stored and managed elsewhere.</dd>
+	           </dl>
+	       </div>
+	   </div>
+	   
 	   <div id="changeHistoryTab">
 	       <div id="changeHistoryAccordion">
 	       <h3><a href="#">Change history</a></h3>
 		       <div id="changeHistory"><dl>
+		           <dt>01/09/2009 v1.0</dt>
+		           <dd><ul>
+                       <li>Video searches now only return embeddable videos.</li>
+                       <li>Fixed issue where null characters in ID3 tag caused enqueue error.</li>
+                       <li>Removed all occurrences of message boxes that could interfere with Winamp playing a playlist.</li>
+                   </ul></dd>
 		           <dt>06/07/2009 v0.1</dt>
 		           <dd><ul>
 		               <li>Released for beta testing.</li>

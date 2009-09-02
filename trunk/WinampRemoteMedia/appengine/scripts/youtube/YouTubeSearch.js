@@ -57,7 +57,7 @@ var YouTubeSearch = Base.extend(
 	__searchIndex: null,
 	
 	/**
-	 * Constructor for GoogleMediaSearch.
+	 * Constructor for YouTubeSearch.
 	 * 
 	 * @param resultsId The ID of the results pane.
 	 */
@@ -189,6 +189,7 @@ var YouTubeSearch = Base.extend(
 		searchObject.alt = 'json-in-script';	// Requests a response that wraps JSON in a script tag.
 		searchObject['start-index'] = this.__searchIndex;	// The start index of the results.
 		searchObject['max-results'] = this.__maxResults;	// The maximum number of results to retrieve.
+		searchObject['format'] = 5;   // Only return embeddable results.
 		searchObject.q = this.__searchCriteria;
 		return searchObject;
 	},

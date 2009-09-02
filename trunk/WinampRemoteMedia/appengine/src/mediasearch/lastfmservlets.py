@@ -4,14 +4,10 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import urlfetch
 from mediasearch import commonservlets
 from mediasearch import jsonpickle
-from mediasearch import youtube
+from mediasearch import lastfm
 from mediasearch import redcazaresponse
 
-#TRANSCODE_CONFIG = "#transcode{vcodec=DIV3,vb=2048,scale=1,hq,acodec=mp3,ab=320,channels=2}:duplicate{dst=std{access=mmsh,mux=ts,dst=DST}}"
-TRANSCODE_CONFIG = "#transcode{vcodec=DIV3,vb=2048,scale=1,hq,acodec=mp3,ab=320,channels=2}:duplicate{dst=std{access=mmsh,mux=ts,dst=DST}}"
-
-
-class GetVideo(webapp.RequestHandler):
+class GetRadioTrack(webapp.RequestHandler):
     """Entry point for processing get video query."""
     def get(self):
         # Ensure no caching.
@@ -19,12 +15,14 @@ class GetVideo(webapp.RequestHandler):
         
         jsonOut = None
         urlFetch = urlfetch
-        yt = youtube.YouTube(urlFetch)
-        if yt.constructVideoURL(self.request.get("videoID"), self.request.get("fmt")):
-            response = redcazaresponse.RedCazaResponse(1, yt.getVideoURL)
-            response.setSeekable(1) # Is seekable.
-            response.setTranscodeDetails(True, TRANSCODE_CONFIG, "")
+        lfm = lastfm.LastFM(urlFetch)
+        if lfm.selectRadioTrack(self.request.get("artist")):
+            response = redcazaresponse.RedCazaResponse(0, lfm.mp3URL)
+            response.setSeekable(0) # Is not seekable.
+            response.setTitle(lfm.title)
+            response.setDuration(lfm.duration)
             jsonOut = jsonpickle.encode(response, unpicklable=False)
+            jsonOut = jsonOut.replace("'", "\\'").replace('"','\"')
             
         if not jsonOut:
             jsonOut = '{ }'

@@ -1,4 +1,5 @@
 import re
+import logging
 
 from google.appengine.api import urlfetch
 
@@ -36,11 +37,12 @@ class YouTube:
         """Gets the video token from a supplied video ID."""
         # Construct URL.
         url = GET_VIDEO_INFO_URL.replace('VIDEO_ID', videoID)
-        
+
         # Get the page content.
         result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
         if result.status_code != 200:
             # Website did not respond correctly. Report error.
+            logging.error('Could not get video information from site: ' + url + ' (' + result.status_code + ')')
             return
         # Ensure the content is in the right format.
         result.content = result.content.decode('utf-8', 'ignore')
@@ -63,6 +65,7 @@ class YouTube:
             result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, False)
             if result.status_code != 303:
                 # Something is not working.
+                logging.error('Could not get video source information from site: ' + url + ' (' + result.status_code + ')')
                 return
             
         return result.headers["location"].decode('utf-8', 'ignore')

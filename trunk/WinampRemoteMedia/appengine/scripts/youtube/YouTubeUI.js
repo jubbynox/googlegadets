@@ -143,7 +143,7 @@ var YouTubeUI = Base.extend(
 				enqueueMedia(2, appEngineRequest, track.title, track.duration);
 				
 				// Track enqueue.
-                pageTracker._trackEvent('Video', 'Enqueue', track.videoID);
+                pageTracker._trackEvent('Video', 'Enqueue', track.title + "; " + track.videoID);
 			}
 		}
 	}

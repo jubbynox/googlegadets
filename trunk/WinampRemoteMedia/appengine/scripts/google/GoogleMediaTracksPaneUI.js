@@ -44,7 +44,7 @@ var GoogleMediaTracksPaneUI = Base.extend(
 	showTracks: function(tracks)
 	{
 		// Update list UI.
-		if (tracks.length > 0)
+		if (tracks.length && tracks.length > 0)
 		{
 			this.clear();
 			this.__listUI.addRows(this.__orderTracks(tracks));
