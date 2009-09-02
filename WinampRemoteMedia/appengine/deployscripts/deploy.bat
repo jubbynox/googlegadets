@@ -3,6 +3,7 @@ mkdir %3\scripts
 %1 MergeJS.py %3\scripts\CustomYUI.js %2\scripts\customYUI
 %1 MergeJS.py %3\scripts\GoogleMedia.js %2\scripts\google
 %1 MergeJS.py %3\scripts\YouTube.js %2\scripts\youtube
+%1 MergeJS.py %3\scripts\LastFM.js %2\scripts\lastfm
 %1 MergeJS.py %3\scripts\HomePage.js %2\scripts\homepage
 xcopy %2\src\*.* %3\ /E /Y
 xcopy %2\yaml\*.* %3\ /E /Y

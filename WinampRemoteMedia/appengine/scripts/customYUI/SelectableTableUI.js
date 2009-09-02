@@ -159,7 +159,7 @@ var SelectableTableUI = Base.extend(
  */
 SelectableDataTable = function(containerId, columns, dataSource, fnSelect, contextMenuTxt, fnMore)
 {
-	SelectableDataTable.superclass.constructor.call(this, containerId, columns, dataSource, {renderLoopSize: 100});
+	SelectableDataTable.superclass.constructor.call(this, containerId, columns, dataSource, {renderLoopSize: 10});
 	this.setup(containerId, fnSelect, contextMenuTxt, fnMore);
 };
 

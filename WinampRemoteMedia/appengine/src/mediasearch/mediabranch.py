@@ -41,7 +41,7 @@ class Branch:
             result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, True)
             if result.status_code != 200:
                 # Website did not respond correctly. Report error.
-                logging.error('Could not get MP3 information from site: ' + url)
+                logging.error('Could not get MP3 information from site: ' + url + ' (' + result.status_code + ')')
                 DaoBadMedia.add(url, 1)
                 return False
             # Ensure the content is in the right format.
