@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="C:\Program Files\Python25\python.exe"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-i&#13;&#10;&quot;C:\Program Files\Google\google_appengine\appcfg.py&quot;&#13;&#10;--email=jubbynox@googlemail.com&#13;&#10;--passin&#13;&#10;rollback&#13;&#10;D:\Development\Google\apps\banacekmusic"/>
+</launchConfiguration>
