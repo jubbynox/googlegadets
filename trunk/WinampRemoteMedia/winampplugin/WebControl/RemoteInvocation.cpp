@@ -3,13 +3,15 @@
 #include "time.h"
 #include <string>
 
+//const char* RemoteInvocation::baseURL = "http://1-0.latest.winampbanacekmusic.appspot.com/";
 //const char* RemoteInvocation::baseURL = "http://localhost:8080/";
 const char* RemoteInvocation::baseURL = "http://winamp.banacek.org/";
 
-//const char* RemoteInvocation::pluginPageURL = "http://localhost:8080/pluginPage&dllVer=0.1";
-const char* RemoteInvocation::pluginPageURL = "http://winamp.banacek.org/pluginPage&dllVer=0.1";
+//const char* RemoteInvocation::pluginPageURL = "http://1-0.latest.winampbanacekmusic.appspot.com/pluginPage?dllVer=1.0";
+//const char* RemoteInvocation::pluginPageURL = "http://localhost:8080/pluginPage&dllVer=1.0";
+const char* RemoteInvocation::pluginPageURL = "http://winamp.banacek.org/pluginPage&dllVer=1.0";
 
-const char* RemoteInvocation::dllVer = "0.1";
+const char* RemoteInvocation::dllVer = "1.0";
 
 RemoteInvocation::RemoteInvocation(HWND parent)
 {
