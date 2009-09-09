@@ -1,5 +1,5 @@
 /**
- * The Google Media Search UI.
+ * The YouTube Search UI.
  */
 var YouTubeUI = Base.extend(
 {
@@ -19,7 +19,7 @@ var YouTubeUI = Base.extend(
 	__resultsPaneUI: null,
 	
 	/**
-	 * A flag to indicate whether or not to allow site browsing.
+	 * A flag to indicate whether or results were found.
 	 */
 	__noResults: false,
 	
@@ -142,7 +142,7 @@ var YouTubeUI = Base.extend(
 				appEngineRequest = appEngineRequest.replace(/FMT/, fmt);
 				enqueueMedia(2, appEngineRequest, track.title, track.duration);
 				
-				// Track enqueue.
+				// Video track enqueue event.
                 pageTracker._trackEvent('Video', 'Enqueue', track.title + "; " + track.videoID);
 			}
 		}

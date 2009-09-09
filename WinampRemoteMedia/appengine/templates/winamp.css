@@ -66,6 +66,11 @@ select
 	padding: 0px;
 }
 
+/*** NEW PLUGIN AVAILABLE ***/
+.newPlugin
+{
+}
+
 
 /*** DATA TABLE ***/
 /* basic skin styles */
@@ -578,4 +583,16 @@ select
 {
 	background-color: {{ INACTIVE_SELECTION_BAR_BACKGROUND }};
 	color: {{ LIST_HEADER_TEXT }};
+}
+
+
+/*** NEW PLUGIN AVAILABLE ***/
+.newPlugin
+{
+    background-color: {{ SELECTION_BAR_BACKGROUND }};
+    color: {{ SELECTION_BAR_FOREGROUND }};
+}
+a.newPlugin:link, a.newPlugin:visited, a.newPlugin:hover, a.newPlugin:active
+{
+    text-decoration: none;
 }

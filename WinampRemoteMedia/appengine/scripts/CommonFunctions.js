@@ -13,11 +13,14 @@ google.setOnLoadCallback(onLoad);
  */
 function onLoad()
 {
-    // Setup default JQuery AJAX settings. Default 10 seconds timeout.
-    $.ajaxSetup({timeout: 10000});
+    // Setup default JQuery AJAX settings. Default 10 seconds timeout. Ensure utf-8 used throughout.
+    $.ajaxSetup({timeout: 10000, scriptCharset: "utf-8", contentType: "application/json; charset=utf-8"});
 
     // Call application onLoad method.
     onLoadExtended();
+    
+    // Check that the latest plugin is being used.
+    checkPlugin();
 }
 
 /**
@@ -289,3 +292,36 @@ function enqueueMedia(operation, url, title, duration)
 	enqueueMedia = enqueueMedia.replace(/DURATION/, duration);
 	winampEnqueue(enqueueMedia, title, duration);
 }
+
+/**
+ * Gets a request parameter from the URL.
+ * 
+ * @param name The name of the request parameter.
+ * @return The request parameter value.
+ */
+function getRequestParameter(name)
+{
+    name = name.replace(/[\[]/, "'\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+    var results = regex.exec(window.location.href);
+    if( results == null )
+    {
+        return "";
+    }
+    else
+    {
+        return results[1];
+    }
+}
+
+/**
+ * Checks that the latest plugin is being used. Displays a message if it is not.
+ */
+function checkPlugin()
+{
+	var dllVer = getRequestParameter('dllVer');
+	if (!dllVer || pageData.latestVersion != getRequestParameter('dllVer'))
+	{
+		$('#newPlugin').show();
+	}
+}	

@@ -97,13 +97,13 @@ var YouTubeSearch = Base.extend(
 		this.__youtubeUI.searchStarted();
 		
 		// Perform the search.
-		this.__perfomSearch();
+		this.__performSearch();
 	},
 	
 	/**
 	 * Performs the YouTube search.
 	 */
-	__perfomSearch: function()
+	__performSearch: function()
 	{
 		var data = this.__createSearchObject();
 		getXDomainJSON(this.SEARCH_URL, data,
@@ -203,6 +203,6 @@ var YouTubeSearch = Base.extend(
 		this.__searchIndex += this.__maxResults;
 		
 		// Perform the search.
-		this.__perfomSearch();
+		this.__performSearch();
 	}
 });

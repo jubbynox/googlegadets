@@ -63,8 +63,6 @@ class LastFM:
             # Website did not respond correctly. Report error.
             logging.error('Could not get session key from LastFM.')
             return
-        # Ensure the content is in the right format.
-        result.content = result.content.decode('utf-8', 'ignore')
         
         # Retrieve the token ID. xPath not properly implemented.
         root = XMLTree.XML(result.content)
@@ -79,8 +77,6 @@ class LastFM:
         if result.status_code != 200:
             # LastFM did not respond as expected.
             return False
-        # Ensure the content is in the right format.
-        result.content = result.content.decode('utf-8', 'ignore')
         
         # Check that all is OK.
         match = re.search(RE_STATION_CHANGE_OK, result.content, re.I)
@@ -102,8 +98,6 @@ class LastFM:
         if result.status_code != 200:
             # LastFM did not respond as expected.
             return None
-        # Ensure the content is in the right format.
-        result.content = result.content.decode('utf-8', 'ignore')
         
         # Retrieve the tracks.
         tracks = []
@@ -111,6 +105,7 @@ class LastFM:
         for xmlTrack in root.findall(XPATH_TRACKS):
             track = Track()
             track.name = xmlTrack.find(XPATH_TRACK_ARTIST).text + " - " + xmlTrack.find(XPATH_TRACK_TITLE).text
+            logging.info(track.name)
             track.url = xmlTrack.find(XPATH_TRACK_URL).text
             track.length = int(xmlTrack.find(XPATH_TRACK_DURATION).text)/1000
             tracks.append(track)
