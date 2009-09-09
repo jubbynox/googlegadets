@@ -1,11 +1,15 @@
 application: winampbanacekmusic
-version: 0-1
+version: 1-0
 runtime: python
 api_version: 1
 
 default_expiration: "24h"
 
 handlers:
+
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
 
 - url: /pluginPage.*
   script: /mediasearch/start.py
@@ -29,8 +33,8 @@ handlers:
 - url: /youtube/getVideo
   script: /mediasearch/start.py
   
-#- url: /lastfm/getRadioTrack
-#  script: /mediasearch/start.py
+- url: /lastfm/getRadioTrack
+  script: /mediasearch/start.py
   
 - url: /((img|scripts|css).*\.(gif|png|jpg|js|css))
   static_files: \1
@@ -44,9 +48,9 @@ handlers:
   static_files: html/YouTubeSearch.html
   upload: html/(YouTubeSearch.html)
   
-#- url: /lastfmsearch.*
-#  static_files: html/LastFMSearch.html
-#  upload: html/(LastFMSearch.html)
+- url: /lastfmsearch.*
+  static_files: html/LastFMSearch.html
+  upload: html/(LastFMSearch.html)
   
 - url: /install_redcaza.exe
   static_files: installer/install_redcaza.exe
