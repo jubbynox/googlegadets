@@ -34,7 +34,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		{
 			std::string exString(libvlc_exception_get_message(exception));
 			std::wstring exWString = s2ws(exString);
-			MessageBox(wndHandle, exWString.c_str(), L"Transcoder error", MB_OK | MB_ICONERROR);
+			//MessageBox(wndHandle, exWString.c_str(), L"Transcoder error", MB_OK | MB_ICONERROR);
 			return true;
 		}
 		return false;
@@ -499,7 +499,7 @@ namespace transcoder	// LIB_VLC is a singleton, so is this.
 		int port = getFreePort();
 		if (port == -1)
 		{
-			MessageBox(wndHandle, L"Unable to find free port for transcoding.", L"Transcoder error", MB_OK | MB_ICONERROR);
+			//MessageBox(wndHandle, L"Unable to find free port for transcoding.", L"Transcoder error", MB_OK | MB_ICONERROR);
 			return false;
 		}
 

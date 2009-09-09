@@ -40,7 +40,7 @@ void SyncPluginFlags()
 	// these flags right at the real playback start
 	if (inMod)
 	{
-		plugin.is_seekable = mediaDetails.seekable != 0 || inMod->is_seekable != 0 ? 1 : 0;
+		plugin.is_seekable = mediaDetails.seekable != 0;// || inMod->is_seekable != 0 ? 1 : 0;
 		plugin.UsesOutputPlug = inMod->UsesOutputPlug;
 	}
 }
