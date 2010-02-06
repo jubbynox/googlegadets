@@ -36,14 +36,14 @@ var COMMENTS_URL = 'addComments';
 /**
  * Stylesheet HTML snippet to insert dynamically.
  */
-var STYLESHEET_LINK = '<link rel="stylesheet" type="text/css" href="/winamp.css?font=FONT&fontsize=FONT_SIZE&' +
+var STYLESHEET_LINK = '/winamp.css?font=FONT&fontsize=FONT_SIZE&' +
 	'itemBackground=ITEM_BACKGROUND&itemForeground=ITEM_FOREGROUND&windowBackground=WINDOW_BACKGROUND&' +
 	'buttonForeground=BUTTON_FOREGROUND&hilite=HILITE&' +
 	'listHeaderBackground=LIST_HEADER_BACKGROUND&listHeaderText=LIST_HEADER_TEXT&' +
 	'selectionBarForeground=SELECTION_BAR_FOREGROUND&selectionBarBackground=SELECTION_BAR_BACKGROUND&' +
 	'inactiveSelectionBarBackground=INACTIVE_SELECTION_BAR_BACKGROUND&' +
 	'alternateItemBackground=ALTERNATE_ITEM_BACKGROUND&' +
-	'alternateItemForeground=ALTERNATE_ITEM_FOREGROUND">';
+	'alternateItemForeground=ALTERNATE_ITEM_FOREGROUND';
 	
 /**
  * Request string for enqueuing media.
@@ -258,7 +258,14 @@ function setupStylesheet()
 	stylesheetLink = stylesheetLink.replace(/ALTERNATE_ITEM_BACKGROUND/, winampGetClassicColour(22));
 	stylesheetLink = stylesheetLink.replace(/ALTERNATE_ITEM_FOREGROUND/, winampGetClassicColour(23));
 	stylesheetLink = stylesheetLink.replace(/#/g, '%23');
-	$('head').append(stylesheetLink);
+	
+	var headID = document.getElementsByTagName("head")[0];         
+	var cssNode = document.createElement('link');
+	cssNode.type = 'text/css';
+	cssNode.rel = 'stylesheet';
+	cssNode.href = stylesheetLink;
+	cssNode.media = 'screen';
+	headID.appendChild(cssNode);
 }
 
 /**

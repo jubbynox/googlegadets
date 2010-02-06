@@ -25,17 +25,18 @@
 				<input type="text" name="searchInput" size="50" id="SearchInput"/>
 				<input type="submit" name="searchButton" value="Search" onclick="search($('#SearchInput')[0].value)"/>
 				<input type="button" name="clearButton" value="Clear Search" onclick="clearResults()"/>
-				<div id="newPlugin" class="newPlugin" style="display:none;"><a href="http://winamp.banacek.org/?dllVer=1.0" target="_blank" class="newPlugin">
-       A new plugin is available. Download it from winamp.banacek.org</a></div>
 			</div>
-			<div style="display:none">
+			<div style="display:none;">
 				<label for="Quality">Quality:</label>
 				<select name="quality" id="Quality">
+				    <option value="5">low</option>
 					<option value="34">normal</option>
 					<option value="18" selected>high</option>
-					<option value="22">HD (if not available falls back to normal quality)</option>
+					<option value="22">HD</option>
 				</select>
 			</div>
+			<div id="newPlugin" class="newPlugin" style="display:none;"><a href="http://winamp.banacek.org/?dllVer=1.0" target="_blank" class="newPlugin">
+       A new plugin is available. Download it from winamp.banacek.org</a></div>
 		</form>
 		<div id="ResultsPane"></div>
 		<div id="HiddenElement" style="display:none;visibility:hidden;">Loading...</div>

@@ -39,12 +39,14 @@ class LastFM:
         if not sessionKey:
             # Failure.
             return
+        logging.info(sessionKey)
         
         # Change the station to the desired artist.
         stationName = self.__changeStation(artist, sessionKey)
         if not stationName:
             # Failure.
             return
+        logging.info(stationName)
         
         # Get a list of possible tracks to return.
         possibleTracks = self.__getPossibleTracks(sessionKey)
@@ -74,6 +76,7 @@ class LastFM:
         """Changes the station to the specified artist."""
         url = CHANGE_STATION_URL.replace('SESSION_KEY', sessionKey).replace('ARTIST', artist.replace(' ', '+'))
         result = self.__urlFetch.fetch(url, None, urlfetch.GET, {}, True, False)
+        logging.info(result.content)
         if result.status_code != 200:
             # LastFM did not respond as expected.
             return False
@@ -105,7 +108,6 @@ class LastFM:
         for xmlTrack in root.findall(XPATH_TRACKS):
             track = Track()
             track.name = xmlTrack.find(XPATH_TRACK_ARTIST).text + " - " + xmlTrack.find(XPATH_TRACK_TITLE).text
-            logging.info(track.name)
             track.url = xmlTrack.find(XPATH_TRACK_URL).text
             track.length = int(xmlTrack.find(XPATH_TRACK_DURATION).text)/1000
             tracks.append(track)
